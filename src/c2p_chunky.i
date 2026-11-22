@@ -172,10 +172,11 @@ draw_uv_tri:
     lea     (a2,d0.w),a0
 .px_lp: move.w d5,d0
     lsr.w   #2,d0
-    and.w   #$0fc0,d0               ; (V >> 8) * 64
-    move.w  d4,uv_tmp
-    move.b  uv_tmp(pc),d0
-    and.w   #$0fff,d0               ; ((V&63)<<6) | (U&63)
+    and.w   #$0fc0,d0               ; (V >> 8) * 64 (bity 6..11)
+    move.w  d4,d3
+    lsr.w   #8,d3
+    and.w   #$003f,d3               ; (U >> 8) & 63 (bity 0..5 - zero kolizji!)
+    or.w    d3,d0
     move.b  (a3,d0.w),d0
     and.w   #15,d0
     move.b  (a4,d0.w),(a0)+
