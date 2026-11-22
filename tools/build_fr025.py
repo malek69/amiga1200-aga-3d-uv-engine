@@ -10,7 +10,7 @@ per = round(3546895 / hz)
 hz_r = 3546895.0 / per
 open(f"{sd}/audio_player.i", "w").write(re.sub(r"#\d+(?=,AUD\dPER)", f"#{per}", re.sub(r"#\d+(?=,AUD\dVOL)", "#20", open(f"{sd}/audio_player.i").read())))
 subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", vid, "-vn", "-af", f"highpass=f=40,lowpass=f={int(hz_r*0.42)},alimiter=limit=0.88,aresample={int(round(hz_r))}:resampler=soxr,volume=0.82", "-f", "s8", "-ac", "1", "-ar", str(int(round(hz_r))), f"{sd}/median_audio.raw"], check=True)
-proc = subprocess.Popen(["ffmpeg", "-v", "error", "-i", vid, "-vf", "scale=312:248:flags=area,fps=50", "-f", "rawvideo", "-pix_fmt", "bgr24", "-"], stdout=subprocess.PIPE)
+proc = subprocess.Popen(["ffmpeg", "-v", "error", "-i", vid, "-vf", "scale=312:248:flags=area,fps=30", "-f", "rawvideo", "-pix_fmt", "bgr24", "-"], stdout=subprocess.PIPE)
 def rgb12(bgr): return ((int(bgr.item(2)) >> 4) << 8) | ((int(bgr.item(1)) >> 4) << 4) | (int(bgr.item(0)) >> 4)
 def mix12(c0, c1):
     r = (((c0 >> 8) & 15) + ((c1 >> 8) & 15)) >> 1
@@ -24,7 +24,7 @@ while True:
     if len(raw) < fb: break
     if raw == pr_raw: fl.append(pr_lbl); continue
     img = np.frombuffer(raw, dtype=np.uint8).reshape((248, 312, 3))
-    blur = cv2.GaussianBlur(img, (5, 5), 0)
+    blur = cv2.GaussianBlur(img, (9, 9), 0)
     lum = (blur[:, :, 2].astype(np.int16)*30 + blur[:, :, 1].astype(np.int16)*59 + blur[:, :, 0].astype(np.int16)*11) // 100
     bg_mask = (lum >= 65) & (lum <= 205)
     bg_bgr = np.median(blur[bg_mask], axis=0) if np.sum(bg_mask) > 400 else np.median(blur.reshape(-1, 3), axis=0)
@@ -60,7 +60,7 @@ while True:
                 if len(m) >= 3:
                     cur.append((2 if op_base == 2 else (d & 1), tuple(m)))
                     v_tot += len(m)
-            if v_tot <= 380 or eps == 2.2: dp.extend(cur); break
+            if v_tot <= 280 or eps == 2.2: dp.extend(cur); break
     key = (c0, c1, c2, c4, tuple(dp))
     if key not in uniq: uniq[key] = f"vf_{len(uniq)}"
     pr_raw, pr_lbl = raw, uniq[key]
