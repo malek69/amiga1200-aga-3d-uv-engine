@@ -6,13 +6,11 @@ sd, od = "src", "releases"
 os.makedirs(od, exist_ok=True)
 per = 322
 hz_r = 3546895.0 / per
-open(f"{sd}/audio_player.i", "w").write(re.sub(r"#\d+(?=,AUD\dPER)", f"#{per}", re.sub(r"#\d+(?=,AUD\dVOL)", "#22", open(f"{sd}/audio_player.i").read())))
 subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", vid, "-vn", "-af", f"highpass=f=60,treble=g=5:f=3000,lowpass=f=5200,acompressor=threshold=-14dB:ratio=3:makeup=2dB,aresample={int(round(hz_r))}:resampler=soxr,volume=0.88", "-f", "s8", "-ac", "1", "-ar", str(int(round(hz_r))), f"{sd}/median_audio.raw"], check=True)
 proc = subprocess.Popen(["ffmpeg", "-v", "error", "-i", vid, "-vf", "scale=312:248:flags=lanczos,fps=20", "-f", "rawvideo", "-pix_fmt", "bgr24", "-"], stdout=subprocess.PIPE)
 def rgb12(bgr): return ((int(bgr.item(2)) >> 4) << 8) | ((int(bgr.item(1)) >> 4) << 4) | (int(bgr.item(0)) >> 4)
 def mix12(c0, c1):
     return (((((c0>>8)&15)+((c1>>8)&15))>>1)<<8) | (((((c0>>4)&15)+((c1>>4)&15))>>1)<<4) | (((c0&15)+(c1&15))>>1)
-clahe = cv2.createCLAHE(clipLimit=2.2, tileGridSize=(8, 8))
 fb, uniq, fl, pr_raw, pr_lbl = 312 * 248 * 3, {}, list(), None, None
 while True:
     raw = proc.stdout.read(fb)
@@ -20,15 +18,17 @@ while True:
     if raw == pr_raw: fl.append(pr_lbl); continue
     img = np.frombuffer(raw, dtype=np.uint8).reshape((248, 312, 3))
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-    sat_m = (hsv[:, :, 1] > 45) & (hsv[:, :, 2] > 55) & (hsv[:, :, 2] < 245)
-    mid_m = (hsv[:, :, 2] >= 55) & (hsv[:, :, 2] <= 235)
+    sat_m = (hsv[:, :, 1] > 45) & (hsv[:, :, 2] > 50) & (hsv[:, :, 2] < 245)
+    mid_m = (hsv[:, :, 2] >= 50) & (hsv[:, :, 2] <= 235)
     bg_bgr = np.median(img[sat_m], axis=0) if np.sum(sat_m) > 300 else (np.median(img[mid_m], axis=0) if np.sum(mid_m) > 300 else np.median(img.reshape(-1, 3), axis=0))
     c0 = rgb12(bg_bgr) & 0x0eee
     c1, c2 = 0x0111, 0x0fff
     c4 = mix12(c0, c1)
-    gray = cv2.GaussianBlur(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY), (5, 5), 0)
-    dark_m = ((gray < 74).astype(np.uint8) * 255)
-    bright_m = ((gray > 205).astype(np.uint8) * 255)
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    loc_bg = cv2.GaussianBlur(gray, (31, 31), 0)
+    diff = gray.astype(np.int16) - loc_bg.astype(np.int16)
+    dark_m = ((diff < -22) | (gray < 42)).astype(np.uint8) * 255
+    bright_m = ((diff > 28) & (gray > 165)).astype(np.uint8) * 255
     dp = list()
     for op_base, mask in ((2, bright_m), (0, dark_m)):
         if not np.any(mask): continue
@@ -37,15 +37,16 @@ while True:
         hr = hier.reshape(-1, 4)
         items = list()
         for i in range(len(cnts)):
+            area = cv2.contourArea(cnts[i])
             d, par = 0, int(hr.item(i, 3))
             while par != -1: d += 1; par = int(hr.item(par, 3))
-            items.append((d, i))
+            if area < (16.0 if (d & 1) else 14.0): continue
+            items.append((d, -area, i))
         items.sort()
-        for eps in (1.8, 2.6, 3.6, 4.8):
+        for eps in (1.25, 1.7, 2.2):
             cur, v_tot = list(), 0
-            for d, i in items:
+            for d, _, i in items:
                 if op_base == 2 and (d & 1): continue
-                if cv2.contourArea(cnts[i]) < (32.0 if (d & 1) else 24.0): continue
                 pts = cv2.approxPolyDP(cnts[i], eps, True).reshape(-1, 2)
                 m = list()
                 for (x, y) in pts:
@@ -53,9 +54,10 @@ while True:
                     if not m or m[-1] != pt: m.append(pt)
                 while len(m) >= 3 and m[:1] == m[-1:]: m.pop()
                 if len(m) >= 3:
+                    if v_tot + len(m) > 165 and eps == 2.2: continue
                     cur.append((2 if op_base == 2 else (d & 1), tuple(m)))
                     v_tot += len(m)
-            if v_tot <= 140 or eps == 4.8: dp.extend(cur[:18]); break
+            if v_tot <= 165 or eps == 2.2: dp.extend(cur); break
     key = (c0, c1, c2, c4, tuple(dp))
     if key not in uniq: uniq[key] = f"vf_{len(uniq)}"
     pr_raw, pr_lbl = raw, uniq[key]
@@ -85,4 +87,4 @@ open(f"{pr}/FR025_A1200.info", "wb").write(bd.mk_ico(2))
 open(f"{pr}/FR025_A1200/FR025_A1200.info", "wb").write(bd.mk_ico(4, "WHDLoad", ["SLAVE=FR025_A1200.slave", "NoMMU"]))
 bd.mk_lha(f"{od}/FR025_A1200_THEA1200.lha", pr)
 shutil.rmtree(pr)
-print(f"GOTOWE: {exe} ({sz/1048576:.2f} MB) | ExpMem = {em/1048576:.2f} MB (11025 Hz Audio + Crisp CLAHE Contours)!", flush=True)
+print(f"SUKCES: {exe} ({sz/1048576:.2f} MB) | ExpMem = {em/1048576:.2f} MB (Local BG Subtraction + Crisp Silhouettes)!", flush=True)
