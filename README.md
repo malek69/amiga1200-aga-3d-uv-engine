@@ -4,6 +4,8 @@
 **Target Hardware:** Commodore Amiga 1200 (MC68020+ / AGA Chipset / 2 MB Chip + Fast RAM) & THEA1200  
 **Music:** *1991-Not A Number* (ProTracker 4-channel MOD, Aminet)
 
+![Act I - 3D UV Tunnel](docs/tunnel_preview.png)
+
 ---
 
 ## 1. Scene Breakdown & Polygon / Pixel Counts
