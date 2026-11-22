@@ -44,7 +44,7 @@ act1_full_3d_tunnel:
     asr.w   #4,d2
     add.w   #22,d2
     move.w  d2,l1_y
-    move.w  #155,l1_z
+    move.w  #195,l1_z
     move.w  #999,l2_z
     move.w  d7,d6
     mulu.w  #6,d6
@@ -53,7 +53,7 @@ act1_full_3d_tunnel:
     mulu.w  #76,d0
     sub.w   d6,d0
     and.w   #$01ff,d0
-    add.w   #115,d0
+    add.w   #175,d0
     move.w  d0,sz0
     add.w   #38,d0
     move.w  d0,sz1

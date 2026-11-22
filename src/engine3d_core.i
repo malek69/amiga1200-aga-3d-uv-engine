@@ -63,7 +63,7 @@ calc_dual_light:
     neg.w   d5
 .b3: add.w d4,d3
     add.w   d5,d3                   ; dist2 (turkusowy swietlik)
-    cmp.w   #95,d0
+    cmp.w   #145,d0
     bhi.s   .chk_l2
     moveq   #6,d0                   ; blisko zlotego swietlika -> cieple zlote swiatlo (COLOR06)
     rts
