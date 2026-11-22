@@ -63,6 +63,34 @@ exit_program:
     include "c2p_chunky.i"
     include "realtime_3d.i"
 
+
+    even
+disp_bpl1:      dc.l 0
+draw_bpl1:      dc.l 0
+disp_bpl2:      dc.l 0
+draw_bpl2:      dc.l 0
+disp_bpl3:      dc.l 0
+draw_bpl3:      dc.l 0
+disp_bpl4:      dc.l 0
+draw_bpl4:      dc.l 0
+disp_bpl5:      dc.l 0
+draw_bpl5:      dc.l 0
+disp_bpl6:      dc.l 0
+draw_bpl6:      dc.l 0
+disp_bpl7:      dc.l 0
+draw_bpl7:      dc.l 0
+disp_bpl8:      dc.l 0
+draw_bpl8:      dc.l 0
+cop_bpl1_ptr:   dc.l 0
+cop_bpl2_ptr:   dc.l 0
+cop_bpl3_ptr:   dc.l 0
+cop_bpl4_ptr:   dc.l 0
+cop_bpl5_ptr:   dc.l 0
+cop_bpl6_ptr:   dc.l 0
+cop_bpl7_ptr:   dc.l 0
+cop_bpl8_ptr:   dc.l 0
+copper_ptr:     dc.l 0
+
     section uv_data,data
     even
 uv_tex_bank: incbin "uv_textures.bin"
@@ -75,7 +103,7 @@ scroll_font: ds.b 1024
 
     section chip_mod,data_c
     even
-mod_data:    incbin "music.mod"
+mod_data:    incbin "demo_tune.mod"
 
     section fastram_bss,bss
     even
