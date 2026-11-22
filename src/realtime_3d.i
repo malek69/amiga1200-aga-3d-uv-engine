@@ -203,19 +203,7 @@ project_point_3d:
     divs.l  d2,d1
     add.w   #160,d0
     add.w   #122,d1
-    cmp.w   #4,d0
-    bge.s   .x_lo
-    moveq   #4,d0
-.x_lo: cmp.w #315,d0
-    ble.s   .x_hi
-    move.w  #315,d0
-.x_hi: cmp.w #4,d1
-    bge.s   .y_lo
-    moveq   #4,d1
-.y_lo: cmp.w #248,d1
-    ble.s   .y_hi
-    move.w  #248,d1
-.y_hi: rts
+    rts
 
 render_water_mist_fireflies:
     move.l  draw_bpl1(pc),a2
@@ -234,6 +222,14 @@ render_water_mist_fireflies:
     sub.w   #62,d1
     moveq   #18,d2
     bsr.w   project_point_3d
+    cmp.w   #2,d0
+    blo.w   .dr_sk
+    cmp.w   #317,d0
+    bhi.w   .dr_sk
+    cmp.w   #2,d1
+    blo.w   .dr_sk
+    cmp.w   #250,d1
+    bhi.w   .dr_sk
     mulu.w  #40,d1
     move.w  d0,d3
     lsr.w   #3,d3
@@ -245,7 +241,7 @@ render_water_mist_fireflies:
     bset    d0,40(a2,d1.l)
     bset    d0,40(a3,d1.l)
     bset    d0,80(a3,d1.l)
-    dbf     d6,.dr1_lp
+.dr_sk: dbf d6,.dr1_lp
 
     ; B) 36 strug wody na dolnej kaskadzie + fale na jeziorze
     lea     drop_seeds(pc),a4
@@ -261,6 +257,14 @@ render_water_mist_fireflies:
     addq.w  #6,d1
     moveq   #34,d2
     bsr.w   project_point_3d
+    cmp.w   #2,d0
+    blo.w   .dr_sk
+    cmp.w   #317,d0
+    bhi.w   .dr_sk
+    cmp.w   #2,d1
+    blo.w   .dr_sk
+    cmp.w   #250,d1
+    bhi.w   .dr_sk
     mulu.w  #40,d1
     move.w  d0,d3
     lsr.w   #3,d3
@@ -271,7 +275,7 @@ render_water_mist_fireflies:
     bset    d0,(a3,d1.l)
     bset    d0,40(a2,d1.l)
     bset    d0,40(a3,d1.l)
-    dbf     d6,.dr2_lp
+.dr2_sk: dbf d6,.dr2_lp
 
     ; C) 48 czasteczek mgielki unoszacej sie znad wody u podnoza obu wodospadow
     lea     mist_seeds(pc),a4
@@ -285,6 +289,14 @@ render_water_mist_fireflies:
     neg.w   d1
     add.w   #42,d1                  ; unosi sie z Y=+42 do Y=+11
     bsr.w   project_point_3d
+    cmp.w   #2,d0
+    blo.w   .dr_sk
+    cmp.w   #317,d0
+    bhi.w   .dr_sk
+    cmp.w   #2,d1
+    blo.w   .dr_sk
+    cmp.w   #250,d1
+    bhi.w   .dr_sk
     mulu.w  #40,d1
     move.w  d0,d3
     lsr.w   #3,d3
@@ -294,7 +306,7 @@ render_water_mist_fireflies:
     bset    d0,(a3,d1.l)            ; miekka para wodna (BPL2)
     eor.w   #2,d0
     bset    d0,40(a3,d1.l)
-    dbf     d6,.ms_lp
+.ms_sk: dbf d6,.ms_lp
 
     ; D) 40 swietlikow 3D rozswietlajacych okolice gdy przelatuja blisko
     clr.w   ff_glow
@@ -439,7 +451,7 @@ moon_spans:
     dc.l $000ff000,$00000000
     dc.l $00000000,$00000000
 aurora_grad:
-    dc.w $0013,$0014,$0025,$0026,$0037,$0048,$0159,$016a,$017b,$028c,$029c,$02ac,$029b,$0179,$029c,$03bd,$029b,$0168,$0157,$028b,$03ae,$04cf,$03ae,$027a,$0158,$0147,$0136,$0025,$0024,$0013,$0012,$0012
+    dc.w $0013,$0014,$0015,$0026,$0027,$0038,$0149,$015a,$016a,$0159,$0148,$0147,$0036,$0036,$0148,$0159,$0147,$0036,$0025,$0147,$0159,$026a,$0159,$0147,$0036,$0025,$0024,$0014,$0013,$0013,$0012,$0012
 leaf_clusters:
     dc.w 81,26,0
     dc.w 72,28,1

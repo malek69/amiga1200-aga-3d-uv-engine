@@ -37,6 +37,10 @@ pt_init:
     add.l   a3,d2
     move.l  d2,(a4)+
     move.w  28(a0),(a5)+
+    cmp.w   #1,28(a0)
+    bhi.s   .has_lp
+    clr.w   (a3)
+.has_lp:
     add.l   d1,d1
     add.l   d1,a3
     lea     30(a0),a0
@@ -142,12 +146,10 @@ pt_music:
 
     tst.w   d4
     beq.s   .adv_row
-    move.w  #380,d0
-.dma_w: dbf d0,.dma_w
+    bsr.s   pt_wait_raster
     or.w    #$8200,d4
     move.w  d4,$96(a5)
-    move.w  #380,d0
-.dma_w2: dbf d0,.dma_w2
+    bsr.s   pt_wait_raster
     moveq   #0,d5
 .lp_set:
     btst    d5,d4
@@ -191,6 +193,15 @@ pt_smp_lens: ds.w 32
 pt_smp_rpts: ds.l 32
 pt_smp_rlns: ds.w 32
 pt_smp_vols: ds.b 32
+pt_wait_raster:
+    moveq   #4,d1
+.wr_lp:
+    move.b  $dff006,d0
+.wr_sm:
+    cmp.b   $dff006,d0
+    beq.s   .wr_sm
+    dbf     d1,.wr_lp
+    rts
 vbl_irq_handler:
     movem.l d0-d1/a0/a5,-(sp)
     lea     $dff000,a5
