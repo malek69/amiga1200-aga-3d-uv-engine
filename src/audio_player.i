@@ -70,6 +70,14 @@ fill_pcm_chunk:
     add.l   #AUDIO_BUF_SIZE,pcm_played
     rts
 vbl_irq_handler:
+    movem.l d0-d1/a0/a5,-(sp)
+    lea     $dff000,a5
+    move.w  #$0020,$9c(a5)
     addq.l  #1,vbl_tick
-    move.w  #$0020,$dff09c
+    tst.b   swap_ready
+    beq.s   .no_swap
+    clr.b   swap_ready
+    bsr.w   swap_buffers
+.no_swap:
+    movem.l (sp)+,d0-d1/a0/a5
     rte
