@@ -44,7 +44,6 @@ mainloop:
     move.w  d0,cur_frame
 
     bsr.w   render_realtime_3d
-    move.b  #1,swap_ready
 
     btst    #6,CIAAPRA
     beq.s   shutdown
