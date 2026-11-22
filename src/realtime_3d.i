@@ -1,14 +1,14 @@
 render_realtime_3d:
     movem.l d0-d7/a0-a5,-(sp)
     move.l  cop_pal_ptr(pc),a1
-    move.w  #$0001,2(a1)
-    move.w  #$0112,6(a1)
-    move.w  #$0234,10(a1)
-    move.w  #$0356,14(a1)
-    move.w  #$0146,18(a1)
-    move.w  #$04bc,22(a1)
-    move.w  #$0e93,26(a1)
-    move.w  #$0ffd,30(a1)
+    move.w  #$0002,2(a1)
+    move.w  #$0247,6(a1)
+    move.w  #$0369,10(a1)
+    move.w  #$059c,14(a1)
+    move.w  #$0258,18(a1)
+    move.w  #$04de,22(a1)
+    move.w  #$0fb3,26(a1)
+    move.w  #$0fff,30(a1)
     move.l  vbl_tick(pc),d7
     cmp.l   #450,d7
     blo.w   act1_full_3d_tunnel
@@ -46,7 +46,7 @@ act1_full_3d_tunnel:
     and.w   #$01ff,d0
     add.w   #48,d0
     move.w  d0,sz0
-    add.w   #56,d0
+    add.w   #34,d0
     move.w  d0,sz1
     move.w  sz0(pc),d1
     lsr.w   #2,d1
