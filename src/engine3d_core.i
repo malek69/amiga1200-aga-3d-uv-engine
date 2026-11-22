@@ -198,7 +198,7 @@ draw_hires_tri:
     blt.w   .ty_nx
     ; Pobierz 32-bitowy wzor tekstury hi-res dla wiersza Y & 31 + przesuniecie parallax
     move.w  d6,d2
-    eor.w   tv_x0(pc),d2
+    add.w   tv_x0(pc),d2
     add.w   tex_scroll(pc),d2
     and.w   #31,d2
     move.l  (a4,d2.w*4),d3          ; 32-bitowy wzor tekstury
