@@ -19,7 +19,7 @@ render_realtime_3d:
     move.w  #$0fb3,26(a1)
     move.w  #$0fff,30(a1)
     move.l  vbl_tick(pc),d7
-    cmp.l   #450,d7
+    cmp.l   #300,d7
     blo.w   act1_full_3d_tunnel
     bra.w   act2_full_3d_grotto
 act1_full_3d_tunnel:
@@ -53,9 +53,9 @@ act1_full_3d_tunnel:
     mulu.w  #76,d0
     sub.w   d6,d0
     and.w   #$01ff,d0
-    add.w   #175,d0
+    add.w   #185,d0
     move.w  d0,sz0
-    add.w   #38,d0
+    add.w   #26,d0
     move.w  d0,sz1
     move.w  sz0(pc),d1
     lsr.w   #2,d1
@@ -259,7 +259,7 @@ draw_qbuf_tex0:
     rts
 act2_full_3d_grotto:
     lea     sin_tab,a2
-    sub.l   #450,d7
+    sub.l   #300,d7
     move.w  d7,tex_scroll
     move.w  d7,d0
     lsr.w   #1,d0
