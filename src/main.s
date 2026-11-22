@@ -125,15 +125,7 @@ inv_tab:
     dc.l $00004210,$000041cc,$00004189,$00004146,$00004104,$000040c2,$00004081,$00004040
 
     
-vbl_irq_handler:
-    addq.l  #1,vbl_tick
-    move.w  #$0020,$dff09c
-    rte
     include "audio_player.i"
-vbl_irq_handler:
-    addq.l  #1,vbl_tick
-    move.w  #$0020,$dff09c
-    rte
 
 
     section pcmdata,data
