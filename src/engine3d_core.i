@@ -101,6 +101,16 @@ draw_hires_tri:
     bsr.w   proj_3d_cam
     move.w  d0,tv_x2
     move.w  d1,tv_y2
+    lea     tv_y0(pc),a0
+    moveq   #2,d0
+.cly: cmp.w #-16,(a0)
+    bge.s   .cy_a
+    move.w  #-16,(a0)
+.cy_a: cmp.w #270,(a0)
+    ble.s   .cy_b
+    move.w  #270,(a0)
+.cy_b: addq.l #4,a0
+    dbf     d0,.cly
     move.w  tv_y0(pc),d6
     move.w  tv_y1(pc),d1
     move.w  tv_y2(pc),d2
