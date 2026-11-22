@@ -301,6 +301,7 @@ build_copper:
     move.l  #(BPL1MOD<<16)|$0000,(a0)+
     move.l  #(BPL2MOD<<16)|$0000,(a0)+
 
+    move.l  #$0107fffe,(a0)+
     move.l  a0,cop_bpl1_ptr
     move.l  disp_bpl1(pc),d0
     move.w  #$00e2,(a0)+
