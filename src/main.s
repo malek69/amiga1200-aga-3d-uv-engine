@@ -54,7 +54,6 @@ exit_program:
     rts
 
     include "gfx_engine.i"
-    include "audio_player.i"
     include "vec3d_engine.i"
     include "scene_player.i"
     include "scene_data.i"
@@ -124,6 +123,13 @@ inv_tab:
     dc.l $0000469e,$00004651,$00004604,$000045b8,$0000456c,$00004521,$000044d7,$0000448d
     dc.l $00004444,$000043fb,$000043b3,$0000436c,$00004325,$000042df,$0000429a,$00004254
     dc.l $00004210,$000041cc,$00004189,$00004146,$00004104,$000040c2,$00004081,$00004040
+
+    
+    include "audio_player.i"
+vbl_irq_handler:
+    addq.l  #1,vbl_tick
+    move.w  #$0020,$dff09c
+    rte
 
     section pcmdata,data
 pcm_start:
