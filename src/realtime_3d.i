@@ -95,6 +95,7 @@ act2_cavern_emerge:
     lea     cavern_fg_mesh(pc),a4
     bsr.w   render_uv_mesh_list
     bsr.w   draw_chunky_rusalka
+    bsr.w   draw_grotto_mist
 .only_ff:
     move.w  l1_x(pc),d0
     move.w  l1_y(pc),d1
@@ -520,6 +521,32 @@ draw_textured_firefly_2d:
     move.b  d2,161(a0)
     move.b  d2,320(a0)
 .fe: rts
+draw_grotto_mist:
+    move.l  vbl_tick(pc),d6
+    lea     mist_coords(pc),a4
+    moveq   #11,d5
+.gm: move.w (a4)+,d0
+    move.w  (a4)+,d1
+    add.w   d6,d1
+    and.w   #$0f,d1
+    neg.w   d1
+    add.w   #46,d1
+    move.w  (a4)+,d2
+    bsr.w   proj_uv_160
+    cmp.w   #156,d0
+    bhi.s   .gn
+    cmp.w   #124,d1
+    bhi.s   .gn
+    lea     chunky_buf,a0
+    mulu.w  #160,d1
+    add.w   d0,d1
+    add.w   d1,a0
+    move.b  #29,(a0)
+    move.b  #28,1(a0)
+.gn: dbf d5,.gm
+    rts
+    even
+mist_coords: dc.w 64,0,144, 70,4,140, 76,8,136, 82,12,132, 88,2,128, 94,6,124, 100,10,120, 106,14,116, 72,3,134, 84,7,126, 96,11,122, 108,5,118
 draw_chunky_rusalka:
     move.w  #-16,d0
     move.w  #26,d1
