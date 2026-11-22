@@ -1,7 +1,7 @@
 scene_timeline_table:
-    dc.l    0,420,scene_01_tunnel
-    dc.l    420,475,scene_02_cave_emerge
-    dc.l    475,$ffffffff,scene_03_cave_360
+    dc.l    0,640,scene_01_tunnel
+    dc.l    640,700,scene_02_cave_emerge
+    dc.l    700,$ffffffff,scene_03_cave_360
 
 scene_01_tunnel:
     lea     sin_tab,a2
@@ -17,10 +17,10 @@ scene_01_tunnel:
     asr.w   #4,d2
     addq.w  #4,d2
     move.w  #2600,ff_rad
-    cmp.w   #290,d7
+    cmp.w   #440,d7
     blo.s   .ff_fly
     move.w  d7,d3
-    sub.w   #290,d3
+    sub.w   #440,d3
     lsr.w   #4,d3
     asr.w   d3,d1
     asr.w   d3,d2
@@ -83,22 +83,22 @@ scene_01_tunnel:
     sub.w   ff_sx(pc),d1
     muls.w  d1,d1
     add.l   cur_dy2(pc),d1
-    cmp.l   #2400,d1
+    cmp.l   #720,d1
     bhi.s   .wr_p
-    ; Oblicz plynne tlumienie: falloff = dist2 >> 7 (0..18)
-    lsr.l   #7,d1
-    lsr.b   #1,d0
-    add.b   #46,d0
+    ; Miekki, kameralny blask wokol swietlika (zero ostrej kuli!)
+    lsr.l   #6,d1                   ; falloff 0..11
+    lsr.b   #2,d0                   ; 0..7 faktury skaly
+    add.b   #39,d0
     sub.b   d1,d0
     cmp.b   #32,d0
     bhs.s   .wr_p
-    moveq   #32,d0
+    lsr.b   #1,d0                   ; plynne wtopienie w ciemna skale Banku 0
 .wr_p:
-    cmp.w   #310,d7
+    cmp.w   #480,d7
     blo.s   .no_fd
     move.w  d7,d1
-    sub.w   #310,d1
-    mulu.w  #110,d1
+    sub.w   #480,d1
+    mulu.w  #70,d1
     move.l  d1,hole_r2
     move.w  d2,d1
     sub.w   #80,d1
@@ -128,7 +128,7 @@ scene_01_tunnel:
     cmp.w   #128,d3
     blo.w   .ty
 .dn_t:
-    cmp.w   #405,d7
+    cmp.w   #585,d7
     bhs.s   .skip_ff
     move.w  ff_sx(pc),d0
     move.w  ff_sy(pc),d1
