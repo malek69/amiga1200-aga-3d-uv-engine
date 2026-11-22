@@ -75,7 +75,7 @@ calc_dual_light:
     bhi.s   .is_dk
     moveq   #2,d0                   ; polcien (COLOR02)
     rts
-.is_dk: moveq #1,d0                  ; gleboki cien groty/tunelu (COLOR01)
+.is_dk: moveq #2,d0                  ; gleboki cien groty/tunelu (COLOR01)
     rts
 
 draw_hires_tri:

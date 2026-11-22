@@ -1,5 +1,38 @@
+; ============================================================================
+;  PLIK: src/realtime_3d.i
+;  PROJEKT: Grotto 3D (Amiga 1200 / Motorola 68020 / Chipset AGA)
+; ----------------------------------------------------------------------------
+;  ARCHITEKTURA I NOTATKI TECHNICZNE SILNIKA 3D:
+;    1. PODWOJNE BUFOROWANIE (Double Buffering):
+;       - disp_bpl1..3: bufory aktualnie wyswietlane przez uklad Agnus (DMA).
+;       - draw_bpl1..3: bufory robocze w Chip RAM (320x256, 40 bajtow/linie),
+;         po ktorych rysuje CPU. W przerwaniu VBL (50 Hz) funkcja swap_buffers
+;         zamienia wskazniki w Copperlist (BPL1PTH/L .. BPL3PTH/L).
+;    2. PALETA 8-KOLOROWA AGA (3 bitplany = kolory COLOR00..COLOR07):
+;       - COLOR00 ($0002): gleboki mrok tla.
+;       - COLOR01 ($0247): ciemna skala w cieniu (BPL1).
+;       - COLOR02 ($047a): wilgotny polcien skaly (BPL2).
+;       - COLOR03 ($06ad): oswietlona skala / mech (BPL1+BPL2).
+;       - COLOR04 ($0269): gleboka woda jeziorka (BPL3).
+;       - COLOR05 ($05ef): turkusowy blask swietlika #2 i wodospadu (BPL1+BPL3).
+;       - COLOR06 ($0fb3): cieply zloty blask swietlika #1 (BPL2+BPL3).
+;       - COLOR07 ($0fff): jasny rdzen swiatla, piana i rusalka (BPL1+BPL2+BPL3).
+;    3. FABULA SCENY (bez napisow na ekranie):
+;       - AKT I  (vbl_tick 0..449): Przelot kamery 3D za i lekko nad swietlikiem
+;         przez zakrzywiony tunel 3D (sufit, podloga, lewa i prawa sciana)
+;         z teksturami 32x32 px i dynamicznym oswietleniem ze swiecacego odwloka.
+;       - AKT II (vbl_tick >= 450): Obrotowa kamera 3D w ciemnej, mokrej grocie
+;         z falujacym jeziorkiem, wysepka, 3D drzewem, rusalka, cienkim wodospadem
+;         z mgielka oraz dwoma kolorowymi swietlikami (zlotym i turkusowym).
+; ============================================================================
 render_realtime_3d:
     movem.l d0-d7/a0-a5,-(sp)
+    move.l  draw_bpl1(pc),a0
+    move.l  #$ffffffff,800(a0)
+    move.l  #$ffffffff,840(a0)
+    move.l  draw_bpl2(pc),a0
+    move.l  #$ffffffff,1000(a0)
+    move.l  #$ffffffff,1040(a0)
     move.l  cop_pal_ptr(pc),a1
     move.w  #$0002,2(a1)
     move.w  #$0247,6(a1)
@@ -39,9 +72,9 @@ act1_full_3d_tunnel:
     move.w  #999,l2_z
     move.w  d7,d6
     mulu.w  #6,d6
-    moveq   #8,d4
+    moveq   #5,d4
 .t_seg: move.w d4,d0
-    mulu.w  #54,d0
+    mulu.w  #76,d0
     sub.w   d6,d0
     and.w   #$01ff,d0
     add.w   #115,d0
