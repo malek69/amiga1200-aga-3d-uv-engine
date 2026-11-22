@@ -201,7 +201,8 @@ scan_uv_edge:
     exg     a1,a2
     move.w  2(a1),d1
     move.w  2(a2),d3
-.se_ok: move.w d3,d6
+.se_ok: moveq #0,d6
+    move.w  d3,d6
     sub.w   d1,d6
     move.w  (a2),d0
     sub.w   (a1),d0
@@ -223,8 +224,8 @@ scan_uv_edge:
     move.w  #$8000,d5
     move.w  4(a1),d7
     lsl.w   #8,d7
-    move.w  6(a1),a3
-    move.l  a3,d6
+    moveq   #0,d6
+    move.w  6(a1),d6
     lsl.w   #8,d6
     lea     uv_edges(pc),a0
     move.w  d1,a4

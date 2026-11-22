@@ -104,12 +104,24 @@ act1_round_tunnel:
     sub.w   ff_sx(pc),d1
     muls.w  d1,d1
     add.l   cur_dy2(pc),d1
-    cmp.l   #420,d1
+    moveq   #0,d4
+    move.b  d0,d4
+    lsl.w   #6,d4
+    sub.l   d4,d1                   ; modulacja zasiegu swiatla przez nierownosci skaly!
+    cmp.l   #160,d1
+    bhi.s   .gl_m
+    addq.b  #5,d0
+    bra.s   .gl_c
+.gl_m: cmp.l #420,d1
+    bhi.s   .gl_f
+    addq.b  #3,d0
+    bra.s   .gl_c
+.gl_f: cmp.l #780,d1
     bhi.s   .wr_p
-    addq.b  #4,d0
-    cmp.b   #10,d0
+    addq.b  #1,d0
+.gl_c: cmp.b #11,d0
     ble.s   .wr_p
-    moveq   #10,d0
+    moveq   #11,d0
 .wr_p: move.b d0,(a1)+
     addq.w  #1,d2
     cmp.w   #160,d2
