@@ -207,7 +207,7 @@ scene_02_cave_emerge:
     ; Oba swietliki wlatuja z tunelu do ciemnej jaskini i swoim blaskiem zaczynaja rozswietlac drzewo!
     bsr.w   clear_chunky
     cmp.w   #10,d7
-    blo.s   .em_out
+    blo.w   .em_out
     move.w  #-16,cam_oy
     move.w  #-235,cam_oz
     clr.w   cam_sin
@@ -640,7 +640,7 @@ draw_256_sunbeam:
     dbf     d1,.bx
     addq.w  #1,d3
     cmp.w   #96,d3
-    blo.s   .by
+    blo.w   .by
     rts
 
 draw_256_mist:
@@ -682,7 +682,7 @@ draw_256_rusalka_lantern:
     add.w   d0,d1
     add.w   d1,a0
     ; 1. Ciepla zlota poswiata 9x9 od latarni trzymanej w wyciagnietej dloni rusalki (offset +14 px, +8 linii)
-    lea     (a0,8*160+14),a2
+    lea     8*160+14(a0),a2
     lea     -644(a2),a1
     moveq   #8,d3
 .ly: moveq  #8,d4
