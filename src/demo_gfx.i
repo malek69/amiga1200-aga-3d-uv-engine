@@ -79,7 +79,7 @@ draw_aga_overlays:
     dbf     d5,.sc_ch
     movem.l (sp)+,d0-d6/a0-a3
     rts
-scroll_text: dc.b "   *** AMIGA 1200 / THEA1200 OVERDRIVE V2.0 *** BARE-METAL M68020 REALTIME 3D + PROTRACKER MOD + 24-BIT COPPER *** VIBE CODING: MALEK69 & GEMINI AI (2026) ***   "
+scroll_text: dc.b "   *** NATURE 3D ISLAND V2.0 *** MUSIC: FANTASEA (COMPOSED BY ABSYS) VIA AMINET *** CODE & ENGINE: MALEK69 & GEMINI AI (VIBE CODING) ***   "
     even
 
 draw_starfield_3d:
