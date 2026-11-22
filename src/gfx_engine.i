@@ -290,7 +290,7 @@ set_col01_shade:
 
 build_copper:
     lea     copperlist,a0
-    move.l  #(FMODE<<16)|$000c,(a0)+
+    move.l  #(FMODE<<16)|$0000,(a0)+
     move.l  #(DIWSTRT<<16)|$2c81,(a0)+
     move.l  #(DIWSTOP<<16)|$2cc1,(a0)+
     move.l  #(DDFSTRT<<16)|$0038,(a0)+
