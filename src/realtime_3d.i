@@ -29,7 +29,6 @@ act1_full_3d_tunnel:
     clr.w   cam_sin
     move.w  #256,cam_cos
     move.w  d7,tex_scroll
-    bsr.w   set_dark_sky
     lea     sin_tab,a2
     move.w  d7,d0
     add.w   d0,d0
@@ -304,7 +303,6 @@ act2_full_3d_grotto:
     neg.w   d2
     add.w   #240,d2
     move.w  d2,l2_y
-    bsr.w   set_grotto_sky
     lea     grotto_scene_mesh(pc),a4
     move.w  (a4)+,d4
 .gm_lp: move.w (a4)+,d6
