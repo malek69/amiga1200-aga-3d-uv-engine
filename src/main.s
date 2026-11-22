@@ -41,7 +41,6 @@ mainloop:
     move.w  d0,cur_frame
 
     bsr.w   render_realtime_3d
-    bsr.w   draw_aga_overlays
     bsr.w   apply_blitter_aa
 
     btst    #6,CIAAPRA
