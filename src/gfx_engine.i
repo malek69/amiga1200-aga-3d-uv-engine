@@ -237,3 +237,16 @@ build_copper:
     rts
 cop_sky_ptr: dc.l 0
 beat_boost:  dc.b 0,0
+sys_restore:
+    lea     $dff000,a5
+    move.w  #$7fff,DMACON(a5)
+    move.w  #$7fff,INTENA(a5)
+    move.l  4.w,a6
+    jsr     -138(a6)
+    rts
+    even
+vbl_tick:       dc.l 0
+cur_frame:      dc.w 0
+swap_ready:     dc.b 0,0
+cop_sky_ptr:    dc.l 0
+cop_pal_ptr:    dc.l 0
