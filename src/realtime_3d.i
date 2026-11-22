@@ -269,7 +269,6 @@ emit_uv_tunnel_box:
     movem.l (sp)+,d0-d7/a0-a4
     rts
 emit_uv_quad:
-    ; Rzutuje 4 wierzcholki z q_buf i rysuje 2 trojkaty z UV (0,0)-(63,0)-(63,63)-(0,63)
     movem.l d0-d7/a0-a4,-(sp)
     lea     q_buf(pc),a0
     lea     q_scr(pc),a1
@@ -283,7 +282,7 @@ emit_uv_quad:
     dbf     d7,.pq
     move.l  vbl_tick(pc),d5
     lsl.w   #2,d5
-    and.w   #63,d5                  ; plynne przesuwanie tekstury UV wzdłuz tunelu!
+    and.w   #63,d5
     move.w  d5,d4
     add.w   #63,d4
     lea     q_scr(pc),a0
@@ -318,56 +317,53 @@ emit_uv_quad:
     bsr.w   draw_uv_tri
     movem.l (sp)+,d0-d7/a0-a4
     rts
-act2_uv_grotto:
+act2_360_cavern:
     lea     sin_tab,a2
-    sub.l   #320,d7
+    sub.l   #350,d7
+    ; Pelny obrot kamery 360 stopni wokol wyspy i drzewa (centrum = 0,0,0, promien = 175)
     move.w  d7,d0
     lsr.w   #1,d0
     and.w   #$ff,d0
-    move.w  (a2,d0.w*2),d1
-    asr.w   #3,d1
-    and.w   #$ff,d1
-    move.w  (a2,d1.w*2),cam_sin
-    move.w  128(a2,d1.w*2),cam_cos
-    move.w  cam_sin(pc),d2
-    neg.w   d2
-    asr.w   #1,d2
-    move.w  d2,cam_ox
-    move.w  #-10,cam_oy
+    move.w  (a2,d0.w*2),cam_sin
+    move.w  128(a2,d0.w*2),cam_cos
+    clr.w   cam_ox
+    move.w  #-16,cam_oy
     clr.w   cam_oz
+    move.w  #175,orbit_dist
+    ; Swietlik #1 (zloty z tunelu) oraz Swietlik #2 (turkusowy z groty) kraza w 3D wokol drzewa
     move.w  d7,d0
     add.w   d0,d0
     and.w   #$ff,d0
     move.w  (a2,d0.w*2),d1
-    asr.w   #2,d1
+    asr.w   #1,d1
     move.w  d1,l1_x
     move.w  128(a2,d0.w*2),d2
-    asr.w   #2,d2
-    add.w   #250,d2
+    asr.w   #1,d2
     move.w  d2,l1_z
     move.w  d7,d1
     mulu.w  #3,d1
     and.w   #$ff,d1
     move.w  (a2,d1.w*2),d2
     asr.w   #3,d2
-    sub.w   #12,d2
+    sub.w   #14,d2
     move.w  d2,l1_y
     add.w   #128,d0
     and.w   #$ff,d0
     move.w  (a2,d0.w*2),d1
-    asr.w   #2,d1
+    asr.w   #1,d1
     move.w  d1,l2_x
     move.w  128(a2,d0.w*2),d2
-    asr.w   #2,d2
-    add.w   #250,d2
+    asr.w   #1,d2
     move.w  d2,l2_z
     neg.w   d2
-    add.w   #240,d2
+    asr.w   #2,d2
+    sub.w   #12,d2
     move.w  d2,l2_y
-    lea     uv_grotto_mesh(pc),a4
+    ; Renderuj 360-stopniowa jaskinie (sciany, sklepienie, wode, wyspe, drzewo, wodospad)
+    lea     cavern_360_mesh(pc),a4
     move.w  (a4)+,d4
-.ug_lp: move.w (a4)+,d6            ; tex_id (0=skala, 1=woda, 2=liscie)
-    move.w  (a4)+,d5                ; fixed_light (0=dynamiczne od 2 swietlikow)
+.cv_lp: move.w (a4)+,d6            ; tex_id (0=skala, 1=woda, 2=liscie)
+    move.w  (a4)+,d5                ; 0 = dynamiczne swiatlo od 2 swietlikow
     bne.s   .has_l
     move.w  (a4),d0
     add.w   6(a4),d0
@@ -381,7 +377,7 @@ act2_uv_grotto:
     add.w   10(a4),d2
     add.w   16(a4),d2
     divs.w  #3,d2
-    bsr.w   calc_dual_light
+    bsr.w   calc_cavern_light
     move.w  d0,d5
 .has_l: lea uv_tri(pc),a1
     move.w  (a4)+,d0
@@ -413,7 +409,7 @@ act2_uv_grotto:
     move.w  d5,d7
     bsr.w   draw_uv_tri
     move.l  (sp)+,a4
-    dbf     d4,.ug_lp
+    dbf     d4,.cv_lp
     bsr.w   draw_chunky_rusalka
     move.w  l1_x(pc),d0
     move.w  l1_y(pc),d1
@@ -428,31 +424,86 @@ act2_uv_grotto:
     bsr.w   c2p_160x128_to_aga
     movem.l (sp)+,d0-d7/a0-a5
     rts
+calc_cavern_light:
+    movem.l d1-d5,-(sp)
+    move.w  d0,d3
+    move.w  d1,d4
+    move.w  d2,d5
+    sub.w   l1_x(pc),d0
+    bpl.s   .a1
+    neg.w   d0
+.a1: sub.w l1_y(pc),d1
+    bpl.s   .a2
+    neg.w   d1
+.a2: sub.w l1_z(pc),d2
+    bpl.s   .a3
+    neg.w   d2
+.a3: add.w d1,d0
+    add.w   d2,d0
+    sub.w   l2_x(pc),d3
+    bpl.s   .b1
+    neg.w   d3
+.b1: sub.w l2_y(pc),d4
+    bpl.s   .b2
+    neg.w   d4
+.b2: sub.w l2_z(pc),d5
+    bpl.s   .b3
+    neg.w   d5
+.b3: add.w d4,d3
+    add.w   d5,d3
+    cmp.w   #175,d0
+    bhi.s   .c2
+    moveq   #7,d0
+    movem.l (sp)+,d1-d5
+    rts
+.c2: cmp.w #175,d3
+    bhi.s   .cm
+    moveq   #5,d0
+    movem.l (sp)+,d1-d5
+    rts
+.cm: cmp.w d3,d0
+    ble.s   .md
+    move.w  d3,d0
+.md: cmp.w #260,d0
+    bhi.s   .cd
+    moveq   #3,d0
+    movem.l (sp)+,d1-d5
+    rts
+.cd: moveq #1,d0
+    movem.l (sp)+,d1-d5
+    rts
 draw_chunky_firefly:
     move.w  d7,ff_col
     bsr.w   proj_uv_160
-    cmp.w   #6,d0
+    cmp.w   #8,d0
     blo.w   .fe
-    cmp.w   #153,d0
+    cmp.w   #151,d0
     bhi.w   .fe
-    cmp.w   #6,d1
+    cmp.w   #8,d1
     blo.w   .fe
-    cmp.w   #121,d1
+    cmp.w   #119,d1
     bhi.w   .fe
     lea     chunky_buf,a0
     mulu.w  #160,d1
     add.w   d0,d1
     add.w   d1,a0
     move.b  ff_col+1(pc),d2
+    ; Trzepoczace skrzydelka + poswiata swietlika
+    move.b  d2,-324(a0)
+    move.b  d2,-316(a0)
+    move.b  d2,-163(a0)
+    move.b  d2,-157(a0)
     move.b  d2,-320(a0)
     move.b  d2,-161(a0)
     move.b  d2,-160(a0)
     move.b  d2,-159(a0)
+    move.b  d2,-3(a0)
     move.b  d2,-2(a0)
     move.b  d2,-1(a0)
     move.b  #15,(a0)
     move.b  d2,1(a0)
     move.b  d2,2(a0)
+    move.b  d2,3(a0)
     move.b  d2,159(a0)
     move.b  d2,160(a0)
     move.b  d2,161(a0)
@@ -460,8 +511,8 @@ draw_chunky_firefly:
 .fe: rts
 draw_chunky_rusalka:
     move.w  #-14,d0
-    move.w  #26,d1
-    move.w  #246,d2
+    move.w  #24,d1
+    move.w  #0,d2
     bsr.w   proj_uv_160
     cmp.w   #140,d0
     bhi.s   .re
@@ -484,6 +535,7 @@ draw_chunky_rusalka:
     dbf     d5,.ry
 .re: rts
     even
+orbit_dist: dc.w 0
 sz0: dc.w 80
 sz1: dc.w 130
 sx0: dc.w 0
@@ -495,26 +547,13 @@ ff_col: dc.w 11
 q_buf: ds.w 12
 q_scr: ds.w 8
 uv_tri: ds.w 12
+oct_offsets:
+    dc.w -40,-85,  40,-85
+    dc.w  40,-85,  95,-35
+    dc.w  95,-35,  95, 35
+    dc.w  95, 35,  40, 85
+    dc.w  40, 85, -40, 85
+    dc.w -40, 85, -95, 35
+    dc.w -95, 35, -95,-35
+    dc.w -95,-35, -40,-85
 rusalka_bmp: dc.w $0380,$07c0,$0fe0,$0ee0,$1ef0,$1c70,$07c0,$0380,$0fe0,$1ff0,$1bb0,$07c0,$07c0,$0fe0,$0fe0,$1ff0,$1ff0,$3ff8,$3ff8,$1ef0,$0c60,$0c60
-uv_grotto_mesh:
-    dc.w 16
-    dc.w 0,0, -210,-130,275, -80,-130,275, -135,50,245
-    dc.w 0,0, -210,-130,275, -135,50,245, -210,50,245
-    dc.w 0,0, 95,-130,275, 210,-130,275, 135,50,245
-    dc.w 0,0, 210,-130,275, 210,50,245, 135,50,245
-    dc.w 0,0, -140,-130,275, 140,-130,275, 0,-95,280
-    dc.w 0,0, -110,-125,265, -75,-125,265, -92,-62,258
-    dc.w 0,0, 62,-125,265, 98,-125,265, 80,-58,258
-    dc.w 1,3, -200,48,225, 200,48,225, 215,98,305
-    dc.w 1,3, -200,48,225, 215,98,305, -215,98,305
-    dc.w 1,6, 82,-64,274, 92,-64,274, 95,48,268
-    dc.w 1,6, 82,-64,274, 95,48,268, 80,48,268
-    dc.w 0,0, -64,48,252, 64,48,252, 46,35,242
-    dc.w 0,0, -64,48,252, 46,35,242, -46,35,242
-    dc.w 0,2, -6,36,248, 7,36,248, 4,-20,248
-    dc.w 0,2, -6,36,248, 4,-20,248, -4,-20,248
-    dc.w 2,0, -62,-8,248, 62,-8,248, 0,-48,242
-    dc.w 2,0, -45,-28,250, 45,-28,250, 0,-72,245
-vec_frame_count: dc.w 1
-    even
-vec_frame_table: dc.l 0
