@@ -11,41 +11,25 @@ render_realtime_3d:
     move.l  vbl_tick(pc),d7
     cmp.l   #260,d7
     blo.w   .set_tun_pal
-    ; --- PALETA AKTU II: GROTA (32 kolory AGA: skaly 1..7, drewno 8..11, zloto 12..15, liscie 16..20, piasek 21..23, woda 24..28) ---
+    ; --- PALETA AKTU II: GROTA (16 kolorow AGA: skaly=1..3, woda=4..6/15, drewno=8..9, piasek=10..11, liscie=12..14) ---
     move.l  cop_pal_ptr(pc),a1
     move.w  #$0000,2(a1)            ; 0: czern
     move.w  #$0112,6(a1)            ; 1: gleboki cien skaly
-    move.w  #$0224,10(a1)           ; 2: ciemna skala
-    move.w  #$0336,14(a1)           ; 3: skala groty
-    move.w  #$0458,18(a1)           ; 4: jasniejsza skala
-    move.w  #$0435,22(a1)           ; 5: fioletowo-mineralna zyla
-    move.w  #$0646,26(a1)           ; 6: rozswietlona mineralna skala
-    move.w  #$0865,30(a1)           ; 7: cieply odblask na skale
+    move.w  #$0224,10(a1)           ; 2: skala groty
+    move.w  #$0346,14(a1)           ; 3: jasniejsza skala
+    move.w  #$0136,18(a1)           ; 4: glebokie jezioro
+    move.w  #$0269,22(a1)           ; 5: falujaca woda
+    move.w  #$04bc,26(a1)           ; 6: turkusowy wodospad / swietlik #2
+    move.w  #$0fff,30(a1)           ; 7: biala rusalka / rdzen swiatla
     lea     $dff190,a1
-    move.w  #$0321,(a1)+            ; 8: ciemna kora drzewa
-    move.w  #$0531,(a1)+            ; 9: kora pnia
-    move.w  #$0742,(a1)+            ; 10: konary drzewa
-    move.w  #$0963,(a1)+            ; 11: jasna kora w swietle
-    move.w  #$0a72,(a1)+            ; 12: bursztynowy blask
-    move.w  #$0d93,(a1)+            ; 13: zlote swiatlo
-    move.w  #$0fe5,(a1)+            ; 14: zloty swietlik #1
-    move.w  #$0fff,(a1)+            ; 15: bialy rdzen
-    move.w  #$0131,(a1)+            ; 16: ciemny cien pod liscmi
-    move.w  #$0162,(a1)+            ; 17: lesna zielen lisci
-    move.w  #$0293,(a1)+            ; 18: soczyste zielone liscie
-    move.w  #$04c4,(a1)+            ; 19: jasne liscie w swietle
-    move.w  #$07e6,(a1)+            ; 20: sloneczne mlode liscie
-    move.w  #$0862,(a1)+            ; 21: ciemny piasek wyspy
-    move.w  #$0b94,(a1)+            ; 22: zlocisty piasek wyspy
-    move.w  #$0ec6,(a1)+            ; 23: jasny piasek
-    move.w  #$0125,(a1)+            ; 24: gleboka woda jeziora
-    move.w  #$0148,(a1)+            ; 25: woda jeziora
-    move.w  #$027b,(a1)+            ; 26: falujaca woda / wodospad
-    move.w  #$04ad,(a1)+            ; 27: turkusowa fala / swietlik #2
-    move.w  #$07ef,(a1)+            ; 28: piana wodospadu
-    move.w  #$09ef,(a1)+            ; 29: mgielka nad jeziorem
-    move.w  #$0cff,(a1)+            ; 30: poswiata rusalki
-    move.w  #$0fff,(a1)+            ; 31: biala rusalka
+    move.w  #$0531,(a1)+            ; 8: ciemna kora drzewa
+    move.w  #$0852,(a1)+            ; 9: brazowy pien i konary
+    move.w  #$0b83,(a1)+            ; 10: ciemny piasek wyspy
+    move.w  #$0fe5,(a1)+            ; 11: zlocisty piasek / zloty swietlik #1
+    move.w  #$0152,(a1)+            ; 12: ciemna zielen lisci
+    move.w  #$0293,(a1)+            ; 13: soczysta zielen drzewa
+    move.w  #$05d5,(a1)+            ; 14: jasne liscie w swietle
+    move.w  #$08ef,(a1)+            ; 15: piana wodospadu / mgielka
     cmp.l   #320,d7
     blo.w   act2_cavern_emerge
     bra.w   act3_360_grotto
@@ -101,13 +85,13 @@ act2_cavern_emerge:
     move.w  l1_y(pc),d1
     move.w  l1_z(pc),d2
     bsr.w   proj_uv_160
-    moveq   #14,d7
+    moveq   #11,d7
     bsr.w   draw_textured_firefly_2d
     move.w  l2_x(pc),d0
     move.w  l2_y(pc),d1
     move.w  l2_z(pc),d2
     bsr.w   proj_uv_160
-    moveq   #27,d7
+    moveq   #6,d7
     bsr.w   draw_textured_firefly_2d
 .em_done:
     bsr.w   c2p_160x128_to_aga
@@ -120,14 +104,21 @@ act1_round_tunnel:
     and.w   #$ff,d0
     move.w  (a2,d0.w*2),d1
     asr.w   #3,d1
-    add.w   #80,d1
-    move.w  d1,ff_sx
     move.w  d7,d0
     mulu.w  #3,d0
     and.w   #$ff,d0
     move.w  (a2,d0.w*2),d2
     asr.w   #4,d2
-    add.w   #68,d2
+    addq.w  #4,d2
+    ; Jezeli tick >= 195 -> swietlik kieruje sie w sam czarny srodek tunelu (80, 64)!
+    cmp.w   #195,d7
+    blo.s   .ff_norm
+    asr.w   #2,d1
+    asr.w   #2,d2
+.ff_norm:
+    add.w   #80,d1
+    move.w  d1,ff_sx
+    add.w   #64,d2
     move.w  d2,ff_sy
     lea     tunnel_lut,a0
     move.w  tun_cy(pc),d0
@@ -268,13 +259,13 @@ act2_tunnel_exit_scene:
     move.w  l1_y(pc),d1
     move.w  l1_z(pc),d2
     bsr.w   proj_uv_160
-    moveq   #14,d7
+    moveq   #11,d7
     bsr.w   draw_textured_firefly_2d
     move.w  l2_x(pc),d0
     move.w  l2_y(pc),d1
     move.w  l2_z(pc),d2
     bsr.w   proj_uv_160
-    moveq   #27,d7
+    moveq   #6,d7
     bsr.w   draw_textured_firefly_2d
     bsr.w   c2p_160x128_to_aga
     movem.l (sp)+,d0-d7/a0-a5
@@ -361,13 +352,13 @@ act3_360_grotto:
     move.w  l1_y(pc),d1
     move.w  l1_z(pc),d2
     bsr.w   proj_uv_160
-    moveq   #14,d7
+    moveq   #11,d7
     bsr.w   draw_textured_firefly_2d
     move.w  l2_x(pc),d0
     move.w  l2_y(pc),d1
     move.w  l2_z(pc),d2
     bsr.w   proj_uv_160
-    moveq   #27,d7
+    moveq   #6,d7
     bsr.w   draw_textured_firefly_2d
     bsr.w   c2p_160x128_to_aga
     movem.l (sp)+,d0-d7/a0-a5
@@ -512,7 +503,7 @@ draw_textured_firefly_2d:
     move.b  d2,-3(a0)
     move.b  d2,-2(a0)
     move.b  d2,-1(a0)
-    move.b  #15,(a0)
+    move.b  #7,(a0)
     move.b  d2,1(a0)
     move.b  d2,2(a0)
     move.b  d2,3(a0)
@@ -541,8 +532,8 @@ draw_grotto_mist:
     mulu.w  #160,d1
     add.w   d0,d1
     add.w   d1,a0
-    move.b  #29,(a0)
-    move.b  #28,1(a0)
+    move.b  #15,(a0)
+    move.b  #6,1(a0)
 .gn: dbf d5,.gm
     rts
     even
@@ -566,7 +557,7 @@ draw_chunky_rusalka:
     moveq   #15,d6
 .rx: btst d6,d4
     beq.s   .rn
-    move.b  #15,(a0)
+    move.b  #7,(a0)
 .rn: addq.l #1,a0
     dbf     d6,.rx
     lea     144(a0),a0

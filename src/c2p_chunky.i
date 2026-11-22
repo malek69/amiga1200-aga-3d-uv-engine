@@ -28,46 +28,22 @@ c2p_160x128_to_aga:
 .col_lp:
     moveq   #0,d0
     move.b  (a0)+,d0
-    move.w  d0,d3
     and.w   #15,d0
     move.l  (a5,d0.w*4),d1
     lsl.l   #6,d1
-    and.w   #16,d3
-    lsl.w   #2,d3                   ; bit 4 piksela 0 -> bit 6 bajtu BPL5
     move.b  (a0)+,d0
-    move.w  d0,d4
     and.w   #15,d0
     move.l  (a5,d0.w*4),d2
     lsl.l   #4,d2
     or.l    d2,d1
-    and.w   #16,d4
-    or.w    d4,d3                   ; bit 4 piksela 1 -> bit 4 bajtu BPL5
     move.b  (a0)+,d0
-    move.w  d0,d4
     and.w   #15,d0
     move.l  (a5,d0.w*4),d2
     lsl.l   #2,d2
     or.l    d2,d1
-    and.w   #16,d4
-    lsr.w   #2,d4
-    or.w    d4,d3                   ; bit 4 piksela 2 -> bit 2 bajtu BPL5
     move.b  (a0)+,d0
-    move.w  d0,d4
     and.w   #15,d0
     or.l    (a5,d0.w*4),d1
-    and.w   #16,d4
-    lsr.w   #4,d4
-    or.w    d4,d3                   ; bit 4 piksela 3 -> bit 0 bajtu BPL5
-    move.w  d3,d4
-    lsl.w   #1,d4
-    or.w    d4,d3                   ; podwoj bity BPL5 dla szerokosci 320 px!
-    move.l  a0,-(sp)
-    move.l  draw_bpl5(pc),a0
-    move.l  a1,d4
-    sub.l   draw_bpl1(pc),d4
-    move.b  d3,40(a0,d4.l)
-    move.b  d3,(a0,d4.l)
-    move.l  (sp)+,a0
     move.b  d1,40(a4)
     move.b  d1,(a4)+
     lsr.l   #8,d1
@@ -310,12 +286,12 @@ c2p_exp:
     dc.l $00000003,$03000003,$00030003,$03030003
     dc.l $00000303,$03000303,$00030303,$03030303
 shade_lut:
-    dc.b 1,1,1,2,2,2,3,3, 24,24,24,25,25,25,26,26
-    dc.b 1,2,2,3,3,4,4,5, 24,25,25,26,26,27,27,28
-    dc.b 2,2,3,4,4,5,6,7, 25,25,26,26,27,27,28,29
-    dc.b 8,8,9,9,10,10,11,11, 25,26,26,27,27,28,29,30
-    dc.b 3,4,5,6,7,13,14,15, 25,26,27,27,28,29,30,31
-    dc.b 21,21,21,22,22,22,23,23, 26,26,27,27,28,29,30,31
-    dc.b 25,26,26,27,27,28,29,30, 26,27,27,28,29,30,31,31
-    dc.b 16,16,17,17,18,18,19,20, 27,28,28,29,30,31,31,31
+    dc.b 1,1,1,2,2,2,3,3, 4,4,4,4,5,5,5,6
+    dc.b 1,1,2,2,2,3,3,3, 4,4,5,5,5,6,6,6
+    dc.b 1,2,2,3,3,3,10,11, 4,5,5,6,6,6,15,15
+    dc.b 8,8,8,9,9,9,9,9, 4,5,5,6,6,15,15,15
+    dc.b 2,3,3,10,10,11,11,11, 5,5,6,6,15,15,15,15
+    dc.b 10,10,10,11,11,11,11,11, 5,6,6,15,15,15,15,15
+    dc.b 4,4,5,5,6,6,15,15, 5,6,6,15,15,15,15,15
+    dc.b 12,12,12,13,13,13,14,14, 6,6,15,15,15,15,15,15
 
