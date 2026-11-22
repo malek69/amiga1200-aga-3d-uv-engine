@@ -380,6 +380,7 @@ draw_firefly_3d:
     dbf     d5,.cy
 .ff_ex: rts
 plot_aga_px:
+    moveq   #0,d2
     move.w  d1,d2
     mulu.w  #40,d2
     move.w  d0,d3
