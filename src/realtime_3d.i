@@ -99,10 +99,24 @@ render_realtime_3d:
     bge.s   .z_ok
     move.w  #160,d2
 .z_ok:
-    divs.w  d2,d0
-    divs.w  d2,d1
+    ext.l   d2
+    divs.l  d2,d0
+    divs.l  d2,d1
     add.w   #160,d0
     add.w   #128,d1
+    cmp.w   #4,d0
+    bge.s   .x_lo
+    moveq   #4,d0
+.x_lo: cmp.w #315,d0
+    ble.s   .x_hi
+    move.w  #315,d0
+.x_hi: cmp.w #4,d1
+    bge.s   .y_lo
+    moveq   #4,d1
+.y_lo: cmp.w #251,d1
+    ble.s   .y_hi
+    move.w  #251,d1
+.y_hi:
     move.w  d0,(a3)+
     move.w  d1,(a3)+
     dbf     d7,.v_loop

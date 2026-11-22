@@ -94,6 +94,7 @@ pcm_played:     dc.l 0
 pcm_cur_buf:    dc.l dma_buf_a
 pcm_nxt_buf:    dc.l dma_buf_b
 
+    even
 inv_tab:
     dc.l $00000000,$00400000,$00200000,$00155555,$00100000,$000ccccc,$000aaaaa,$00092492
     dc.l $00080000,$00071c71,$00066666,$0005d174,$00055555,$0004ec4e,$00049249,$00044444
