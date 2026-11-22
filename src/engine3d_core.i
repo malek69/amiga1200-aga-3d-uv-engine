@@ -137,7 +137,7 @@ draw_hires_tri:
     ble.w   .t_done
     move.w  d6,tri_y0
     move.w  d7,tri_y1
-    lea     edge_buf,a0
+    lea     local_edge_buf(pc),a0
     lea     512(a0),a1
     move.w  d7,d2
     sub.w   d6,d2
@@ -168,7 +168,7 @@ draw_hires_tri:
     add.w   d0,a4
     move.w  tri_y0(pc),d6
     move.w  tri_y1(pc),d7
-    lea     edge_buf,a0
+    lea     local_edge_buf(pc),a0
     lea     512(a0),a1
     move.w  d6,d0
     add.w   d0,d0
@@ -282,7 +282,7 @@ scan_tri_edge: cmp.w d1,d3
     divs.l  d6,d7
     swap    d0
     move.w  #$8000,d0
-    lea     edge_buf,a0
+    lea     local_edge_buf(pc),a0
     lea     512(a0),a1
 .se_lp: tst.w d1
     bmi.s   .se_st
@@ -328,6 +328,7 @@ tv_x2:   dc.w 0
 tv_y2:   dc.w 0
 tri_y0:  dc.w 0
 tri_y1:  dc.w 0
+local_edge_buf: ds.w 512
 tex_bank:
     ; Tex 0 (128B): Hi-res chropowata skala 32x32 z zylami mineralow
     dc.l $fff7dfff,$effbffff,$df7feffb,$fffeffff,$bfdff7ff,$fffbfff7,$f7feffdf,$dffffbff
