@@ -209,10 +209,10 @@ mesh_waterfall:
     dc.w -32,-92,23, 32,-92,23, 36,36,42, -36,36,42
     ; 16..19: dolne jezioro / rozlewisko u podnoza wodospadu (BPL2)
     dc.w -125,36,35, 125,36,35, 105,42,135, -105,42,135
-    dc.w 10
+    dc.w 9
     ; Gorny plaskowyz i tylna sciana klifu (BPL1 = ciemna skala)
     dc.w 0,4, 0,1,2,3
-    dc.w 0,4, 1,0,7,10
+    dc.w 0,4, 1,0,4,9
     ; Lewy i prawy filar skalny (BPL1)
     dc.w 0,4, 4,5,6,7
     dc.w 0,4, 8,9,10,11
@@ -221,10 +221,9 @@ mesh_waterfall:
     ; Kaskada wodospadu - przod i tyl (BPL2 = jasna woda)
     dc.w 2,4, 12,13,14,15
     dc.w 2,4, 13,12,15,14
-    ; Tafla jeziora i piana u podnoza (BPL2)
+    ; Tafla jeziora u podnoza (BPL2)
     dc.w 2,4, 16,17,18,19
     dc.w 2,4, 17,16,19,18
-    dc.w 0,4, 19,18,17,16
 firefly_seeds:
     dc.w 60,163,52
     dc.w 114,215,251

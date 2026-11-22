@@ -134,11 +134,10 @@ inv_tab:
     
 
 
-    section pcmdata,data
-pcm_start:
+    section chip_mod,data_c
+    even
 mod_data:
     incbin  "demo_tune.mod"
-pcm_end:
     dcb.b   256,0
     even
 
