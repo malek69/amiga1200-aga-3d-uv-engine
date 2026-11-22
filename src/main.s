@@ -147,8 +147,6 @@ logo_b2: incbin "logo_bpl2.bin"
 scroll_font: incbin "scroll_font.bin"
     even
     section chipdata,bss_c
-dma_buf_a:   ds.b 2048
-dma_buf_b: ds.b 2048
 bpl1_a:      ds.b BPL_SIZE
 bpl1_b:      ds.b BPL_SIZE
 bpl2_a:      ds.b BPL_SIZE
@@ -157,6 +155,8 @@ bpl3_a:      ds.b BPL_SIZE
 bpl3_b:      ds.b BPL_SIZE
 copperlist:  ds.b 1024
 eq_sprite:   ds.b 320
+dma_buf_a:   ds.b 2048
+dma_buf_b: ds.b 2048
 
 
 

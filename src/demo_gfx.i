@@ -1,7 +1,6 @@
 ; [EN/PL] MODULE: demo_gfx.i | AGA Top Logo Blitter Copy & 50FPS Sine-Scroller
 draw_aga_overlays:
     movem.l d0-d6/a0-a3,-(sp)
-    bsr.w   draw_starfield_3d
     ; 1. Kopiuj gorne logo AGA (320x44 = 440 longwords) na BPL1 i BPL2
     lea     logo_b1,a0
     move.l  draw_bpl1(pc),a1
@@ -79,7 +78,7 @@ draw_aga_overlays:
     dbf     d5,.sc_ch
     movem.l (sp)+,d0-d6/a0-a3
     rts
-scroll_text: dc.b "   *** NATURE 3D ISLAND V2.0 *** MUSIC: FANTASEA (COMPOSED BY ABSYS) VIA AMINET *** CODE & ENGINE: MALEK69 & GEMINI AI (VIBE CODING) ***   "
+scroll_text: dc.b "   *** WATERFALL & FIREFLIES 3D V2.0 *** MUSIC: FANTASEA (COMPOSED BY ABSYS) VIA AMINET *** CODE & 3D ENGINE: MALEK69 & GEMINI AI (VIBE CODING) ***   "
     even
 
 draw_starfield_3d:
