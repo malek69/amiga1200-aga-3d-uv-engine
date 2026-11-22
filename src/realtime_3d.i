@@ -55,7 +55,7 @@ act1_full_3d_tunnel:
     and.w   #$01ff,d0
     add.w   #185,d0
     move.w  d0,sz0
-    add.w   #26,d0
+    add.w   #14,d0
     move.w  d0,sz1
     move.w  sz0(pc),d1
     lsr.w   #2,d1
