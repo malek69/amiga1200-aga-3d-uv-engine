@@ -227,7 +227,7 @@ scan_uv_edge:
     lsl.w   #8,d6
     lea     uv_edges(pc),a0
     move.w  d1,a4
-    mulu.w  #12,d1
+    muls.w  #12,d1
     add.w   d1,a0
     move.w  a4,d1
 .se_lp: tst.w d1

@@ -49,12 +49,33 @@ act1_round_tunnel:
     add.w   #68,d2
     move.w  d2,ff_sy
     lea     tunnel_lut,a0
+    move.w  tun_cy(pc),d0
+    add.w   #16,d0
+    mulu.w  #320,d0
+    add.l   d0,a0
+    move.w  tun_cx(pc),d0
+    add.w   #16,d0
+    add.w   d0,d0
+    add.w   d0,a0
     lea     chunky_buf,a1
     lea     uv_tex_bank,a2
     move.w  d7,d5
     lsr.w   #1,d5
     move.w  d7,d6
     add.w   d6,d6
+    ; Plynne kolysanie kamery 3D w tunelu (cam_dx, cam_dy z sin_tab)
+    lea     sin_tab,a3
+    move.w  d7,d0
+    add.w   d7,d0
+    and.w   #$ff,d0
+    move.w  (a3,d0.w*2),d1
+    asr.w   #4,d1
+    move.w  d1,tun_cx
+    add.w   #64,d0
+    and.w   #$ff,d0
+    move.w  (a3,d0.w*2),d1
+    asr.w   #5,d1
+    move.w  d1,tun_cy
     moveq   #0,d3
 .ty: move.w d3,d4
     sub.w   ff_sy(pc),d4
@@ -417,6 +438,8 @@ draw_chunky_rusalka:
     even
 cur_v: dc.w 0
 cur_dy2: dc.l 0
+tun_cx: dc.w 0
+tun_cy: dc.w 0
 ff_sx: dc.w 80
 ff_sy: dc.w 64
 uv_tri: ds.w 12
