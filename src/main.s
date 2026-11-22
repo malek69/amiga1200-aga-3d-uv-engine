@@ -79,10 +79,13 @@ draw_bpl2:      dc.l 0
 draw_bpl3:      dc.l 0
 disp_bpl4:      dc.l 0
 draw_bpl4:      dc.l 0
+disp_bpl5:      dc.l 0
+draw_bpl5:      dc.l 0
 cop_bpl1_ptr:   dc.l 0
 cop_bpl2_ptr:   dc.l 0
 cop_bpl3_ptr:   dc.l 0
 cop_bpl4_ptr:   dc.l 0
+cop_bpl5_ptr:   dc.l 0
 cop_pal_ptr:    dc.l 0
 oldintena:      dc.w 0
 olddmacon:      dc.w 0

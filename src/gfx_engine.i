@@ -115,6 +115,8 @@ sys_takeover:
     move.l  #$0008c800,draw_bpl3
     move.l  #$00090000,disp_bpl4
     move.l  #$00092800,draw_bpl4
+    move.l  #$00095000,disp_bpl5
+    move.l  #$00097800,draw_bpl5
     move.w  #$8240,DMACON(a5)
 
     bsr.w   build_copper
@@ -217,6 +219,15 @@ swap_buffers:
     move.l  d0,draw_bpl4
     move.l  d1,$0ec(a5)
     move.l  cop_bpl4_ptr(pc),a0
+    move.w  d1,2(a0)
+    swap    d1
+    move.w  d1,6(a0)
+    move.l  disp_bpl5(pc),d0
+    move.l  draw_bpl5(pc),d1
+    move.l  d1,disp_bpl5
+    move.l  d0,draw_bpl5
+    move.l  d1,$0f0(a5)
+    move.l  cop_bpl5_ptr(pc),a0
     move.w  d1,2(a0)
     swap    d1
     move.w  d1,6(a0)
@@ -334,6 +345,13 @@ build_copper:
     move.w  d0,(a0)+
     swap    d0
     move.w  #$00ec,(a0)+
+    move.w  d0,(a0)+
+    move.l  a0,cop_bpl5_ptr
+    move.l  disp_bpl5(pc),d0
+    move.w  #$00f2,(a0)+
+    move.w  d0,(a0)+
+    swap    d0
+    move.w  #$00f0,(a0)+
     move.w  d0,(a0)+
     move.l  #(BPLCON3<<16)|$0c00,(a0)+
     move.l  #($010c<<16)|$0000,(a0)+
