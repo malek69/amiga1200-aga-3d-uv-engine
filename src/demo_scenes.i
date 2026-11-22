@@ -16,22 +16,30 @@ scene_01_tunnel:
     move.w  (a2,d0.w*2),d2
     asr.w   #4,d2
     addq.w  #4,d2
-    move.w  #2600,ff_rad
-    cmp.w   #440,d7
+    ; Od tick 460 swietlik kieruje sie ku srodkowi i zbliza do kamery (rosnie 1x -> 2x -> 3x!)
+    move.w  #1,ff_scale
+    cmp.w   #460,d7
     blo.s   .ff_fly
     move.w  d7,d3
-    sub.w   #440,d3
-    lsr.w   #4,d3
-    asr.w   d3,d1
-    asr.w   d3,d2
-    move.w  #2600,d4
-    lsr.w   d3,d4
-    move.w  d4,ff_rad
+    sub.w   #460,d3                 ; 0..179
+    move.w  d3,d4
+    lsr.w   #5,d4                   ; 0..5
+    asr.w   d4,d1
+    asr.w   d4,d2
+    cmp.w   #110,d3
+    bhs.s   .sc3
+    cmp.w   #55,d3
+    bhs.s   .sc2
+    bra.s   .ff_fly
+.sc2: move.w #2,ff_scale
+    bra.s   .ff_fly
+.sc3: move.w #3,ff_scale
 .ff_fly:
     add.w   #80,d1
     move.w  d1,ff_sx
     add.w   #64,d2
     move.w  d2,ff_sy
+    ; Kolyszaca kamera 3D
     move.w  d7,d0
     add.w   d7,d0
     and.w   #$ff,d0
@@ -43,6 +51,15 @@ scene_01_tunnel:
     move.w  (a2,d0.w*2),d1
     asr.w   #5,d1
     move.w  d1,tun_cy
+    ; Oblicz wspolczynnik wygaszania scian w ciemnosc od tick 480..639 (fade_sub = 0..31)
+    clr.w   fade_sub
+    cmp.w   #480,d7
+    blo.s   .no_fsub
+    move.w  d7,d0
+    sub.w   #480,d0
+    lsr.w   #2,d0
+    move.w  d0,fade_sub
+.no_fsub:
     lea     tunnel_lut,a0
     move.w  tun_cy(pc),d0
     add.w   #16,d0
@@ -73,44 +90,40 @@ scene_01_tunnel:
     and.w   #63,d1
     lsl.w   #6,d1
     or.w    d0,d1
-    move.b  (a2,d1.w),d0
+    move.b  (a2,d1.w),d0           ; 1..30 (Bank 0 = lupkowa skala)
     cmp.b   #26,cur_v
     blo.s   .dp_ok
     lsr.b   #1,d0
 .dp_ok:
-    ; Realistyczne, gladkie zanikanie swiatla punktowego (dx^2 + dy^2 -> 32 odcienie zlota i cienia!)
+    ; Plynne, organiczne swiatlo punktowe (Bank 1: 32..63 zaczyna sie od identycznego cienia skaly!)
     move.w  d2,d1
     sub.w   ff_sx(pc),d1
     muls.w  d1,d1
     add.l   cur_dy2(pc),d1
-    cmp.l   #720,d1
+    cmp.l   #1150,d1
     bhi.s   .wr_p
-    ; Miekki, kameralny blask wokol swietlika (zero ostrej kuli!)
-    lsr.l   #6,d1                   ; falloff 0..11
-    lsr.b   #2,d0                   ; 0..7 faktury skaly
-    add.b   #39,d0
+    lsr.l   #6,d1                   ; 0..17 tlumienie
+    lsr.b   #1,d0                   ; 0..15 faktura skaly
+    add.b   #48,d0
     sub.b   d1,d0
     cmp.b   #32,d0
     bhs.s   .wr_p
-    lsr.b   #1,d0                   ; plynne wtopienie w ciemna skale Banku 0
+    moveq   #32,d0
 .wr_p:
-    cmp.w   #480,d7
-    blo.s   .no_fd
-    move.w  d7,d1
-    sub.w   #480,d1
-    mulu.w  #70,d1
-    move.l  d1,hole_r2
-    move.w  d2,d1
-    sub.w   #80,d1
-    muls.w  d1,d1
-    move.w  d3,d4
-    sub.w   #64,d4
-    muls.w  d4,d4
-    add.l   d4,d1
-    cmp.l   hole_r2(pc),d1
-    bhi.s   .no_fd
+    ; Plynne zanurzanie tunelu w ciemnosci jaskini (tick 480..639)
+    move.w  fade_sub(pc),d1
+    beq.s   .put_px
+    cmp.b   #32,d0
+    blo.s   .fd_b0
+    sub.b   d1,d0
+    cmp.b   #32,d0
+    bhs.s   .put_px
     moveq   #0,d0
-.no_fd: move.b d0,(a1)+
+    bra.s   .put_px
+.fd_b0: sub.b d1,d0
+    bpl.s   .put_px
+    moveq   #0,d0
+.put_px: move.b d0,(a1)+
     addq.w  #1,d2
     cmp.w   #160,d2
     blo.w   .tx
@@ -128,12 +141,12 @@ scene_01_tunnel:
     cmp.w   #128,d3
     blo.w   .ty
 .dn_t:
-    cmp.w   #585,d7
+    cmp.w   #628,d7
     bhs.s   .skip_ff
     move.w  ff_sx(pc),d0
     move.w  ff_sy(pc),d1
     moveq   #62,d7
-    bsr.w   draw_256_firefly
+    bsr.w   draw_256_firefly_scaled
 .skip_ff:
     rts
 
@@ -309,6 +322,69 @@ render_256_mesh:
     dbf     d4,.um_lp
     rts
 
+draw_256_firefly_scaled:
+    cmp.w   #1,ff_scale
+    beq.w   draw_256_firefly
+    cmp.w   #14,d0
+    blo.w   .fe2
+    cmp.w   #145,d0
+    bhi.w   .fe2
+    cmp.w   #14,d1
+    blo.w   .fe2
+    cmp.w   #113,d1
+    bhi.w   .fe2
+    lea     chunky_buf,a0
+    mulu.w  #160,d1
+    add.w   d0,d1
+    add.w   d1,a0
+    move.b  d7,d2
+    move.b  #48,d3                  ; ciepla poswiata wokol powiekszonego swietlika
+    ; Skrzydla i poswiata 2x/3x
+    move.b  d3,-640(a0)
+    move.b  d2,-486(a0)
+    move.b  d2,-474(a0)
+    move.b  d2,-325(a0)
+    move.b  d2,-324(a0)
+    move.b  d2,-316(a0)
+    move.b  d2,-315(a0)
+    move.b  d3,-320(a0)
+    move.b  d2,-162(a0)
+    move.b  d2,-161(a0)
+    move.b  d2,-160(a0)
+    move.b  d2,-159(a0)
+    move.b  d2,-158(a0)
+    move.b  d3,-5(a0)
+    move.b  d2,-4(a0)
+    move.b  d2,-3(a0)
+    move.b  d2,-2(a0)
+    move.b  d2,-1(a0)
+    move.b  #255,(a0)
+    move.b  #255,1(a0)
+    move.b  #255,-160(a0)
+    move.b  #255,160(a0)
+    move.b  d2,2(a0)
+    move.b  d2,3(a0)
+    move.b  d2,4(a0)
+    move.b  d3,5(a0)
+    move.b  d2,158(a0)
+    move.b  d2,159(a0)
+    move.b  d2,161(a0)
+    move.b  d2,162(a0)
+    move.b  d3,320(a0)
+    move.b  d2,319(a0)
+    move.b  d2,321(a0)
+    move.b  d3,480(a0)
+    cmp.w   #3,ff_scale
+    blo.s   .fe2
+    move.b  d2,-648(a0)
+    move.b  d2,-632(a0)
+    move.b  d3,-7(a0)
+    move.b  d3,7(a0)
+    move.b  #255,-161(a0)
+    move.b  #255,-159(a0)
+    move.b  #255,159(a0)
+    move.b  #255,161(a0)
+.fe2: rts
 draw_256_firefly:
     cmp.w   #8,d0
     blo.w   .fe
@@ -395,7 +471,8 @@ draw_256_rusalka:
     dbf     d5,.ry
 .re: rts
     even
-hole_r2: dc.l 0
+ff_scale: dc.w 1
+fade_sub: dc.w 0
 ff_rad: dc.w 2600
 uv_anim_v: dc.w 0
 cur_v: dc.w 0
