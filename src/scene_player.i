@@ -69,7 +69,7 @@ update_copper_sky:
 .b_ok:  or.w    d0,d1
     move.w  d1,6(a2)
     move.w  d1,14(a2)
-    lea     16(a2),a2
+    lea     20(a2),a2
     addq.w  #1,d5
     dbf     d4,.sky_lp
     rts

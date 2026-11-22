@@ -28,10 +28,10 @@ setup_paula:
     move.w  #322,$b6(a5)
     move.w  #322,$c6(a5)
     move.w  #322,$d6(a5)
-    move.w  #44,$a8(a5)
-    move.w  #44,$b8(a5)
-    move.w  #44,$c8(a5)
-    move.w  #44,$d8(a5)
+    move.w  #20,$a8(a5)
+    move.w  #20,$b8(a5)
+    move.w  #20,$c8(a5)
+    move.w  #20,$d8(a5)
     movec   vbr,a0
     move.l  $70(a0),old_aud_vec
     move.l  #aud0_irq_handler,$70(a0)
