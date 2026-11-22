@@ -52,17 +52,14 @@ scene_01_tunnel:
     asr.w   #5,d1
     move.w  d1,tun_cy
     ; Oblicz wspolczynnik wygaszania scian w ciemnosc od tick 480..639 (fade_sub = 0..31)
-    move.w  #64,exit_zoom
+    clr.l   exit_r2
     cmp.w   #480,d7
     blo.s   .no_fsub
     move.w  d7,d0
-    sub.w   #480,d0
-    lsr.w   #1,d0
-    move.w  #64,d1
-    sub.w   d0,d1
-    bpl.s   .z_ok
-    moveq   #0,d1
-.z_ok: move.w d1,exit_zoom
+    sub.w   #480,d0                 ; 0..159
+    mulu.w  d0,d0
+    lsr.l   #1,d0                   ; promien^2 czarnego otworu rosnie kwadratowo (0 -> 12700 = caly ekran!)
+    move.l  d0,exit_r2
 .no_fsub:
     lea     tunnel_lut,a0
     move.w  tun_cy(pc),d0
@@ -89,9 +86,19 @@ scene_01_tunnel:
     and.w   #63,d0
     move.b  (a0)+,d1
     beq.w   .is_hole
-    cmp.b   exit_zoom+1(pc),d1
-    bhs.w   .is_hole
     move.b  d1,cur_v
+    tst.l   exit_r2(pc)
+    beq.s   .not_ex
+    move.w  d2,d1
+    sub.w   #80,d1
+    muls.w  d1,d1
+    move.w  d3,d4
+    sub.w   #64,d4
+    muls.w  d4,d4
+    add.l   d4,d1
+    cmp.l   exit_r2(pc),d1
+    bls.w   .is_hole
+.not_ex:
     add.b   d6,d1
     and.w   #63,d1
     lsl.w   #6,d1
@@ -216,6 +223,7 @@ scene_03_cave_360:
     bsr.w   render_256_mesh
     lea     cave_fg_mesh(pc),a4
     bsr.w   render_256_mesh
+    bsr.w   draw_256_lantern
     bsr.w   draw_256_rusalka
     bsr.w   draw_256_mist
     move.w  l1_x(pc),d0
@@ -268,6 +276,23 @@ render_256_mesh:
 .um_lp: move.w d4,-(sp)
     move.w  (a4)+,d6
     move.w  (a4)+,d5
+    bne.s   .has_bk
+    ; Oblicz srodek trojkata sciany/sklepienia dla dynamicznego swiatla z 4 zrodel!
+    move.w  (a4),d0
+    add.w   6(a4),d0
+    add.w   12(a4),d0
+    divs.w  #3,d0
+    move.w  2(a4),d1
+    add.w   8(a4),d1
+    add.w   14(a4),d1
+    divs.w  #3,d1
+    move.w  4(a4),d2
+    add.w   10(a4),d2
+    add.w   16(a4),d2
+    divs.w  #3,d2
+    bsr.w   calc_4lights_cave
+    move.w  d0,d5
+.has_bk:
     clr.w   uv_anim_v
     cmp.w   #1,d6
     bne.s   .no_wf
@@ -459,6 +484,91 @@ draw_256_mist:
 .gn: dbf d5,.gm
     rts
 
+calc_4lights_cave:
+    movem.l d1-d5,-(sp)
+    ; 1. Odleglosc od latarni przy rusalkce (-6, 28, 8)
+    move.w  d0,d3
+    addq.w  #6,d3
+    bpl.s   .la1
+    neg.w   d3
+.la1: move.w d1,d4
+    sub.w   #28,d4
+    bpl.s   .la2
+    neg.w   d4
+.la2: add.w d4,d3
+    move.w  d2,d4
+    subq.w  #8,d4
+    bpl.s   .la3
+    neg.w   d4
+.la3: add.w d4,d3
+    cmp.w   #115,d3
+    bls.s   .ret_gold
+    ; 2. Odleglosc od zlotego swietlika l1
+    move.w  d0,d3
+    sub.w   l1_x(pc),d3
+    bpl.s   .f1a
+    neg.w   d3
+.f1a: move.w d1,d4
+    sub.w   l1_y(pc),d4
+    bpl.s   .f1b
+    neg.w   d4
+.f1b: add.w d4,d3
+    move.w  d2,d4
+    sub.w   l1_z(pc),d4
+    bpl.s   .f1c
+    neg.w   d4
+.f1c: add.w d4,d3
+    cmp.w   #135,d3
+    bls.s   .ret_gold
+    ; 3. Odleglosc od turkusowego swietlika l2
+    move.w  d0,d3
+    sub.w   l2_x(pc),d3
+    bpl.s   .f2a
+    neg.w   d3
+.f2a: move.w d1,d4
+    sub.w   l2_y(pc),d4
+    bpl.s   .f2b
+    neg.w   d4
+.f2b: add.w d4,d3
+    move.w  d2,d4
+    sub.w   l2_z(pc),d4
+    bpl.s   .f2c
+    neg.w   d4
+.f2c: add.w d4,d3
+    cmp.w   #135,d3
+    bls.s   .ret_cyan
+    moveq   #0,d0                   ; mroczna skala w cieniu (Bank 0)
+    movem.l (sp)+,d1-d5
+    rts
+.ret_gold:
+    moveq   #32,d0                  ; cieple zlote swiatlo od latarni lub swietlika #1 (Bank 1)
+    movem.l (sp)+,d1-d5
+    rts
+.ret_cyan:
+    move.w  #192,d0                 ; chlodne turkusowe swiatlo od swietlika #2 (Bank 6)
+    movem.l (sp)+,d1-d5
+    rts
+draw_256_lantern:
+    ; Latarnia na wyspie obok rusalki (-6, 32, 10)
+    move.w  #-6,d0
+    move.w  #32,d1
+    move.w  #10,d2
+    bsr.w   proj_uv_160
+    cmp.w   #154,d0
+    bhi.s   .le
+    cmp.w   #122,d1
+    bhi.s   .le
+    lea     chunky_buf,a0
+    mulu.w  #160,d1
+    add.w   d0,d1
+    add.w   d1,a0
+    move.b  #164,-160(a0)           ; daszek latarni
+    move.b  #56,-1(a0)              ; zlota poswiata
+    move.b  #255,(a0)               ; plomien latarni
+    move.b  #56,1(a0)
+    move.b  #62,160(a0)
+    move.b  #162,320(a0)            ; podstawa latarni
+.le: rts
 draw_256_rusalka:
     move.w  #-16,d0
     move.w  #26,d1
@@ -486,7 +596,7 @@ draw_256_rusalka:
 .re: rts
     even
 ff_scale: dc.w 1
-exit_zoom: dc.w 64
+exit_r2: dc.l 0
 ff_rad: dc.w 2600
 uv_anim_v: dc.w 0
 cur_v: dc.w 0
