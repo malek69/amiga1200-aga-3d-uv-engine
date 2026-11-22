@@ -4,7 +4,12 @@
 **Target Hardware:** Commodore Amiga 1200 (MC68020+ / AGA Chipset / 2 MB Chip + Fast RAM) & THEA1200  
 **Music:** *1991-Not A Number* (ProTracker 4-channel MOD, Aminet)
 
-![Act I - 3D UV Tunnel](docs/tunnel_preview.png)
+
+![Act I - 3D UV Tunnel](docs/tunnel.png)
+
+![Act I - 3D UV Tunnel](docs/tunnel.png)
+
+![Act I - 3D UV Tunnel](docs/tunnel.png)
 
 ---
 
@@ -19,11 +24,23 @@
   * **Environment (`cavern_env_mesh` — 74 triangles):** 12-sided 360° rock walls (`24` tris), 12-sided vaulted ceiling (`12` tris), 2-ring 360° shimmering lake (`36` tris), and animated UV-scrolling waterfall (`2` tris).
   * **Centerpiece (`cavern_fg_mesh` — 14 triangles):** Golden-sand island (`3` tris), tree trunk (`2` tris), and 3-tier emerald leafy tree crown (`9` tris) with a seated rusalka at the shore.
 
+![Act I - 3D UV Tunnel](docs/tunnel.png)
+
+![Act I - 3D UV Tunnel](docs/tunnel.png)
+
+![Act I - 3D UV Tunnel](docs/tunnel.png)
+
 ---
 
 ## 2. Engine Architecture & Key Functions
 | Module | Key Functions | Responsibility |
-| :--- | :--- | :--- |
+| :![Act I - 3D UV Tunnel](docs/tunnel.png)
+
+![Act I - 3D UV Tunnel](docs/tunnel.png)
+
+![Act I - 3D UV Tunnel](docs/tunnel.png)
+
+--- | :--- | :--- |
 | `src/main.s` | `start`, `mainloop`, `shutdown` | AmigaOS takeover, 50 Hz PAL VBL loop, Fast/Chip RAM section layout |
 | `src/gfx_engine.i` | `sys_takeover`, `build_copper`, `swap_buffers`, `wait_vbl`, `blit_clear_full` | AGA 4-bitplane (`16-color`) setup, Copperlist generation, double-buffering |
 | `src/c2p_chunky.i` | `clear_chunky`, `c2p_160x128_to_aga`, `draw_uv_tri`, `scan_uv_edge` | `160x128` -> `320x256` 4-bitplane Chunky-to-Planar converter & affine `64x64` UV triangle rasterizer |
@@ -32,6 +49,12 @@
 | `src/whdload_slave.s` | `_start`, `s_tof`, `s_opn` | Custom WHDLoad v17+ slave with Kickstart-free hardware takeover |
 | `tools/build_grotto3d.py` | `mk_lha`, `mk_ico` | Automated `vasmm68k_mot` build, WHDLoad slave assembly & `.lha` packaging |
 | `tools/obj2amiga.py` | `convert_obj` | Blender `.obj` low-poly 3D mesh converter to M68k `dc.w` triangle tables |
+
+![Act I - 3D UV Tunnel](docs/tunnel.png)
+
+![Act I - 3D UV Tunnel](docs/tunnel.png)
+
+![Act I - 3D UV Tunnel](docs/tunnel.png)
 
 ---
 
