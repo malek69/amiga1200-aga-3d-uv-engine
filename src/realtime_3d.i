@@ -8,21 +8,94 @@
 ; ============================================================================
 render_realtime_3d:
     movem.l d0-d7/a0-a5,-(sp)
+    move.l  vbl_tick(pc),d7
+    cmp.l   #260,d7
+    blo.w   .set_tun_pal
+    ; --- PALETA AKTU II: GROTA (skaly 1..3, woda 4..6/11, piasek 8..10, zielone liscie 12..14) ---
+    move.l  cop_pal_ptr(pc),a1
+    move.w  #$0000,2(a1)            ; 0: czern
+    move.w  #$0112,6(a1)            ; 1: ciemna skala w cieniu
+    move.w  #$0224,10(a1)           ; 2: skala groty
+    move.w  #$0346,14(a1)           ; 3: oswietlona skala
+    move.w  #$0136,18(a1)           ; 4: glebokie jezioro
+    move.w  #$0269,22(a1)           ; 5: falujaca woda
+    move.w  #$04bc,26(a1)           ; 6: turkusowy wodospad / swietlik #2
+    move.w  #$0fe5,30(a1)           ; 7: zloty blask swietlika #1
+    lea     $dff190,a1
+    move.w  #$0752,(a1)+            ; 8: ciemny piasek wyspy
+    move.w  #$0a84,(a1)+            ; 9: zlocisty piasek wyspy
+    move.w  #$0db6,(a1)+            ; 10: jasny piasek
+    move.w  #$08ef,(a1)+            ; 11: piana wodospadu / mgielka
+    move.w  #$0152,(a1)+            ; 12: ciemna zielen lisci
+    move.w  #$0293,(a1)+            ; 13: soczysta zielen drzewa
+    move.w  #$05d5,(a1)+            ; 14: jasne liscie w swietle
+    move.w  #$0fff,(a1)+            ; 15: biala rusalka / rdzen swiatla
+    cmp.l   #320,d7
+    blo.w   act2_cavern_emerge
+    bra.w   act3_360_grotto
+.set_tun_pal:
+    ; --- PALETA AKTU I: TUNEL 3D (granatowo-szare skaly + cieple bursztynowo-zlote swiatlo) ---
     move.l  cop_pal_ptr(pc),a1
     move.w  #$0000,2(a1)
     move.w  #$0113,6(a1)
     move.w  #$0225,10(a1)
     move.w  #$0347,14(a1)
-    move.w  #$0136,18(a1)
-    move.w  #$0269,22(a1)
-    move.w  #$04bc,26(a1)
-    move.w  #$0ffd,30(a1)
-    move.l  vbl_tick(pc),d7
-    cmp.l   #260,d7
-    blo.w   act1_round_tunnel
-    cmp.l   #380,d7
-    blo.w   act2_tunnel_exit_scene
-    bra.w   act3_360_grotto
+    move.w  #$0421,18(a1)
+    move.w  #$0631,22(a1)
+    move.w  #$0851,26(a1)
+    move.w  #$0b72,30(a1)
+    lea     $dff190,a1
+    move.w  #$0741,(a1)+
+    move.w  #$0962,(a1)+
+    move.w  #$0c83,(a1)+
+    move.w  #$0fb4,(a1)+
+    move.w  #$0235,(a1)+
+    move.w  #$0357,(a1)+
+    move.w  #$0579,(a1)+
+    move.w  #$0fff,(a1)+
+    bra.w   act1_round_tunnel
+act2_cavern_emerge:
+    ; Przejscie 260..319: Grota wylania sie z ciemnosci, oswietlana stopniowo przez oba swietliki!
+    bsr.w   clear_chunky
+    sub.l   #260,d7                 ; t = 0..59
+    ; Jezeli t < 15 -> pelna ciemnosc po wyjsciu z tunelu
+    cmp.w   #15,d7
+    blo.w   .em_done
+    ; Stopniowo zapalaj swiatla w grocie (najpierw same swietliki, potem coraz szersza poswiata)
+    move.w  #-16,cam_oy
+    move.w  #-235,cam_oz
+    clr.w   cam_sin
+    move.w  #256,cam_cos
+    move.w  #-35,l1_x
+    move.w  #-18,l1_y
+    move.w  #40,l1_z
+    move.w  #45,l2_x
+    move.w  #-10,l2_y
+    move.w  #60,l2_z
+    cmp.w   #35,d7
+    blo.s   .only_ff
+    lea     cavern_env_mesh(pc),a4
+    bsr.w   render_uv_mesh_list
+    lea     cavern_fg_mesh(pc),a4
+    bsr.w   render_uv_mesh_list
+    bsr.w   draw_chunky_rusalka
+.only_ff:
+    move.w  l1_x(pc),d0
+    move.w  l1_y(pc),d1
+    move.w  l1_z(pc),d2
+    bsr.w   proj_uv_160
+    moveq   #7,d7
+    bsr.w   draw_textured_firefly_2d
+    move.w  l2_x(pc),d0
+    move.w  l2_y(pc),d1
+    move.w  l2_z(pc),d2
+    bsr.w   proj_uv_160
+    moveq   #6,d7
+    bsr.w   draw_textured_firefly_2d
+.em_done:
+    bsr.w   c2p_160x128_to_aga
+    movem.l (sp)+,d0-d7/a0-a5
+    rts
 act1_round_tunnel:
     lea     sin_tab,a2
     move.w  d7,d0
@@ -112,7 +185,15 @@ act1_round_tunnel:
 .gl_c: cmp.b #10,d0
     ble.s   .wr_p
     moveq   #10,d0
-.wr_p: move.b d0,(a1)+
+.wr_p: cmp.l #225,vbl_tick
+    blo.s   .no_fd
+    move.l  vbl_tick(pc),d1
+    sub.w   #225,d1
+    lsr.w   #3,d1
+    sub.b   d1,d0
+    bpl.s   .no_fd
+    moveq   #0,d0
+.no_fd: move.b d0,(a1)+
     addq.w  #1,d2
     cmp.w   #160,d2
     blo.w   .tx
@@ -131,7 +212,7 @@ act1_round_tunnel:
 .dn_t:
     move.w  ff_sx(pc),d0
     move.w  ff_sy(pc),d1
-    moveq   #11,d7
+    moveq   #7,d7
     bsr.w   draw_textured_firefly_2d
     bsr.w   c2p_160x128_to_aga
     movem.l (sp)+,d0-d7/a0-a5
@@ -170,7 +251,7 @@ act2_tunnel_exit_scene:
     move.w  l1_y(pc),d1
     move.w  l1_z(pc),d2
     bsr.w   proj_uv_160
-    moveq   #11,d7
+    moveq   #7,d7
     bsr.w   draw_textured_firefly_2d
     move.w  l2_x(pc),d0
     move.w  l2_y(pc),d1
@@ -215,7 +296,7 @@ proj_uv_160:
 act3_360_grotto:
     bsr.w   clear_chunky
     lea     sin_tab,a2
-    sub.l   #380,d7
+    sub.l   #320,d7
     ; Wolniejszy obrot kamery 360 st. z odleglosci 245 jednostek od wyspy
     move.w  d7,d0
     lsr.w   #2,d0
@@ -263,7 +344,7 @@ act3_360_grotto:
     move.w  l1_y(pc),d1
     move.w  l1_z(pc),d2
     bsr.w   proj_uv_160
-    moveq   #11,d7
+    moveq   #7,d7
     bsr.w   draw_textured_firefly_2d
     move.w  l2_x(pc),d0
     move.w  l2_y(pc),d1
