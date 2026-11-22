@@ -221,18 +221,22 @@ draw_hires_tri:
 .t_done: movem.l (sp)+,d0-d7/a0-a5
     rts
 span_blit_32:
-    ; Wypelnia odcinek pikselowy d0..d1 na linii (a2) z tekstura row_tex i maskami brzegowymi!
     movem.l d0-d4,-(sp)
     move.l  row_tex(pc),d3
+    moveq   #0,d2
     move.w  d0,d2
-    lsr.w   #5,d2                   ; longword start (0..9)
+    lsr.w   #5,d2
+    add.w   d2,d2
+    add.w   d2,d2
+    moveq   #0,d4
     move.w  d1,d4
-    lsr.w   #5,d4                   ; longword end (0..9)
-    and.w   #31,d0                  ; start bit 0..31
-    and.w   #31,d1                  ; end bit 0..31
+    lsr.w   #5,d4
+    add.w   d4,d4
+    add.w   d4,d4
+    and.w   #31,d0
+    and.w   #31,d1
     cmp.w   d2,d4
     bne.s   .sp_multi
-    ; Pojedyncze slowo 32-bitowe: maska = ($ffffffff >> d0) & ($ffffffff << (31 - d1))
     moveq   #-1,d4
     lsr.l   d0,d4
     moveq   #-1,d0
@@ -240,28 +244,27 @@ span_blit_32:
     lsl.l   d1,d0
     and.l   d0,d4
     and.l   d3,d4
-    or.l    d4,(a2,d2.w*4)
+    or.l    d4,(a2,d2.w)
     movem.l (sp)+,d0-d4
     rts
 .sp_multi:
-    ; Lewa krawedz co do 1 piksela
     move.w  d2,-(sp)
     moveq   #-1,d2
     lsr.l   d0,d2
     and.l   d3,d2
     move.w  (sp)+,d0
-    or.l    d2,(a2,d0.w*4)
-    addq.w  #1,d0
+    or.l    d2,(a2,d0.w)
+    addq.w  #4,d0
 .sp_mid: cmp.w d4,d0
     bge.s   .sp_rt
-    or.l    d3,(a2,d0.w*4)
-    addq.w  #1,d0
+    or.l    d3,(a2,d0.w)
+    addq.w  #4,d0
     bra.s   .sp_mid
 .sp_rt: moveq #-1,d2
     eor.w   #31,d1
     lsl.l   d1,d2
     and.l   d3,d2
-    or.l    d2,(a2,d4.w*4)
+    or.l    d2,(a2,d4.w)
     movem.l (sp)+,d0-d4
     rts
 scan_tri_edge: cmp.w d1,d3
