@@ -20,8 +20,8 @@ render_realtime_3d:
     lea     $dff190,a1
     move.w  #$0641,(a1)+
     move.w  #$0851,(a1)+
-    move.w  #$0b72,(a1)+
-    move.w  #$0fa4,(a1)+
+    move.w  #$0851,(a1)+
+    move.w  #$0a72,(a1)+
     move.w  #$0257,(a1)+
     move.w  #$038b,(a1)+
     move.w  #$06ef,(a1)+
@@ -110,18 +110,18 @@ act1_round_tunnel:
     sub.l   d4,d1                   ; modulacja zasiegu swiatla przez nierownosci skaly!
     cmp.l   #160,d1
     bhi.s   .gl_m
-    addq.b  #5,d0
-    bra.s   .gl_c
-.gl_m: cmp.l #420,d1
-    bhi.s   .gl_f
     addq.b  #3,d0
     bra.s   .gl_c
-.gl_f: cmp.l #780,d1
+.gl_m: cmp.l #520,d1
+    bhi.s   .gl_f
+    addq.b  #2,d0
+    bra.s   .gl_c
+.gl_f: cmp.l #1100,d1
     bhi.s   .wr_p
     addq.b  #1,d0
-.gl_c: cmp.b #11,d0
+.gl_c: cmp.b #10,d0
     ble.s   .wr_p
-    moveq   #11,d0
+    moveq   #10,d0
 .wr_p: move.b d0,(a1)+
     addq.w  #1,d2
     cmp.w   #160,d2
@@ -286,7 +286,8 @@ act3_360_grotto:
     rts
 render_uv_mesh_list:
     move.w  (a4)+,d4
-.um_lp: move.w (a4)+,d6
+.um_lp: move.w d4,-(sp)
+    move.w  (a4)+,d6
     move.w  (a4)+,d5
     bne.s   .has_l
     move.w  (a4),d0
@@ -339,7 +340,8 @@ render_uv_mesh_list:
     move.w  d5,d7
     bsr.w   draw_uv_tri
     move.l  (sp)+,a4
-.skip_t: dbf d4,.um_lp
+.skip_t: move.w (sp)+,d4
+    dbf     d4,.um_lp
     rts
 calc_cavern_light:
     movem.l d1-d5,-(sp)
