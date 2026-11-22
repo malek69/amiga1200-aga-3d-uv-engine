@@ -34,6 +34,7 @@ proj_3d_cam:
     divs.l  d2,d1
     add.w   #160,d0
     add.w   #124,d1
+    movem.l (sp)+,d1-d5
     rts
 
 calc_dual_light:
