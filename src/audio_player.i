@@ -1,24 +1,6 @@
 ; [EN/PL] AUTHORS / AUTORZY: malek69 & Gemini AI (Vibe Coding Edition, 2026)
-; ============================================================================
-;  MODULE: audio_player.i | 4-Channel Paula DMA Audio Driver (Level 4 IRQ)
-;  SUBROUTINES:
-;    - setup_paula: disable hardware LED low-pass filter (CIAAPRA bit 1),
-;      init dual 2048 B Chip-RAM buffers, and start 4-channel Paula DMA
-;    - aud0_irq_handler: Level 4 IRQ refilling next PCM chunk from Fast RAM
-; ============================================================================
-setup_paula: wylacza sprzetowy filtr LED (CIAAPRA bit 1), inicjuje
-;      podwojne bufory Chip-RAM (2048 B) i uruchamia 4 kanaly DMA Pauli
-;    - ; --- aud0_irq_handler: Level 4 IRQ swapping next 2048 B PCM buffer ---
-aud0_irq_handler: przerwanie Level 4 uzupelniajace kolejny blok PCM
-; ============================================================================
-; ============================================================================
-;  MODUL: audio_player.i | Amiga 1200 (AGA / 68020+) & THEA1200 Vector Engine v1.0
-;  FUNKCJE: setup_paula, aud0_irq_handler (4-kanalowe DMA Paula + wylaczenie filtra LED)
-; ============================================================================
-; ============================================================================
-;  PLIK: audio_player.i [RETAIL - 16497 Hz 4-CHANNEL IRQ4 PAULA DMA]
-; ============================================================================
-
+; [EN] MODULE: audio_player.i | 4-Channel Paula DMA Driver (Level 4 IRQ, LED Filter OFF)
+; [PL] MODUL: audio_player.i | 4-kanalowy sterownik DMA Paula (IRQ4, filtr LED wylaczony)
 AUDIO_BUF_SIZE equ 2048
 
 setup_paula:
