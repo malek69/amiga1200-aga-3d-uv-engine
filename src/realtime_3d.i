@@ -104,12 +104,12 @@ act1_round_tunnel:
     sub.w   ff_sx(pc),d1
     muls.w  d1,d1
     add.l   cur_dy2(pc),d1
-    cmp.l   #900,d1
+    cmp.l   #420,d1
     bhi.s   .wr_p
-    addq.b  #6,d0
-    cmp.b   #11,d0
+    addq.b  #4,d0
+    cmp.b   #10,d0
     ble.s   .wr_p
-    moveq   #11,d0
+    moveq   #10,d0
 .wr_p: move.b d0,(a1)+
     addq.w  #1,d2
     cmp.w   #160,d2
