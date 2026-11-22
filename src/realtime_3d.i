@@ -102,10 +102,10 @@ act1_round_tunnel:
 .p_ok: move.b d0,(a1)+
     addq.w  #1,d2
     cmp.w   #160,d2
-    blo.s   .tx
+    blo.w   .tx
     addq.w  #1,d3
     cmp.w   #128,d3
-    blo.s   .ty
+    blo.w   .ty
     bra.s   .dn_tun
 .is_hole: move.b #6,d0              ; turkusowa poswiata wylotu groty na koncu tunelu!
     add.b   exit_boost+1(pc),d0
@@ -115,10 +115,10 @@ act1_round_tunnel:
 .h_ok: move.b d0,(a1)+
     addq.w  #1,d2
     cmp.w   #160,d2
-    blo.s   .tx
+    blo.w   .tx
     addq.w  #1,d3
     cmp.w   #128,d3
-    blo.s   .ty
+    blo.w   .ty
 .dn_tun:
     move.w  ff_sx(pc),d0
     move.w  ff_sy(pc),d1
