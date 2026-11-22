@@ -18,7 +18,6 @@ BPL_SIZE equ 40*256
 
 start:
     movem.l d0-a6,-(sp)
-    bsr.w   init_fill_lut
     bsr.w   sys_takeover
     tst.l   d0
     beq.w   exit_program
