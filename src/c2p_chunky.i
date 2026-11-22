@@ -58,6 +58,9 @@ c2p_160x128_to_aga:
     and.w   #16,d4
     lsr.w   #4,d4
     or.w    d4,d3                   ; bit 4 piksela 3 -> bit 0 bajtu BPL5
+    move.w  d3,d4
+    lsl.w   #1,d4
+    or.w    d4,d3                   ; podwoj bity BPL5 dla szerokosci 320 px!
     move.l  a0,-(sp)
     move.l  draw_bpl5(pc),a0
     move.l  a1,d4

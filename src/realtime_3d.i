@@ -228,7 +228,7 @@ act1_round_tunnel:
 .dn_t:
     move.w  ff_sx(pc),d0
     move.w  ff_sy(pc),d1
-    moveq   #14,d7
+    moveq   #11,d7
     bsr.w   draw_textured_firefly_2d
     bsr.w   c2p_160x128_to_aga
     movem.l (sp)+,d0-d7/a0-a5
