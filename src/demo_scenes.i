@@ -52,13 +52,14 @@ scene_01_tunnel:
     asr.w   #5,d1
     move.w  d1,tun_cy
     ; Oblicz wspolczynnik wygaszania scian w ciemnosc od tick 480..639 (fade_sub = 0..31)
-    clr.w   fade_sub
+    clr.w   exit_zoom
     cmp.w   #480,d7
     blo.s   .no_fsub
     move.w  d7,d0
     sub.w   #480,d0
-    lsr.w   #2,d0
-    move.w  d0,fade_sub
+    lsr.w   #1,d0
+    addq.w  #4,d0
+    move.w  d0,exit_zoom
 .no_fsub:
     lea     tunnel_lut,a0
     move.w  tun_cy(pc),d0
@@ -85,6 +86,8 @@ scene_01_tunnel:
     and.w   #63,d0
     move.b  (a0)+,d1
     beq.w   .is_hole
+    cmp.b   exit_zoom+1(pc),d1
+    bhs.w   .is_hole
     move.b  d1,cur_v
     add.b   d6,d1
     and.w   #63,d1
@@ -111,18 +114,6 @@ scene_01_tunnel:
     moveq   #32,d0
 .wr_p:
     ; Plynne zanurzanie tunelu w ciemnosci jaskini (tick 480..639)
-    move.w  fade_sub(pc),d1
-    beq.s   .put_px
-    cmp.b   #32,d0
-    blo.s   .fd_b0
-    sub.b   d1,d0
-    cmp.b   #32,d0
-    bhs.s   .put_px
-    moveq   #0,d0
-    bra.s   .put_px
-.fd_b0: sub.b d1,d0
-    bpl.s   .put_px
-    moveq   #0,d0
 .put_px: move.b d0,(a1)+
     addq.w  #1,d2
     cmp.w   #160,d2
@@ -313,6 +304,21 @@ render_256_mesh:
     blt.s   .skip_t
     cmp.w   #-500,uv_tri+16
     blt.s   .skip_t
+    tst.w   d5
+    bne.s   .draw_ok
+    move.w  uv_tri+8(pc),d0
+    sub.w   uv_tri(pc),d0
+    move.w  uv_tri+18(pc),d1
+    sub.w   uv_tri+2(pc),d1
+    muls.w  d1,d0
+    move.w  uv_tri+10(pc),d2
+    sub.w   uv_tri+2(pc),d2
+    move.w  uv_tri+16(pc),d3
+    sub.w   uv_tri(pc),d3
+    muls.w  d3,d2
+    sub.l   d2,d0
+    ble.s   .skip_t
+.draw_ok:
     move.l  a4,-(sp)
     lea     uv_tri(pc),a4
     move.w  d5,d7
@@ -472,7 +478,7 @@ draw_256_rusalka:
 .re: rts
     even
 ff_scale: dc.w 1
-fade_sub: dc.w 0
+exit_zoom: dc.w 0
 ff_rad: dc.w 2600
 uv_anim_v: dc.w 0
 cur_v: dc.w 0
