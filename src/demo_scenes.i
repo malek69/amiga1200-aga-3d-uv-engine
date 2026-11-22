@@ -223,8 +223,8 @@ scene_03_cave_360:
     bsr.w   render_256_mesh
     lea     cave_fg_mesh(pc),a4
     bsr.w   render_256_mesh
-    bsr.w   draw_256_lantern
-    bsr.w   draw_256_rusalka
+    bsr.w   draw_256_sunbeam
+    bsr.w   draw_256_rusalka_lantern
     bsr.w   draw_256_mist
     move.w  l1_x(pc),d0
     move.w  l1_y(pc),d1
@@ -437,6 +437,25 @@ draw_256_firefly:
     mulu.w  #160,d1
     add.w   d0,d1
     add.w   d1,a0
+    ; Punktowa poswiata 7x7 wokol swietlika (rozjasnia tlo + barwi je zlotem lub turkusem!)
+    move.w  d7,d5
+    subq.b  #8,d5
+    lea     -483(a0),a1
+    moveq   #6,d3
+.gy: moveq  #6,d4
+.gx: move.b (a1),d2
+    beq.s   .gnx
+    cmp.b   #240,d2
+    bhs.s   .gnx
+    and.b   #15,d2
+    lsr.b   #1,d2
+    add.b   d5,d2
+    move.b  d2,(a1)
+.gnx: addq.l #1,a1
+    dbf     d4,.gx
+    lea     153(a1),a1
+    dbf     d3,.gy
+    ; Skrzydelka i bialy rdzen swietlika
     move.b  d7,d2
     move.b  d2,-324(a0)
     move.b  d2,-316(a0)
@@ -458,6 +477,58 @@ draw_256_firefly:
     move.b  d2,161(a0)
     move.b  d2,320(a0)
 .fe: rts
+
+draw_256_sunbeam:
+    ; 1. Dziura w suficie + stozek swiatla padajacy z gory na korone drzewa i wyspe
+    lea     chunky_buf,a0
+    move.l  vbl_tick(pc),d6
+    moveq   #0,d3
+.by: move.w d3,d4
+    lsr.w   #2,d4
+    move.w  #66,d0
+    sub.w   d4,d0
+    move.w  #94,d1
+    add.w   d4,d1
+    move.w  d3,d2
+    mulu.w  #160,d2
+    add.w   d0,d2
+    lea     (a0,d2.w),a1
+    sub.w   d0,d1
+.bx: move.b (a1),d2
+    beq.s   .bn
+    cmp.b   #240,d2
+    bhs.s   .bn
+    ; Jasny otwor na samej gorze sklepienia (Y < 8)
+    cmp.w   #8,d3
+    bhs.s   .beam_px
+    move.b  #246,(a1)
+    bra.s   .bn
+.beam_px:
+    ; Jezeli piksel to zielone liscie drzewa (64..95) -> tanczace przeswity swiatla w konarach!
+    cmp.b   #64,d2
+    blo.s   .not_leaf
+    cmp.b   #95,d2
+    bhi.s   .not_leaf
+    move.w  d1,d5
+    add.w   d3,d5
+    add.w   d6,d5
+    and.w   #7,d5
+    cmp.w   #2,d5
+    bhi.s   .not_leaf
+    move.b  #94,(a1)                ; jasny sloneczny przeswit w lisciach!
+    bra.s   .bn
+.not_leaf:
+    move.b  d2,d5
+    and.b   #31,d5
+    cmp.b   #24,d5
+    bhs.s   .bn
+    addq.b  #7,(a1)
+.bn: addq.l #1,a1
+    dbf     d1,.bx
+    addq.w  #1,d3
+    cmp.w   #96,d3
+    blo.s   .by
+    rts
 
 draw_256_mist:
     move.l  vbl_tick(pc),d6
@@ -484,104 +555,37 @@ draw_256_mist:
 .gn: dbf d5,.gm
     rts
 
-calc_4lights_cave:
-    movem.l d1-d5,-(sp)
-    ; 1. Odleglosc od latarni przy rusalkce (-6, 28, 8)
-    move.w  d0,d3
-    addq.w  #6,d3
-    bpl.s   .la1
-    neg.w   d3
-.la1: move.w d1,d4
-    sub.w   #28,d4
-    bpl.s   .la2
-    neg.w   d4
-.la2: add.w d4,d3
-    move.w  d2,d4
-    subq.w  #8,d4
-    bpl.s   .la3
-    neg.w   d4
-.la3: add.w d4,d3
-    cmp.w   #115,d3
-    bls.s   .ret_gold
-    ; 2. Odleglosc od zlotego swietlika l1
-    move.w  d0,d3
-    sub.w   l1_x(pc),d3
-    bpl.s   .f1a
-    neg.w   d3
-.f1a: move.w d1,d4
-    sub.w   l1_y(pc),d4
-    bpl.s   .f1b
-    neg.w   d4
-.f1b: add.w d4,d3
-    move.w  d2,d4
-    sub.w   l1_z(pc),d4
-    bpl.s   .f1c
-    neg.w   d4
-.f1c: add.w d4,d3
-    cmp.w   #135,d3
-    bls.s   .ret_gold
-    ; 3. Odleglosc od turkusowego swietlika l2
-    move.w  d0,d3
-    sub.w   l2_x(pc),d3
-    bpl.s   .f2a
-    neg.w   d3
-.f2a: move.w d1,d4
-    sub.w   l2_y(pc),d4
-    bpl.s   .f2b
-    neg.w   d4
-.f2b: add.w d4,d3
-    move.w  d2,d4
-    sub.w   l2_z(pc),d4
-    bpl.s   .f2c
-    neg.w   d4
-.f2c: add.w d4,d3
-    cmp.w   #135,d3
-    bls.s   .ret_cyan
-    moveq   #0,d0                   ; mroczna skala w cieniu (Bank 0)
-    movem.l (sp)+,d1-d5
-    rts
-.ret_gold:
-    moveq   #32,d0                  ; cieple zlote swiatlo od latarni lub swietlika #1 (Bank 1)
-    movem.l (sp)+,d1-d5
-    rts
-.ret_cyan:
-    move.w  #192,d0                 ; chlodne turkusowe swiatlo od swietlika #2 (Bank 6)
-    movem.l (sp)+,d1-d5
-    rts
-draw_256_lantern:
-    ; Latarnia na wyspie obok rusalki (-6, 32, 10)
-    move.w  #-6,d0
-    move.w  #32,d1
-    move.w  #10,d2
-    bsr.w   proj_uv_160
-    cmp.w   #154,d0
-    bhi.s   .le
-    cmp.w   #122,d1
-    bhi.s   .le
-    lea     chunky_buf,a0
-    mulu.w  #160,d1
-    add.w   d0,d1
-    add.w   d1,a0
-    move.b  #164,-160(a0)           ; daszek latarni
-    move.b  #56,-1(a0)              ; zlota poswiata
-    move.b  #255,(a0)               ; plomien latarni
-    move.b  #56,1(a0)
-    move.b  #62,160(a0)
-    move.b  #162,320(a0)            ; podstawa latarni
-.le: rts
-draw_256_rusalka:
+draw_256_rusalka_lantern:
     move.w  #-16,d0
     move.w  #26,d1
     move.w  #0,d2
     bsr.w   proj_uv_160
-    cmp.w   #140,d0
-    bhi.s   .re
-    cmp.w   #100,d1
-    bhi.s   .re
+    cmp.w   #136,d0
+    bhi.w   .re
+    cmp.w   #98,d1
+    bhi.w   .re
     lea     chunky_buf,a0
     mulu.w  #160,d1
     add.w   d0,d1
     add.w   d1,a0
+    ; 1. Ciepla zlota poswiata 9x9 od latarni trzymanej w wyciagnietej dloni rusalki (offset +14 px, +8 linii)
+    lea     (a0,8*160+14),a2
+    lea     -644(a2),a1
+    moveq   #8,d3
+.ly: moveq  #8,d4
+.lx: move.b (a1),d2
+    beq.s   .lnx
+    cmp.b   #240,d2
+    bhs.s   .lnx
+    and.b   #15,d2
+    lsr.b   #1,d2
+    add.b   #46,d2
+    move.b  d2,(a1)
+.lnx: addq.l #1,a1
+    dbf     d4,.lx
+    lea     151(a1),a1
+    dbf     d3,.ly
+    ; 2. Siedzaca rusalka z wyciagnieta reka
     lea     rusalka_seated_bmp(pc),a1
     moveq   #17,d5
 .ry: move.w (a1)+,d4
@@ -593,6 +597,16 @@ draw_256_rusalka:
     dbf     d6,.rx
     lea     144(a0),a0
     dbf     d5,.ry
+    ; 3. Latarnia w dloni rusalki (lancuszek, daszek, plomien, podstawa)
+    move.b  #180,-320(a2)
+    move.b  #185,-161(a2)
+    move.b  #185,-160(a2)
+    move.b  #185,-159(a2)
+    move.b  #62,-1(a2)
+    move.b  #255,(a2)
+    move.b  #62,1(a2)
+    move.b  #62,160(a2)
+    move.b  #180,320(a2)
 .re: rts
     even
 ff_scale: dc.w 1
