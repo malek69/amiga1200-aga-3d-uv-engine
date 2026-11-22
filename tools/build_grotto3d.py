@@ -2,8 +2,8 @@ import glob, os, shutil, subprocess, sys
 sys.path.insert(0, "tools")
 import build_demo as bd
 rt = open("src/realtime_3d.i").read()
-first = rt.find("seg_z0:")
-second = rt.find("seg_z0:", first + 1) if first != -1 else -1
+first = rt.find("ff1_x:")
+second = rt.find("ff1_x:", first + 1) if first != -1 else -1
 if second != -1:
     cut = rt.rfind("    even", 0, second)
     open("src/realtime_3d.i", "w").write(rt[:cut if cut != -1 else second])
