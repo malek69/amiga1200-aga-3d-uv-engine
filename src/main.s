@@ -165,8 +165,14 @@ mod_data:
     dcb.b   256,0
     even
 
+    section uv_data,data
+    even
+uv_tex_bank: incbin "uv_textures.bin"
+
     section fastram_bss,bss
     even
+chunky_buf:
+    ds.b    160*128
 edge_buf:
     ds.b    10240
 fill_lut:

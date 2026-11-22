@@ -285,5 +285,3 @@ shade_lut:
     dc.b 0,3,8,8,9,9,10,11, 0,6,8,8,9,9,10,11
     dc.b 0,8,9,9,10,11,11,15, 0,8,9,9,10,11,11,15
     even
-uv_tex_bank: incbin "uv_textures.bin"
-chunky_buf:  ds.b 160*128
