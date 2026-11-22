@@ -199,7 +199,8 @@ scan_uv_edge:
     beq.w   .se_ex
     bgt.s   .se_ok
     exg     a1,a2
-    exg     d1,d3
+    move.w  2(a1),d1
+    move.w  2(a2),d3
 .se_ok: move.w d3,d6
     sub.w   d1,d6
     move.w  (a2),d0

@@ -51,7 +51,7 @@ act1_round_tunnel:
     lea     tunnel_lut,a0
     move.w  tun_cy(pc),d0
     add.w   #16,d0
-    mulu.w  #320,d0
+    mulu.w  #448,d0
     add.l   d0,a0
     move.w  tun_cx(pc),d0
     add.w   #16,d0
@@ -114,6 +114,7 @@ act1_round_tunnel:
     addq.w  #1,d2
     cmp.w   #160,d2
     blo.w   .tx
+    lea     128(a0),a0
     addq.w  #1,d3
     cmp.w   #128,d3
     blo.w   .ty
