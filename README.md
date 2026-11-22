@@ -11,12 +11,12 @@
 
 ## 1. Scene Breakdown & Polygon / Pixel Counts
 * **Act I (`0.0s – 5.2s`) — Organic Round 3D Tunnel (`act1_round_tunnel`):**
-  * **Resolution:** `160x128` chunky rendered per-pixel via `224x192` polar `(U, V)` ray-LUT, doubled via C2P to `320x256` 16-color AGA (**20,480 shaded texels/frame** at 50 Hz).
+  * **Resolution:** `160x128` chunky rendered per-pixel via `224x192` polar `(U, V)` ray-LUT, doubled via C2P to `320x256` 32-color AGA (5-bitplane) (**20,480 shaded texels/frame** at 50 Hz).
   * **Dynamic Point-Light Firefly:** Real-time squared Euclidean distance (`dx^2 + dy^2`) modulated by rock texture roughness, casting warm amber light along the tunnel walls.
 * **Act II (`5.2s – 7.6s`) — Tunnel-to-Grotto Transition (`act2_tunnel_exit_scene`):**
   * Camera flies through a 3D rocky archway (`tunnel_arch_mesh`, 3 triangles) out of the tunnel into the underground cavern while the golden firefly meets the turquoise cavern firefly.
 * **Act III (`7.6s+`) — 360° UV-Textured Underground Grotto (`act3_360_grotto`):**
-  * **Total 3D Mesh Complexity:** **91 UV-textured 3D triangles** per frame (`74` environment triangles + `14` foreground island/tree triangles + `3` archway triangles) + pixel-accurate seated rusalka & dual animated fireflies.
+  * **Total 3D Mesh Complexity:** **238 UV-textured 3D triangles** per frame (`74` environment triangles + `14` foreground island/tree triangles + `3` archway triangles) + pixel-accurate seated rusalka & dual animated fireflies.
   * **Environment (`cavern_env_mesh` — 74 triangles):** 12-sided 360° rock walls (`24` tris), 12-sided vaulted ceiling (`12` tris), 2-ring 360° shimmering lake (`36` tris), and animated UV-scrolling waterfall (`2` tris).
   * **Centerpiece (`cavern_fg_mesh` — 14 triangles):** Golden-sand island (`3` tris), tree trunk (`2` tris), and 3-tier emerald leafy tree crown (`9` tris) with a seated rusalka at the shore.
 
@@ -26,8 +26,8 @@
 | Module | Key Functions | Responsibility |
 | :--- | :--- | :--- |
 | `src/main.s` | `start`, `mainloop`, `shutdown` | AmigaOS takeover, 50 Hz PAL VBL loop, Fast/Chip RAM section layout |
-| `src/gfx_engine.i` | `sys_takeover`, `build_copper`, `swap_buffers`, `wait_vbl`, `blit_clear_full` | AGA 4-bitplane (`16-color`) setup, Copperlist generation, double-buffering |
-| `src/c2p_chunky.i` | `clear_chunky`, `c2p_160x128_to_aga`, `draw_uv_tri`, `scan_uv_edge` | `160x128` -> `320x256` 4-bitplane Chunky-to-Planar converter & affine `64x64` UV triangle rasterizer |
+| `src/gfx_engine.i` | `sys_takeover`, `build_copper`, `swap_buffers`, `wait_vbl`, `blit_clear_full` | AGA 5-bitplane (`16-color`) setup, Copperlist generation, double-buffering |
+| `src/c2p_chunky.i` | `clear_chunky`, `c2p_160x128_to_aga`, `draw_uv_tri`, `scan_uv_edge` | `160x128` -> `320x256` 5-bitplane Chunky-to-Planar converter & affine `64x64` UV triangle rasterizer |
 | `src/realtime_3d.i` | `render_realtime_3d`, `act1_round_tunnel`, `act2_tunnel_exit_scene`, `act3_360_grotto`, `proj_uv_160`, `calc_cavern_light`, `draw_textured_firefly_2d` | 3-act choreography, orbital 3D camera, dual point-light shading, animated UV waterfall & fireflies |
 | `src/pt_player.i` | `pt_init`, `pt_music`, `vbl_irq_handler` | Bare-metal 50 Hz ProTracker `M.K.` 4-channel Paula DMA music player |
 | `src/whdload_slave.s` | `_start`, `s_tof`, `s_opn` | Custom WHDLoad v17+ slave with Kickstart-free hardware takeover |
