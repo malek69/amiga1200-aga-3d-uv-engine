@@ -62,7 +62,6 @@ act1_round_tunnel:
     move.w  d7,d5
     lsr.w   #1,d5
     move.w  d7,d6
-    add.w   d6,d6
     ; Plynne kolysanie kamery 3D w tunelu (cam_dx, cam_dy z sin_tab)
     lea     sin_tab,a3
     move.w  d7,d0
@@ -288,6 +287,14 @@ render_uv_mesh_list:
     move.w  (a4)+,d4
 .um_lp: move.w d4,-(sp)
     move.w  (a4)+,d6
+    clr.w   uv_anim_v
+    cmp.w   #1,d6
+    bne.s   .no_wf
+    move.l  vbl_tick(pc),d0
+    neg.w   d0
+    and.w   #63,d0
+    move.w  d0,uv_anim_v
+.no_wf:
     move.w  (a4)+,d5
     bne.s   .has_l
     move.w  (a4),d0
@@ -312,7 +319,7 @@ render_uv_mesh_list:
     move.w  d0,(a1)+
     move.w  d1,(a1)+
     move.w  #0,(a1)+
-    move.w  #0,(a1)+
+    move.w  uv_anim_v(pc),(a1)+
     move.w  (a4)+,d0
     move.w  (a4)+,d1
     move.w  (a4)+,d2
@@ -451,6 +458,7 @@ draw_chunky_rusalka:
     dbf     d5,.ry
 .re: rts
     even
+uv_anim_v: dc.w 0
 cur_v: dc.w 0
 cur_dy2: dc.l 0
 tun_cx: dc.w 0
