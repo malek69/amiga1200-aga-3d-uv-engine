@@ -28,10 +28,10 @@ setup_paula:
     move.w  #322,$b6(a5)
     move.w  #322,$c6(a5)
     move.w  #322,$d6(a5)
-    move.w  #22,$a8(a5)
-    move.w  #22,$b8(a5)
-    move.w  #22,$c8(a5)
-    move.w  #22,$d8(a5)
+    move.w  #44,$a8(a5)
+    move.w  #44,$b8(a5)
+    move.w  #44,$c8(a5)
+    move.w  #44,$d8(a5)
     movec   vbr,a0
     move.l  $70(a0),old_aud_vec
     move.l  #aud0_irq_handler,$70(a0)
@@ -74,6 +74,14 @@ vbl_irq_handler:
     lea     $dff000,a5
     move.w  #$0020,$9c(a5)
     addq.l  #1,vbl_tick
+    move.l  pcm_cur_buf(pc),a0
+    move.b  (a0),d0
+    bpl.s   .pos_s
+    neg.b   d0
+.pos_s:
+    lsr.b   #5,d0
+    move.b  d0,beat_boost
+    bsr.w   update_eq_sprite
     tst.b   swap_ready
     beq.s   .no_swap
     clr.b   swap_ready
@@ -81,3 +89,27 @@ vbl_irq_handler:
 .no_swap:
     movem.l (sp)+,d0-d1/a0/a5
     rte
+
+update_eq_sprite:
+    lea     eq_sprite+16,a0
+    move.b  beat_boost(pc),d2
+    moveq   #15,d1
+.eq_lp:
+    move.l  #$00000000,(a0)+
+    move.l  #$00000000,(a0)+
+    move.l  #$00000000,(a0)+
+    move.l  #$00000000,(a0)+
+    dbf     d1,.eq_lp
+    lea     eq_sprite+16+(15*16),a0
+    moveq   #0,d0
+    move.b  d2,d0
+    addq.w  #2,d0
+    cmp.w   #15,d0
+    ble.s   .eq_h
+    moveq   #15,d0
+.eq_h:
+    move.l  #$ff00ff00,(a0)
+    move.l  #$00ff00ff,8(a0)
+    lea     -16(a0),a0
+    dbf     d0,.eq_h
+    rts

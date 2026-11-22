@@ -40,7 +40,7 @@ mainloop:
 .f_ok:
     move.w  d0,cur_frame
 
-    bsr.w   play_vector_frame
+    bsr.w   render_realtime_3d
     bsr.w   apply_blitter_aa
 
     btst    #6,CIAAPRA
@@ -59,7 +59,8 @@ exit_program:
     include "vec3d_engine.i"
     include "scene_player.i"
     include "audio_player.i"
-    include "scene_data.i"
+    include "realtime_3d.i"
+    include "sincos_tab.i"
 
 gfxname:        dc.b "graphics.library",0
                 even
@@ -140,14 +141,14 @@ pcm_end:
     section chipdata,bss_c
 dma_buf_a:   ds.b 2048
 dma_buf_b: ds.b 2048
-eq_sprite: ds.b 20*16   ds.b 2048
+eq_sprite: ds.b 20*16
 bpl1_a:      ds.b BPL_SIZE
 bpl1_b:      ds.b BPL_SIZE
 bpl2_a:      ds.b BPL_SIZE
 bpl2_b:      ds.b BPL_SIZE
 bpl3_a:      ds.b BPL_SIZE
 bpl3_b:      ds.b BPL_SIZE
-copperlist:  ds.b 512
+copperlist:  ds.b 1024
 
 
 
