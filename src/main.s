@@ -134,12 +134,6 @@ inv_tab:
     
 
 
-    section chip_mod,data_c
-    even
-mod_data:
-    incbin  "demo_tune.mod"
-    dcb.b   256,0
-    even
 
 logo_b1: incbin "logo_bpl1.bin"
 logo_b2: incbin "logo_bpl2.bin"
@@ -159,6 +153,13 @@ dma_buf_b: ds.b 2048
 
 
 
+    even
+
+    section chip_mod,data_c
+    even
+mod_data:
+    incbin  "demo_tune.mod"
+    dcb.b   256,0
     even
 
     section fastram_bss,bss
