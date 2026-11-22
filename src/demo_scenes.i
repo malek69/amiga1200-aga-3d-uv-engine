@@ -52,14 +52,17 @@ scene_01_tunnel:
     asr.w   #5,d1
     move.w  d1,tun_cy
     ; Oblicz wspolczynnik wygaszania scian w ciemnosc od tick 480..639 (fade_sub = 0..31)
-    clr.w   exit_zoom
+    move.w  #64,exit_zoom
     cmp.w   #480,d7
     blo.s   .no_fsub
     move.w  d7,d0
     sub.w   #480,d0
     lsr.w   #1,d0
-    addq.w  #4,d0
-    move.w  d0,exit_zoom
+    move.w  #64,d1
+    sub.w   d0,d1
+    bpl.s   .z_ok
+    moveq   #0,d1
+.z_ok: move.w d1,exit_zoom
 .no_fsub:
     lea     tunnel_lut,a0
     move.w  tun_cy(pc),d0
@@ -478,7 +481,7 @@ draw_256_rusalka:
 .re: rts
     even
 ff_scale: dc.w 1
-exit_zoom: dc.w 0
+exit_zoom: dc.w 64
 ff_rad: dc.w 2600
 uv_anim_v: dc.w 0
 cur_v: dc.w 0
