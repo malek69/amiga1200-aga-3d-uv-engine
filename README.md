@@ -41,3 +41,20 @@ Skrypt `tools/pack_scenes.py` łączy wszystkie dane binarne silnika w jeden dem
 python3 tools/cluster_obj.py && python3 tools/pack_scenes.py && python3 tools/build_grotto3d.py
 ```
 3. Gotowy plik wykonywalny oraz archiwum WHDLoad trafiają do katalogu `releases/` (`GROTTO3D` oraz `grotto3d.lha`).
+
+## Możliwości silnika, funkcje i muzyka .MOD / Capabilities, Functions & .MOD Audio
+
+### Co potrafi silnik / Engine Capabilities
+* **Grafika 256-kolorowa AGA (`BPLCON0 = $0210`):** Pełne 8 bitplanów z 24-bitową paletą RGB (8 banków po 32 odcienie) ładowaną sprzętowo przez rejestr `BPLCON3`.
+* **Teksturowanie UV i cieniowanie w czasie rzeczywistym:** Rysowanie oteksturowanych trójkątów `64x64` w buforze chunky `160x128` z konwersją C2P do `320x256` PAL (`16:9` letterbox) w pełnych `50 Hz`.
+* **Sortowanie głębi `Shell Z-Sort` (`O(N log N)`):** Płynna obsługa złożonych brył 3D (`850+` trójkątów UV) bez przenikania tylnych ścian.
+* **Wbudowana muzyka `.MOD` (ProTracker Paula DMA):** Silnik odtwarza w tle 4-kanałowe moduły Amigowe **ProTracker (`M.K.`)** bezpośrednio przez sprzętowe kanały DMA układu **Paula (`$dff0a0–$dff0df`)** w przerwaniu VBL `50 Hz` (bez udziału systemu operacyjnego).
+
+### Kluczowe funkcje w kodzie / Core Assembly Functions
+* `sys_takeover` / `sys_restore` (`src/gfx_engine.i`): Bezpieczne przejęcie sprzętu Amigi 1200, wyłączenie wielozadaniowości AmigaOS i przywrócenie systemu po naciśnięciu LPM lub `ESC`.
+* `build_copper` / `swap_buffers` (`src/gfx_engine.i`): Budowa Copperlisty dla 8 bitplanów AGA oraz podwójne buforowanie ekranu bez rozrywania klatek.
+* `load_aga_256_palette` (`src/gfx_engine.i`): Ładowanie 256 kolorów 24-bitowych RGB do banków palety AGA.
+* `c2p_160x128_to_aga` (`src/c2p_chunky.i`): Szybki tablicowy konwerter Chunky-to-Planar (8 bitplanów) z podwajaniem linii w poziomie i pionie.
+* `draw_uv_tri` / `scan_uv_edge` (`src/c2p_chunky.i`): Rasteryzator trójkątów 3D z mapowaniem tekstur UV `64x64` i 32-stopniowym cieniowaniem.
+* `render_zsorted_hero` / `proj_uv_160` (`src/demo_scenes.i`): Rzutowanie perspektywiczne 3D, sortowanie głębi `Shell Z-Sort` oraz renderowanie gwiazd i krążących świetlików.
+* `pt_init` / `pt_music` / `vbl_irq_handler` (`src/pt_player.i`): Sprzętowy odtwarzacz plików muzycznych `.mod` zsynchronizowany z przerwaniem ramki `50 Hz`.
