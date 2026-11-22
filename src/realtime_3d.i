@@ -95,6 +95,10 @@ render_realtime_3d:
     muls.w  d4,d0
     muls.w  d4,d1
     add.w   #380,d2
+    cmp.w   #160,d2
+    bge.s   .z_ok
+    move.w  #160,d2
+.z_ok:
     divs.w  d2,d0
     divs.w  d2,d1
     add.w   #160,d0
@@ -138,6 +142,7 @@ render_realtime_3d:
     dbf     d7,.f_loop
     movem.l (sp)+,d0-d7/a0-a5
     rts
+    even
 s_x: dc.w 0
 c_x: dc.w 0
 s_y: dc.w 0
@@ -186,7 +191,7 @@ mesh_prism:
     dc.w 0,4, 1,2,5,7
     dc.w 2,4, 2,3,6,5
     dc.w 0,4, 3,4,7,6
-    dc.w 2,4, 4,1,7,7
+    dc.w 2,3, 4,1,7
     dc.w 0,3, 5,6,7
     dc.w 2,3, 1,5,7
 vec_frame_count: dc.w 1
