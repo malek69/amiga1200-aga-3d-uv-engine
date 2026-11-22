@@ -31,6 +31,8 @@ mainloop:
 
     ; Synchronizacja klatki z audio 16497 Hz: frame = (pcm_played * 10) / 5499
     move.l  vbl_tick(pc),d0
+    mulu.l  #2,d0
+    divu.l  #5,d0
     move.w  vec_frame_count(pc),d1
     cmp.w   d1,d0
     blo.s   .f_ok

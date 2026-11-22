@@ -5,12 +5,12 @@ vid = glob.glob(os.path.expanduser("~/Pobrane/*fr-025*.mp4")).pop(0)
 sd, od = "src", "releases"
 os.makedirs(od, exist_ok=True)
 dur = float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", vid], capture_output=True, text=True, check=True).stdout.strip())
-hz = max(8000, min(16497, int(1380000 / max(1.0, dur))))
+hz = max(8000, min(16497, int(980000 / max(1.0, dur))))
 per = round(3546895 / hz)
 hz_r = 3546895.0 / per
 open(f"{sd}/audio_player.i", "w").write(re.sub(r"#\d+(?=,AUD\dPER)", f"#{per}", re.sub(r"#\d+(?=,AUD\dVOL)", "#20", open(f"{sd}/audio_player.i").read())))
 subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", vid, "-vn", "-af", f"highpass=f=40,lowpass=f={int(hz_r*0.42)},alimiter=limit=0.88,aresample={int(round(hz_r))}:resampler=soxr,volume=0.82", "-f", "s8", "-ac", "1", "-ar", str(int(round(hz_r))), f"{sd}/median_audio.raw"], check=True)
-proc = subprocess.Popen(["ffmpeg", "-v", "error", "-i", vid, "-vf", "scale=312:248:flags=area,fps=30", "-f", "rawvideo", "-pix_fmt", "bgr24", "-"], stdout=subprocess.PIPE)
+proc = subprocess.Popen(["ffmpeg", "-v", "error", "-i", vid, "-vf", "scale=312:248:flags=area,fps=20", "-f", "rawvideo", "-pix_fmt", "bgr24", "-"], stdout=subprocess.PIPE)
 def rgb12(bgr): return ((int(bgr.item(2)) >> 4) << 8) | ((int(bgr.item(1)) >> 4) << 4) | (int(bgr.item(0)) >> 4)
 def mix12(c0, c1):
     r = (((c0 >> 8) & 15) + ((c1 >> 8) & 15)) >> 1
@@ -28,7 +28,7 @@ while True:
     lum = (blur[:, :, 2].astype(np.int16)*30 + blur[:, :, 1].astype(np.int16)*59 + blur[:, :, 0].astype(np.int16)*11) // 100
     bg_mask = (lum >= 65) & (lum <= 205)
     bg_bgr = np.median(blur[bg_mask], axis=0) if np.sum(bg_mask) > 400 else np.median(blur.reshape(-1, 3), axis=0)
-    c0 = rgb12(bg_bgr)
+    c0 = rgb12(bg_bgr) & 0x0eee & 0x0eee
     c1 = 0x0111
     c2 = 0x0fff
     c4 = mix12(c0, c1)
@@ -46,7 +46,7 @@ while True:
             while par != -1: d += 1; par = int(hr.item(par, 3))
             items.append((d, i))
         items.sort()
-        for eps in (1.6, 2.3, 3.2):
+        for eps in (2.4, 4.2, 4.2):
             cur, v_tot = list(), 0
             for d, i in items:
                 if op_base == 2 and (d & 1): continue
@@ -60,7 +60,7 @@ while True:
                 if len(m) >= 3:
                     cur.append((2 if op_base == 2 else (d & 1), tuple(m)))
                     v_tot += len(m)
-            if v_tot <= 200 or eps == 3.2: dp.extend(cur); break
+            if v_tot <= 115 or eps == 4.2: dp.extend(cur); break
     key = (c0, c1, c2, c4, tuple(dp))
     if key not in uniq: uniq[key] = f"vf_{len(uniq)}"
     pr_raw, pr_lbl = raw, uniq[key]
