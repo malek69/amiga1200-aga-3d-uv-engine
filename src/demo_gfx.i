@@ -1,18 +1,6 @@
 ; [EN/PL] MODULE: demo_gfx.i | AGA Top Logo Blitter Copy & 50FPS Sine-Scroller
 draw_aga_overlays:
     movem.l d0-d6/a0-a3,-(sp)
-    ; 1. Kopiuj gorne logo AGA (320x44 = 440 longwords) na BPL1 i BPL2
-    lea     logo_b1,a0
-    move.l  draw_bpl1(pc),a1
-    move.w  #439,d0
-.lg1: move.l (a0)+,(a1)+
-    dbf     d0,.lg1
-    lea     logo_b2,a0
-    move.l  draw_bpl2(pc),a1
-    move.w  #439,d0
-.lg2: move.l (a0)+,(a1)+
-    dbf     d0,.lg2
-
     ; 2. Sine-Scroller na dole ekranu (Y = 216 + sin)
     move.l  vbl_tick(pc),d6
     add.l   d6,d6                   ; speed 2 px/frame

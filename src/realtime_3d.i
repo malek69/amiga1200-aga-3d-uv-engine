@@ -406,7 +406,7 @@ c_y: dc.w 0
 last_z: dc.w 0
 ff_glow: dc.w 0
 proj_verts: ds.l 48
-poly_tmp:   ds.w 20
+poly_tmp: ds.w 20
 moon_spans:
     dc.l $00000000,$00000000
     dc.l $000ff000,$00000000
@@ -500,42 +500,29 @@ sky_stars:
     dc.w 178,16
 mesh_nature:
     dc.w 37
-    ; 0..3: lewy wysoki klif skalny
     dc.w -145,-75,10, -40,-62,15, -45,5,25, -145,15,25
-    ; 4..7: prawy wysoki klif skalny
     dc.w 40,-62,15, 145,-80,10, 145,15,25, 45,5,25
-    ; 8..11: gorna kaskada wodospadu (BPL2)
     dc.w -38,-62,18, 38,-62,18, 46,5,26, -46,5,26
-    ; 12..19: dolny klif po lewej i prawej
     dc.w -145,5,25, -52,5,28, -58,42,38, -145,42,38
     dc.w 52,5,28, 145,5,25, 145,42,38, 58,42,38
-    ; 20..23: dolna kaskada wodospadu (BPL2)
     dc.w -50,5,30, 50,5,30, 62,42,40, -62,42,40
-    ; 24..27: dolne jezioro (BPL2)
     dc.w -155,42,38, 155,42,38, 145,52,145, -145,52,145
-    ; 28..31: choinki na szczytach klifow (BPL1)
     dc.w -105,-72,12, -80,-70,12, -92,-115,12, 92,-118,12
-    ; 32..37: dwa glazy na pierwszym planie jeziora (BPL1 - jak na zdjeciu!)
     dc.w -125,48,110, -55,48,115, -90,34,112
     dc.w 60,48,120, 130,48,115, 95,36,118
     dc.w 13
-    ; Skaly kanionu (BPL1)
     dc.w 0,4, 0,1,2,3
     dc.w 0,4, 4,5,6,7
     dc.w 0,4, 12,13,14,15
     dc.w 0,4, 16,17,18,19
-    ; Choinki na klifach (BPL1)
     dc.w 0,3, 28,29,30
     dc.w 0,3, 4,5,31
-    ; Gorna i dolna kaskada wodospadu (BPL2)
     dc.w 2,4, 8,9,10,11
     dc.w 2,4, 9,8,11,10
     dc.w 2,4, 20,21,22,23
     dc.w 2,4, 21,20,23,22
-    ; Tafla jeziora (BPL2)
     dc.w 2,4, 24,25,26,27
     dc.w 2,4, 25,24,27,26
-    ; Dwa glazy na pierwszym planie jeziora (BPL1)
     dc.w 0,3, 32,33,34
     dc.w 0,3, 35,36,37
 drop_seeds:
