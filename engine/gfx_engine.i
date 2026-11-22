@@ -191,6 +191,7 @@ load_aga_256_palette:
     movem.l (sp)+,d0-d5/a0-a2
     rts
 wait_blitter:
+    lea     $dff000,a5
     btst    #6,DMACONR(a5)
 .wb: btst   #6,DMACONR(a5)
     bne.s   .wb
