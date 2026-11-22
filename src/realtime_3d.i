@@ -544,6 +544,7 @@ update_grotto_copper:
     dbf     d4,.gc_lp
     rts
 
+
     even
 lead_x: dc.w 0
 lead_y: dc.w 16
