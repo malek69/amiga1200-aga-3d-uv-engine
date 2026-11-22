@@ -9,12 +9,6 @@
 ; ============================================================================
 render_realtime_3d:
     movem.l d0-d7/a0-a5,-(sp)
-    move.l  draw_bpl1(pc),a0
-    move.l  #$ffffffff,800(a0)
-    move.l  #$ffffffff,840(a0)
-    move.l  draw_bpl2(pc),a0
-    move.l  #$ffffffff,1000(a0)
-    move.l  #$ffffffff,1040(a0)
     move.l  cop_pal_ptr(pc),a1
     move.w  #$0002,2(a1)
     move.w  #$0247,6(a1)

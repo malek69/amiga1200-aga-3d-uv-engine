@@ -107,12 +107,12 @@ sys_takeover:
     move.w  #$7fff,DMACON(a5)
 
     ; Bezposrednie, gwarantowane adresy w dolnym Chip RAM ($010000-$01F000)
-    move.l  #$00010000,disp_bpl1
-    move.l  #$00012800,draw_bpl1
-    move.l  #$00015000,disp_bpl2
-    move.l  #$00017800,draw_bpl2
-    move.l  #$0001a000,disp_bpl3
-    move.l  #$0001c800,draw_bpl3
+    move.l  #$00080000,disp_bpl1
+    move.l  #$00082800,draw_bpl1
+    move.l  #$00085000,disp_bpl2
+    move.l  #$00087800,draw_bpl2
+    move.l  #$0008a000,disp_bpl3
+    move.l  #$0008c800,draw_bpl3
     move.w  #$8240,DMACON(a5)
 
     bsr.w   build_copper
@@ -131,7 +131,7 @@ sys_takeover:
     move.l  $6c(a0),old_vbl_vec
     move.l  #vbl_irq_handler,$6c(a0)
 
-    move.l  #$0001f000,COP1LC(a5)
+    move.l  #$0008f000,COP1LC(a5)
     move.w  d0,COPJMP1(a5)
     move.w  #$83cf,DMACON(a5)
     move.w  #$c020,INTENA(a5)
@@ -284,7 +284,7 @@ set_col01_shade:
     rts
 
 build_copper:
-    move.l  #$0001f000,a0
+    move.l  #$0008f000,a0
     move.l  #(FMODE<<16)|$0000,(a0)+
     move.l  #(DIWSTRT<<16)|$2c81,(a0)+
     move.l  #(DIWSTOP<<16)|$2cc1,(a0)+
