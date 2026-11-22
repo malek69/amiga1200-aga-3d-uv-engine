@@ -74,7 +74,9 @@ vbl_irq_handler:
     lea     $dff000,a5
     move.w  #$0020,$9c(a5)
     addq.l  #1,vbl_tick
-    move.l  pcm_cur_buf(pc),a0
+    move.l  pcm_cur_buf(pc),d0
+    beq.s   .skip_b
+    move.l  d0,a0
     move.b  (a0),d0
     bpl.s   .pos_s
     neg.b   d0
@@ -82,6 +84,7 @@ vbl_irq_handler:
     lsr.b   #5,d0
     move.b  d0,beat_boost
     bsr.w   update_eq_sprite
+.skip_b:
     tst.b   swap_ready
     beq.s   .no_swap
     clr.b   swap_ready
