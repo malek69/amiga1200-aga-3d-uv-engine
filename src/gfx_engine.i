@@ -331,7 +331,6 @@ build_copper:
     swap    d0
     move.w  #$00e8,(a0)+
     move.w  d0,(a0)+
-
     move.l  a0,cop_bpl4_ptr
     move.l  disp_bpl4(pc),d0
     move.w  #$00ee,(a0)+
@@ -339,6 +338,7 @@ build_copper:
     swap    d0
     move.w  #$00ec,(a0)+
     move.w  d0,(a0)+
+
     move.l  #(BPLCON3<<16)|$0c00,(a0)+
     move.l  #($010c<<16)|$0000,(a0)+
     move.l  a0,cop_pal_ptr

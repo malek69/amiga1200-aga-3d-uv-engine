@@ -9,7 +9,7 @@
 render_realtime_3d:
     movem.l d0-d7/a0-a5,-(sp)
     move.l  cop_pal_ptr(pc),a1
-    move.w  #$0001,2(a1)
+    move.w  #$0000,2(a1)
     move.w  #$0113,6(a1)
     move.w  #$0225,10(a1)
     move.w  #$0347,14(a1)
