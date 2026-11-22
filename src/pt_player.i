@@ -146,10 +146,10 @@ pt_music:
 
     tst.w   d4
     beq.s   .adv_row
-    bsr.s   pt_wait_raster
+    bsr.w   pt_wait_raster
     or.w    #$8200,d4
     move.w  d4,$96(a5)
-    bsr.s   pt_wait_raster
+    bsr.w   pt_wait_raster
     moveq   #0,d5
 .lp_set:
     btst    d5,d4
