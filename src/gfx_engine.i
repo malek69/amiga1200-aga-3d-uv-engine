@@ -103,7 +103,12 @@ sys_takeover:
     move.l  #$000a8000,COP1LC(a5)
     move.w  d0,COPJMP1(a5)
     move.w  #$83cf,DMACON(a5)
+    lea     mod_data,a0
+    bsr.w   pt_init
+    move.l  #vbl_irq_handler,$6c.w
+    move.w  #$c020,INTENA(a5)
     movem.l (sp)+,d0-d7/a0-a6
+    moveq   #1,d0
     rts
 
 wait_vbl:
