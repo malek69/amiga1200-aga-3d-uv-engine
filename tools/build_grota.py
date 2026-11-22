@@ -1,7 +1,7 @@
-import os, random, re, shutil, subprocess, sys
+import glob, os, random, re, shutil, subprocess, sys
 sys.path.insert(0, "tools")
 import build_demo as bd
-grotto_grad = [0x0001,0x0001,0x0011,0x0012,0x0112,0x0112,0x0123,0x0123,0x0123,0x0112,0x0112,0x0012,0x0011,0x0011,0x0001,0x0001,0x0011,0x0012,0x0123,0x0134,0x0135,0x0146,0x0135,0x0124,0x0023,0x0012,0x0012,0x0011,0x0001,0x0001,0x0000,0x0000]
+grotto_grad = [0x0002,0x0002,0x0012,0x0013,0x0113,0x0124,0x0124,0x0135,0x0135,0x0124,0x0124,0x0113,0x0013,0x0012,0x0002,0x0002,0x0012,0x0124,0x0135,0x0146,0x0257,0x0268,0x0257,0x0146,0x0134,0x0023,0x0012,0x0012,0x0002,0x0002,0x0001,0x0001]
 rng = random.Random(7788)
 mist_s = [f"    dc.w {rng.randint(-120,120)},{rng.randint(0,63)}" for _ in range(60)]
 geo = """    even\nlead_x: dc.w 0\nlead_y: dc.w 16\ncam_x:  dc.w 0\nff1_x:  dc.w 0\nff1_y:  dc.w 0\nff1_z:  dc.w 220\nff2_x:  dc.w 0\nff2_y:  dc.w 0\nff2_z:  dc.w 280\ncur_px: dc.w 0\ncur_pz: dc.w 100\np_sx1:  dc.w 0\np_sx2:  dc.w 0\np_sy1:  dc.w 0\np_sy2:  dc.w 0\ntri_ymin: dc.w 0\ntri_ymax: dc.w 0\n"""
@@ -11,27 +11,28 @@ geo += "mist_seeds:\n" + "\n".join(mist_s) + "\nvec_frame_count: dc.w 1\n    eve
 with open("src/realtime_3d.i", "a") as f: f.write(geo)
 mod_info = open("src/mod_credits.txt").read().strip() if os.path.exists("src/mod_credits.txt") else "Aminet Demo MOD"
 dg = open("src/demo_gfx.i").read()
-sc = f"   *** GROTTO OF THE RUSALKA 3D V2.0 *** STORY: FOLLOW THE FIREFLY THROUGH THE TUNNEL INTO THE MOONLIT GROTTO WITH LAKE, ISLAND TREE, RUSALKA & 2 COLORFUL FIREFLIES *** MUSIC: {mod_info.upper()} VIA AMINET *** CODE: MALEK69 & GEMINI AI ***   "
+sc = f"   *** GROTA 3D V2.0 *** PRZELOT ZA SWIETLIKIEM PRZEZ TUNEL DO CIEMNEJ GROTY Z JEZIORKIEM, WYSEPKA, DRZEWEM, RUSALKA, WODOSPADEM Z MGIELKA I 2 KOLOROWYMI SWIETLIKAMI *** MUSIC: {mod_info.upper()} VIA AMINET *** CODE: MALEK69 & GEMINI AI ***   "
 dg = re.sub(r"scroll_text: dc\.b \"[^\"]+\"", f"scroll_text: dc.b \"{sc}\"", dg)
 open("src/demo_gfx.i", "w").write(dg)
 sd, od = "src", "releases"
-exe = os.path.abspath(f"{od}/GROTTO3D_A1200")
+for old in glob.glob(f"{od}/*"): shutil.rmtree(old) if os.path.isdir(old) else os.remove(old)
+exe = os.path.abspath(f"{od}/GROTA")
 subprocess.run(["vasmm68k_mot", "-m68020", "-Fhunkexe", "-kick1hunks", "-nosym", "-I.", "main.s", "-o", exe], cwd=sd, check=True)
 os.chmod(exe, 0o755)
 sz = os.path.getsize(exe)
 em = ((sz + 0x120000 + 0xFFFF) & ~0xFFFF)
 lo = em - sz - 256
-pr = f"{od}/_tmp_gr"
-shutil.rmtree(pr, ignore_errors=True); os.makedirs(f"{pr}/GrottoRusalka3D", exist_ok=True)
-shutil.copy2(exe, f"{pr}/GrottoRusalka3D/GROTTO3D_A1200")
+pr = f"{od}/_tmp_grota"
+shutil.rmtree(pr, ignore_errors=True); os.makedirs(f"{pr}/Grota", exist_ok=True)
+shutil.copy2(exe, f"{pr}/Grota/GROTA")
 credits = f"Code: malek69 & Gemini AI | Music: {mod_info}"[:75]
-sl = open(f"{sd}/whdload_slave.s").read().replace("{EXP_MEM}", f"{em:08x}").replace("{LOAD_OFF}", f"{lo:08x}").replace("{DEMO_TITLE}", "Grotto of the Rusalka 3D v2.0 [AGA + MOD]").replace("{DEMO_CREDITS}", credits).replace("{EXE_NAME}", "GROTTO3D_A1200")
+sl = open(f"{sd}/whdload_slave.s").read().replace("{EXP_MEM}", f"{em:08x}").replace("{LOAD_OFF}", f"{lo:08x}").replace("{DEMO_TITLE}", "Grota 3D v2.0 [AGA + MOD]").replace("{DEMO_CREDITS}", credits).replace("{EXE_NAME}", "GROTA")
 open(f"{pr}/slave.s", "w").write(sl)
-subprocess.run(["vasmm68k_mot", "-m68020", "-Fhunkexe", "-nosym", f"{pr}/slave.s", "-o", f"{pr}/GrottoRusalka3D/Grotto3D.slave"], check=True)
+subprocess.run(["vasmm68k_mot", "-m68020", "-Fhunkexe", "-nosym", f"{pr}/slave.s", "-o", f"{pr}/Grota/Grota.slave"], check=True)
 os.remove(f"{pr}/slave.s")
-open(f"{pr}/GrottoRusalka3D.info", "wb").write(bd.mk_ico(2))
-open(f"{pr}/GrottoRusalka3D/GrottoRusalka3D.info", "wb").write(bd.mk_ico(4, "WHDLoad", ["SLAVE=Grotto3D.slave", "NoMMU"]))
-if os.path.exists(f"{od}/GrottoRusalka3D_A1200_v2.lha"): os.remove(f"{od}/GrottoRusalka3D_A1200_v2.lha")
-bd.mk_lha(f"{od}/GrottoRusalka3D_A1200_v2.lha", pr)
+open(f"{pr}/Grota.info", "wb").write(bd.mk_ico(2))
+open(f"{pr}/Grota/Grota.info", "wb").write(bd.mk_ico(4, "WHDLoad", ["SLAVE=Grota.slave", "NoMMU"]))
+bd.mk_lha(f"{od}/grota.lha", pr)
 shutil.rmtree(pr)
-print(f"SUKCES: {exe} ({sz/1024:.1f} KB) | Gotowe: GrottoRusalka3D_A1200_v2.lha ({mod_info})!", flush=True)
+if os.path.exists("tools/build_grotto3d.py"): os.remove("tools/build_grotto3d.py")
+print(f"SUKCES: {exe} ({sz/1024:.1f} KB) | Paczka: releases/grota.lha ({mod_info})!", flush=True)
