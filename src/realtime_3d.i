@@ -11,14 +11,14 @@ render_realtime_3d:
     move.l  cop_pal_ptr(pc),a1
     move.w  #$0001,2(a1)
     move.w  #$0113,6(a1)
-    move.w  #$0142,10(a1)
-    move.w  #$0273,14(a1)
+    move.w  #$0225,10(a1)
+    move.w  #$0347,14(a1)
     move.w  #$0136,18(a1)
     move.w  #$0269,22(a1)
     move.w  #$04bc,26(a1)
     move.w  #$0ffd,30(a1)
     lea     $dff190,a1
-    move.w  #$0394,(a1)+
+    move.w  #$0641,(a1)+
     move.w  #$0851,(a1)+
     move.w  #$0b72,(a1)+
     move.w  #$0fa4,(a1)+
@@ -63,9 +63,6 @@ act1_round_tunnel:
     moveq   #0,d2
 .tx: move.b (a0)+,d0
     add.b   d5,d0
-    move.w  d3,d4
-    lsr.w   #3,d4
-    add.b   d4,d0
     and.w   #63,d0
     move.b  (a0)+,d1
     beq.w   .is_hole
@@ -175,7 +172,7 @@ proj_uv_160:
     add.l   d0,d2
     asr.l   #8,d2                   ; rz
     sub.w   cam_oz(pc),d2
-    cmp.w   #40,d2
+    cmp.w   #15,d2
     bge.s   .zo
     move.w  #-999,d0
     move.w  #-999,d1
@@ -203,7 +200,7 @@ act3_360_grotto:
     move.w  128(a2,d0.w*2),cam_cos
     clr.w   cam_ox
     move.w  #-16,cam_oy
-    move.w  #-245,cam_oz
+    move.w  #-140,cam_oz
     ; Swietlik #1 (zloty z tunelu) oraz Swietlik #2 (turkusowy z groty) kraza wokol drzewa
     move.w  d7,d0
     add.w   d0,d0
