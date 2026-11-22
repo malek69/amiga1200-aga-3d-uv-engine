@@ -248,5 +248,4 @@ sys_restore:
 vbl_tick:       dc.l 0
 cur_frame:      dc.w 0
 swap_ready:     dc.b 0,0
-cop_sky_ptr:    dc.l 0
 cop_pal_ptr:    dc.l 0
