@@ -1,39 +1,34 @@
-import glob, os, re, shutil, subprocess, sys, zipfile, cv2, numpy as np
+import glob, os, re, shutil, subprocess, sys, cv2, numpy as np
 sys.path.insert(0, "tools")
 import build_demo as bd
 vid = glob.glob(os.path.expanduser("~/Pobrane/*fr-025*.mp4")).pop(0)
 sd, od = "src", "releases"
 os.makedirs(od, exist_ok=True)
-dur = float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", vid], capture_output=True, text=True, check=True).stdout.strip())
-hz = max(8000, min(16497, int(980000 / max(1.0, dur))))
-per = round(3546895 / hz)
+per = 322
 hz_r = 3546895.0 / per
-open(f"{sd}/audio_player.i", "w").write(re.sub(r"#\d+(?=,AUD\dPER)", f"#{per}", re.sub(r"#\d+(?=,AUD\dVOL)", "#20", open(f"{sd}/audio_player.i").read())))
-subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", vid, "-vn", "-af", f"highpass=f=40,lowpass=f={int(hz_r*0.42)},alimiter=limit=0.88,aresample={int(round(hz_r))}:resampler=soxr,volume=0.82", "-f", "s8", "-ac", "1", "-ar", str(int(round(hz_r))), f"{sd}/median_audio.raw"], check=True)
-proc = subprocess.Popen(["ffmpeg", "-v", "error", "-i", vid, "-vf", "scale=312:248:flags=area,fps=20", "-f", "rawvideo", "-pix_fmt", "bgr24", "-"], stdout=subprocess.PIPE)
+open(f"{sd}/audio_player.i", "w").write(re.sub(r"#\d+(?=,AUD\dPER)", f"#{per}", re.sub(r"#\d+(?=,AUD\dVOL)", "#22", open(f"{sd}/audio_player.i").read())))
+subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", vid, "-vn", "-af", f"highpass=f=60,treble=g=5:f=3000,lowpass=f=5200,acompressor=threshold=-14dB:ratio=3:makeup=2dB,aresample={int(round(hz_r))}:resampler=soxr,volume=0.88", "-f", "s8", "-ac", "1", "-ar", str(int(round(hz_r))), f"{sd}/median_audio.raw"], check=True)
+proc = subprocess.Popen(["ffmpeg", "-v", "error", "-i", vid, "-vf", "scale=312:248:flags=lanczos,fps=20", "-f", "rawvideo", "-pix_fmt", "bgr24", "-"], stdout=subprocess.PIPE)
 def rgb12(bgr): return ((int(bgr.item(2)) >> 4) << 8) | ((int(bgr.item(1)) >> 4) << 4) | (int(bgr.item(0)) >> 4)
 def mix12(c0, c1):
-    r = (((c0 >> 8) & 15) + ((c1 >> 8) & 15)) >> 1
-    g = (((c0 >> 4) & 15) + ((c1 >> 4) & 15)) >> 1
-    b = ((c0 & 15) + (c1 & 15)) >> 1
-    return (r << 8) | (g << 4) | b
+    return (((((c0>>8)&15)+((c1>>8)&15))>>1)<<8) | (((((c0>>4)&15)+((c1>>4)&15))>>1)<<4) | (((c0&15)+(c1&15))>>1)
+clahe = cv2.createCLAHE(clipLimit=2.2, tileGridSize=(8, 8))
 fb, uniq, fl, pr_raw, pr_lbl = 312 * 248 * 3, {}, list(), None, None
-k3 = np.ones((3, 3), dtype=np.uint8)
 while True:
     raw = proc.stdout.read(fb)
     if len(raw) < fb: break
     if raw == pr_raw: fl.append(pr_lbl); continue
     img = np.frombuffer(raw, dtype=np.uint8).reshape((248, 312, 3))
-    blur = cv2.GaussianBlur(img, (9, 9), 0)
-    lum = (blur[:, :, 2].astype(np.int16)*30 + blur[:, :, 1].astype(np.int16)*59 + blur[:, :, 0].astype(np.int16)*11) // 100
-    bg_mask = (lum >= 65) & (lum <= 205)
-    bg_bgr = np.median(blur[bg_mask], axis=0) if np.sum(bg_mask) > 400 else np.median(blur.reshape(-1, 3), axis=0)
-    c0 = rgb12(bg_bgr) & 0x0eee & 0x0eee
-    c1 = 0x0111
-    c2 = 0x0fff
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    sat_m = (hsv[:, :, 1] > 45) & (hsv[:, :, 2] > 55) & (hsv[:, :, 2] < 245)
+    mid_m = (hsv[:, :, 2] >= 55) & (hsv[:, :, 2] <= 235)
+    bg_bgr = np.median(img[sat_m], axis=0) if np.sum(sat_m) > 300 else (np.median(img[mid_m], axis=0) if np.sum(mid_m) > 300 else np.median(img.reshape(-1, 3), axis=0))
+    c0 = rgb12(bg_bgr) & 0x0eee
+    c1, c2 = 0x0111, 0x0fff
     c4 = mix12(c0, c1)
-    dark_m = (lum < 72).astype(np.uint8) * 255
-    bright_m = (lum > 205).astype(np.uint8) * 255
+    gray = cv2.GaussianBlur(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY), (5, 5), 0)
+    dark_m = ((gray < 74).astype(np.uint8) * 255)
+    bright_m = ((gray > 205).astype(np.uint8) * 255)
     dp = list()
     for op_base, mask in ((2, bright_m), (0, dark_m)):
         if not np.any(mask): continue
@@ -46,11 +41,11 @@ while True:
             while par != -1: d += 1; par = int(hr.item(par, 3))
             items.append((d, i))
         items.sort()
-        for eps in (2.4, 4.2, 4.2):
+        for eps in (1.8, 2.6, 3.6, 4.8):
             cur, v_tot = list(), 0
             for d, i in items:
                 if op_base == 2 and (d & 1): continue
-                if cv2.contourArea(cnts[i]) < (14.0 if (d & 1) else 9.0): continue
+                if cv2.contourArea(cnts[i]) < (32.0 if (d & 1) else 24.0): continue
                 pts = cv2.approxPolyDP(cnts[i], eps, True).reshape(-1, 2)
                 m = list()
                 for (x, y) in pts:
@@ -60,7 +55,7 @@ while True:
                 if len(m) >= 3:
                     cur.append((2 if op_base == 2 else (d & 1), tuple(m)))
                     v_tot += len(m)
-            if v_tot <= 115 or eps == 4.2: dp.extend(cur); break
+            if v_tot <= 140 or eps == 4.8: dp.extend(cur[:18]); break
     key = (c0, c1, c2, c4, tuple(dp))
     if key not in uniq: uniq[key] = f"vf_{len(uniq)}"
     pr_raw, pr_lbl = raw, uniq[key]
@@ -90,4 +85,4 @@ open(f"{pr}/FR025_A1200.info", "wb").write(bd.mk_ico(2))
 open(f"{pr}/FR025_A1200/FR025_A1200.info", "wb").write(bd.mk_ico(4, "WHDLoad", ["SLAVE=FR025_A1200.slave", "NoMMU"]))
 bd.mk_lha(f"{od}/FR025_A1200_THEA1200.lha", pr)
 shutil.rmtree(pr)
-print(f"GOTOWE: {exe} ({sz/1048576:.2f} MB) | ExpMem = {em/1048576:.2f} MB (50.00 FPS Dynamic AGA)!", flush=True)
+print(f"GOTOWE: {exe} ({sz/1048576:.2f} MB) | ExpMem = {em/1048576:.2f} MB (11025 Hz Audio + Crisp CLAHE Contours)!", flush=True)

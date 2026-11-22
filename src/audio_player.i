@@ -1,6 +1,3 @@
-; [EN/PL] AUTHORS / AUTORZY: malek69 & Gemini AI (Vibe Coding Edition, 2026)
-; [EN] MODULE: audio_player.i | 4-Channel Paula DMA Driver (Level 4 IRQ, LED Filter OFF)
-; [PL] MODUL: audio_player.i | 4-kanalowy sterownik DMA Paula (IRQ4, filtr LED wylaczony)
 AUDIO_BUF_SIZE equ 2048
 
 setup_paula:
@@ -31,15 +28,15 @@ setup_paula:
     move.w  #AUDIO_BUF_SIZE/2,AUD2LEN(a5)
     move.w  #AUDIO_BUF_SIZE/2,AUD3LEN(a5)
 
-    move.w  #453,AUD0PER(a5)        ; 3546895 / 215 = 16497 Hz
-    move.w  #453,AUD1PER(a5)
-    move.w  #453,AUD2PER(a5)
-    move.w  #453,AUD3PER(a5)
+    move.w  #215,AUD0PER(a5)        ; 3546895 / 215 = 16497 Hz
+    move.w  #215,AUD1PER(a5)
+    move.w  #215,AUD2PER(a5)
+    move.w  #215,AUD3PER(a5)
 
-    move.w  #20,AUD0VOL(a5)
-    move.w  #20,AUD1VOL(a5)
-    move.w  #20,AUD2VOL(a5)
-    move.w  #20,AUD3VOL(a5)
+    move.w  #26,AUD0VOL(a5)
+    move.w  #26,AUD1VOL(a5)
+    move.w  #26,AUD2VOL(a5)
+    move.w  #26,AUD3VOL(a5)
 
     move.w  #$0080,INTREQ(a5)
     move.w  #$c080,INTENA(a5)
