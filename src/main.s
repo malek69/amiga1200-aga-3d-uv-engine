@@ -62,6 +62,7 @@ exit_program:
     include "engine3d_core.i"
     include "c2p_chunky.i"
     include "realtime_3d.i"
+    include "demo_scenes.i"
 
 
     even

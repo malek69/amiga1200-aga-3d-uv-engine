@@ -104,8 +104,6 @@ draw_uv_tri:
     ; Trojkat 3D z prawdziwa tekstura UV 64x64: a4 -> 3x(sx,sy,u,v), d6=tex_id (0..3), d7=light (0..7)
     movem.l d0-d7/a0-a5,-(sp)
     move.w  d6,uv_tex
-    lsl.w   #4,d7
-    and.w   #7,d7
     move.w  d7,uv_shade
     move.w  (a4)+,uv_x0
     move.w  (a4)+,uv_y0
