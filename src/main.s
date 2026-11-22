@@ -56,6 +56,7 @@ exit_program:
     include "gfx_engine.i"
     include "vec3d_engine.i"
     include "scene_player.i"
+    include "audio_player.i"
     include "scene_data.i"
 
 gfxname:        dc.b "graphics.library",0
@@ -125,7 +126,6 @@ inv_tab:
     dc.l $00004210,$000041cc,$00004189,$00004146,$00004104,$000040c2,$00004081,$00004040
 
     
-    include "audio_player.i"
 
 
     section pcmdata,data
