@@ -1,326 +1,11 @@
 scene_timeline_table:
-    dc.l    0,640,scene_01_tunnel
-    dc.l    640,700,scene_02_cave_emerge
-    dc.l    700,1340,scene_03_cave_360
-    dc.l    1340,$ffffffff,scene_04_imported_3d
+    dc.l    0,380,demo_act1_flyin
+    dc.l    380,1180,demo_act2_orbit_zsort
+    dc.l    1180,$ffffffff,demo_act3_hero_closeup
 
-scene_01_tunnel:
-    lea     sin_tab,a2
-    ; Swietlik #1 (zloty)
-    move.w  d7,d0
-    add.w   d0,d0
-    and.w   #$ff,d0
-    move.w  (a2,d0.w*2),d1
-    asr.w   #3,d1
-    move.w  d7,d0
-    mulu.w  #3,d0
-    and.w   #$ff,d0
-    move.w  (a2,d0.w*2),d2
-    asr.w   #4,d2
-    addq.w  #4,d2
-    ; Swietlik #2 (turkusowy - w przeciwfazie)
-    move.w  d7,d0
-    add.w   d0,d0
-    add.w   #110,d0
-    and.w   #$ff,d0
-    move.w  (a2,d0.w*2),d3
-    asr.w   #3,d3
-    move.w  d7,d0
-    mulu.w  #3,d0
-    add.w   #85,d0
-    and.w   #$ff,d0
-    move.w  (a2,d0.w*2),d4
-    asr.w   #4,d4
-    subq.w  #2,d4
-    ; Od tick 460 oba swietliki leca razem ku srodkowi tunelu i rosna (1x -> 2x -> 3x)
-    move.w  #1,ff_scale
-    cmp.w   #460,d7
-    blo.s   .ff_fly
-    move.w  d7,d5
-    sub.w   #460,d5
-    move.w  d5,d6
-    lsr.w   #5,d6
-    asr.w   d6,d1
-    asr.w   d6,d2
-    asr.w   d6,d3
-    asr.w   d6,d4
-    cmp.w   #110,d5
-    bhs.s   .sc3
-    cmp.w   #55,d5
-    bhs.s   .sc2
-    bra.s   .ff_fly
-.sc2: move.w #2,ff_scale
-    bra.s   .ff_fly
-.sc3: move.w #3,ff_scale
-.ff_fly:
-    add.w   #80,d1
-    move.w  d1,ff_sx
-    add.w   #64,d2
-    move.w  d2,ff_sy
-    add.w   #80,d3
-    move.w  d3,ff2_sx
-    add.w   #64,d4
-    move.w  d4,ff2_sy
-    ; Kolyszaca kamera 3D
-    move.w  d7,d0
-    add.w   d7,d0
-    and.w   #$ff,d0
-    move.w  (a2,d0.w*2),d1
-    asr.w   #4,d1
-    move.w  d1,tun_cx
-    add.w   #64,d0
-    and.w   #$ff,d0
-    move.w  (a2,d0.w*2),d1
-    asr.w   #5,d1
-    move.w  d1,tun_cy
-    clr.l   exit_r2
-    cmp.w   #480,d7
-    blo.s   .no_fsub
-    move.w  d7,d0
-    sub.w   #480,d0
-    mulu.w  d0,d0
-    lsr.l   #1,d0
-    move.l  d0,exit_r2
-.no_fsub:
-    lea     tunnel_lut,a0
-    move.w  tun_cy(pc),d0
-    add.w   #16,d0
-    mulu.w  #448,d0
-    add.l   d0,a0
-    move.w  tun_cx(pc),d0
-    add.w   #16,d0
-    add.w   d0,d0
-    add.w   d0,a0
-    lea     chunky_buf,a1
-    lea     uv_tex_bank,a2
-    move.w  d7,d5
-    lsr.w   #1,d5
-    move.w  d7,d6
-    moveq   #0,d3
-.ty: move.w d3,d4
-    sub.w   ff_sy(pc),d4
-    muls.w  d4,d4
-    move.l  d4,cur_dy2
-    move.w  d3,d4
-    sub.w   ff2_sy(pc),d4
-    muls.w  d4,d4
-    move.l  d4,cur_dy2_2
-    moveq   #0,d2
-.tx: move.b (a0)+,d0
-    add.b   d5,d0
-    and.w   #63,d0
-    move.b  (a0)+,d1
-    beq.w   .is_hole
-    move.b  d1,cur_v
-    tst.l   exit_r2(pc)
-    beq.s   .not_ex
-    move.w  d2,d1
-    sub.w   #80,d1
-    muls.w  d1,d1
-    move.w  d3,d4
-    sub.w   #64,d4
-    muls.w  d4,d4
-    add.l   d4,d1
-    cmp.l   exit_r2(pc),d1
-    bls.w   .is_hole
-.not_ex:
-    move.b  cur_v(pc),d1
-    add.b   d6,d1
-    and.w   #63,d1
-    lsl.w   #6,d1
-    or.w    d0,d1
-    move.b  (a2,d1.w),d0
-    cmp.b   #26,cur_v
-    blo.s   .dp_ok
-    lsr.b   #1,d0
-.dp_ok:
-    ; Oswietlenie scian od zlotego swietlika #1
-    move.w  d2,d1
-    sub.w   ff_sx(pc),d1
-    muls.w  d1,d1
-    add.l   cur_dy2(pc),d1
-    cmp.l   #950,d1
-    bhi.s   .chk_f2
-    lsr.l   #6,d1
-    lsr.b   #1,d0
-    add.b   #46,d0
-    sub.b   d1,d0
-    cmp.b   #32,d0
-    bhs.s   .wr_p
-    moveq   #32,d0
-    bra.s   .wr_p
-.chk_f2:
-    ; Oswietlenie scian od turkusowego swietlika #2 (Bank 6: 192..223)
-    move.w  d2,d1
-    sub.w   ff2_sx(pc),d1
-    muls.w  d1,d1
-    add.l   cur_dy2_2(pc),d1
-    cmp.l   #950,d1
-    bhi.s   .wr_p
-    lsr.l   #6,d1
-    lsr.b   #1,d0
-    add.b   #206,d0
-    sub.b   d1,d0
-    cmp.b   #192,d0
-    bhs.s   .wr_p
-    move.w  #192,d0
-.wr_p: move.b d0,(a1)+
-    addq.w  #1,d2
-    cmp.w   #160,d2
-    blo.w   .tx
-    lea     128(a0),a0
-    addq.w  #1,d3
-    cmp.w   #128,d3
-    blo.w   .ty
-    bra.s   .dn_t
-.is_hole: clr.b (a1)+
-    addq.w  #1,d2
-    cmp.w   #160,d2
-    blo.w   .tx
-    lea     128(a0),a0
-    addq.w  #1,d3
-    cmp.w   #128,d3
-    blo.w   .ty
-.dn_t:
-    cmp.w   #628,d7
-    bhs.s   .skip_ff
-    ; Rysuj smugi swiatla za oboma swietlikami + oba swietliki!
-    move.w  ff_sx(pc),d0
-    move.w  ff_sy(pc),d1
-    moveq   #58,d7
-    bsr.w   draw_ff_trail
-    move.w  ff_sx(pc),d0
-    move.w  ff_sy(pc),d1
-    moveq   #62,d7
-    bsr.w   draw_256_firefly_scaled
-    move.w  ff2_sx(pc),d0
-    move.w  ff2_sy(pc),d1
-    move.w  #216,d7
-    bsr.w   draw_ff_trail
-    move.w  ff2_sx(pc),d0
-    move.w  ff2_sy(pc),d1
-    move.w  #220,d7
-    bsr.w   draw_256_firefly_scaled
-.skip_ff:
-    rts
-
-scene_02_cave_emerge:
-    ; Oba swietliki wlatuja z tunelu do ciemnej jaskini i swoim blaskiem zaczynaja rozswietlac drzewo!
+demo_act1_flyin:
     bsr.w   clear_chunky
-    cmp.w   #10,d7
-    blo.w   .em_out
-    move.w  #-16,cam_oy
-    move.w  #-235,cam_oz
-    clr.w   cam_sin
-    move.w  #256,cam_cos
-    move.w  #-45,d0
-    add.w   d7,d0
-    move.w  d0,l1_x
-    move.w  #-16,l1_y
-    move.w  #35,l1_z
-    move.w  #50,d0
-    sub.w   d7,d0
-    move.w  d0,l2_x
-    move.w  #-10,l2_y
-    move.w  #55,l2_z
-    cmp.w   #32,d7
-    blo.s   .em_ff
-    lea     cave_env_mesh(pc),a4
-    bsr.w   render_256_mesh
-    lea     cave_fg_mesh(pc),a4
-    bsr.w   render_256_mesh
-    bsr.w   draw_256_sunbeam
-    bsr.w   draw_256_rusalka_lantern
-.em_ff:
-    move.w  l1_x(pc),d0
-    move.w  l1_y(pc),d1
-    move.w  l1_z(pc),d2
-    bsr.w   proj_uv_160
-    moveq   #62,d7
-    bsr.w   draw_256_firefly
-    move.w  l2_x(pc),d0
-    move.w  l2_y(pc),d1
-    move.w  l2_z(pc),d2
-    bsr.w   proj_uv_160
-    move.w  #220,d7
-    bsr.w   draw_256_firefly
-.em_out:
-    rts
-
-scene_03_cave_360:
-    bsr.w   clear_chunky
-    lea     sin_tab,a2
-    move.w  d7,d0
-    lsr.w   #2,d0
-    and.w   #$ff,d0
-    move.w  (a2,d0.w*2),cam_sin
-    move.w  128(a2,d0.w*2),cam_cos
-    clr.w   cam_ox
-    move.w  #-16,cam_oy
-    move.w  #-235,cam_oz
-    move.w  d7,d0
-    add.w   d0,d0
-    and.w   #$ff,d0
-    move.w  (a2,d0.w*2),d1
-    asr.w   #1,d1
-    move.w  d1,l1_x
-    move.w  128(a2,d0.w*2),d2
-    asr.w   #1,d2
-    move.w  d2,l1_z
-    move.w  d7,d1
-    mulu.w  #3,d1
-    and.w   #$ff,d1
-    move.w  (a2,d1.w*2),d2
-    asr.w   #3,d2
-    sub.w   #16,d2
-    move.w  d2,l1_y
-    add.w   #128,d0
-    and.w   #$ff,d0
-    move.w  (a2,d0.w*2),d1
-    asr.w   #1,d1
-    move.w  d1,l2_x
-    move.w  128(a2,d0.w*2),d2
-    asr.w   #1,d2
-    move.w  d2,l2_z
-    neg.w   d2
-    asr.w   #2,d2
-    sub.w   #14,d2
-    move.w  d2,l2_y
-    lea     cave_env_mesh(pc),a4
-    bsr.w   render_256_mesh
-    lea     cave_fg_mesh(pc),a4
-    bsr.w   render_256_mesh
-    bsr.w   draw_256_sunbeam
-    bsr.w   draw_256_rusalka_lantern
-    bsr.w   draw_256_mist
-    move.w  l1_x(pc),d0
-    move.w  l1_y(pc),d1
-    move.w  l1_z(pc),d2
-    bsr.w   proj_uv_160
-    move.w  d0,d5
-    move.w  d1,d6
-    moveq   #58,d7
-    bsr.w   draw_ff_trail
-    move.w  d5,d0
-    move.w  d6,d1
-    moveq   #62,d7
-    bsr.w   draw_256_firefly
-    move.w  l2_x(pc),d0
-    move.w  l2_y(pc),d1
-    move.w  l2_z(pc),d2
-    bsr.w   proj_uv_160
-    move.w  d0,d5
-    move.w  d1,d6
-    move.w  #216,d7
-    bsr.w   draw_ff_trail
-    move.w  d5,d0
-    move.w  d6,d1
-    move.w  #220,d7
-    bsr.w   draw_256_firefly
-    rts
-
-scene_04_imported_3d:
-    bsr.w   clear_chunky
+    bsr.w   draw_256_starfield
     lea     sin_tab,a2
     move.w  d7,d0
     lsr.w   #1,d0
@@ -328,24 +13,181 @@ scene_04_imported_3d:
     move.w  (a2,d0.w*2),cam_sin
     move.w  128(a2,d0.w*2),cam_cos
     clr.w   cam_ox
-    move.w  #-10,cam_oy
+    move.w  #-18,cam_oy
+    move.w  #380,d1
+    sub.w   d7,d1
+    lsr.w   #1,d1
+    add.w   #185,d1
+    neg.w   d1
+    move.w  d1,cam_oz
+    bsr.w   render_zsorted_hero
+    rts
+
+demo_act2_orbit_zsort:
+    bsr.w   clear_chunky
+    bsr.w   draw_256_starfield
+    lea     sin_tab,a2
+    move.w  d7,d0
+    lsr.w   #1,d0
+    and.w   #$ff,d0
+    move.w  (a2,d0.w*2),cam_sin
+    move.w  128(a2,d0.w*2),cam_cos
+    clr.w   cam_ox
+    move.w  #-14,cam_oy
     move.w  #-185,cam_oz
-    lea     imported_mesh(pc),a4
-    bsr.w   render_256_mesh
-    move.w  #55,d0
-    move.w  #-25,d1
-    move.w  #20,d2
+    bsr.w   render_zsorted_hero
+    bsr.w   draw_orbiting_lights
+    rts
+
+demo_act3_hero_closeup:
+    bsr.w   clear_chunky
+    bsr.w   draw_256_starfield
+    lea     sin_tab,a2
+    move.w  d7,d0
+    and.w   #$ff,d0
+    move.w  (a2,d0.w*2),cam_sin
+    move.w  128(a2,d0.w*2),cam_cos
+    clr.w   cam_ox
+    move.w  #12,cam_oy
+    move.w  #-142,cam_oz
+    bsr.w   render_zsorted_hero
+    bsr.w   draw_orbiting_lights
+    rts
+
+draw_256_starfield:
+    lea     chunky_buf,a0
+    move.l  vbl_tick(pc),d5
+    lea     star_pts(pc),a1
+    moveq   #31,d6
+.st_lp: move.w (a1)+,d0
+    add.w   d5,d0
+    and.w   #127,d0
+    add.w   #16,d0
+    move.w  (a1)+,d1
+    mulu.w  #160,d1
+    add.w   d0,d1
+    move.b  #246,(a0,d1.w)
+    dbf     d6,.st_lp
+    rts
+
+draw_orbiting_lights:
+    lea     sin_tab,a2
+    move.l  vbl_tick(pc),d7
+    move.w  d7,d0
+    add.w   d0,d0
+    and.w   #$ff,d0
+    move.w  (a2,d0.w*2),d1
+    asr.w   #1,d1
+    move.w  128(a2,d0.w*2),d2
+    asr.w   #1,d2
+    move.w  d1,d0
+    move.w  #-26,d1
     bsr.w   proj_uv_160
     moveq   #62,d7
     bsr.w   draw_256_firefly
-    move.w  #-55,d0
-    move.w  #-18,d1
-    move.w  #-20,d2
+    move.l  vbl_tick(pc),d7
+    move.w  d7,d0
+    add.w   d0,d0
+    add.w   #128,d0
+    and.w   #$ff,d0
+    move.w  (a2,d0.w*2),d1
+    asr.w   #1,d1
+    move.w  128(a2,d0.w*2),d2
+    asr.w   #1,d2
+    move.w  d1,d0
+    move.w  #8,d1
     bsr.w   proj_uv_160
     move.w  #220,d7
     bsr.w   draw_256_firefly
     rts
-
+render_zsorted_hero:
+    lea     imported_mesh(pc),a4
+    lea     zsort_buf(pc),a3
+    move.w  (a4)+,d4
+    move.w  d4,zsort_cnt
+.zs_prep:
+    move.l  a4,2(a3)
+    move.w  4(a4),d0
+    add.w   10(a4),d0
+    add.w   16(a4),d0
+    divs.w  #3,d0
+    move.w  8(a4),d2
+    add.w   14(a4),d2
+    add.w   20(a4),d2
+    divs.w  #3,d2
+    muls.w  cam_sin(pc),d0
+    muls.w  cam_cos(pc),d2
+    add.l   d0,d2
+    asr.l   #8,d2
+    move.w  d2,(a3)
+    addq.l  #6,a3
+    lea     22(a4),a4
+    dbf     d4,.zs_prep
+    move.w  zsort_cnt(pc),d4
+    subq.w  #1,d4
+    bmi.w   .zs_draw
+.zs_out:
+    lea     zsort_buf(pc),a3
+    move.w  d4,d3
+.zs_in:
+    move.w  (a3),d0
+    cmp.w   6(a3),d0
+    bge.s   .zs_ok
+    move.w  6(a3),(a3)
+    move.w  d0,6(a3)
+    move.l  2(a3),d1
+    move.l  8(a3),2(a3)
+    move.l  d1,8(a3)
+.zs_ok: addq.l #6,a3
+    dbf     d3,.zs_in
+    dbf     d4,.zs_out
+.zs_draw:
+    lea     zsort_buf(pc),a3
+    move.w  zsort_cnt(pc),d4
+.zs_dlp: move.w d4,-(sp)
+    move.l  2(a3),a4
+    addq.l  #6,a3
+    move.l  a3,-(sp)
+    move.w  (a4)+,d6
+    move.w  (a4)+,d5
+    lea     uv_tri(pc),a1
+    move.w  (a4)+,d0
+    move.w  (a4)+,d1
+    move.w  (a4)+,d2
+    bsr.w   proj_uv_160
+    move.w  d0,(a1)+
+    move.w  d1,(a1)+
+    move.w  #0,(a1)+
+    move.w  #0,(a1)+
+    move.w  (a4)+,d0
+    move.w  (a4)+,d1
+    move.w  (a4)+,d2
+    bsr.w   proj_uv_160
+    move.w  d0,(a1)+
+    move.w  d1,(a1)+
+    move.w  #63,(a1)+
+    move.w  #0,(a1)+
+    move.w  (a4)+,d0
+    move.w  (a4)+,d1
+    move.w  (a4)+,d2
+    bsr.w   proj_uv_160
+    move.w  d0,(a1)+
+    move.w  d1,(a1)+
+    move.w  #63,(a1)+
+    move.w  #63,(a1)+
+    cmp.w   #-500,uv_tri
+    blt.s   .zs_sk
+    cmp.w   #-500,uv_tri+8
+    blt.s   .zs_sk
+    cmp.w   #-500,uv_tri+16
+    blt.s   .zs_sk
+    lea     uv_tri(pc),a4
+    move.w  d5,d7
+    bsr.w   draw_uv_tri
+.zs_sk: move.l (sp)+,a3
+    move.w  (sp)+,d4
+    dbf     d4,.zs_dlp
+    rts
 proj_uv_160:
     sub.w   cam_ox(pc),d0
     sub.w   cam_oy(pc),d1
@@ -360,7 +202,7 @@ proj_uv_160:
     add.l   d0,d2
     asr.l   #8,d2
     sub.w   cam_oz(pc),d2
-    cmp.w   #5,d2
+    cmp.w   #12,d2
     bge.s   .zo
     move.w  #-999,d0
     move.w  #-999,d1
@@ -369,708 +211,44 @@ proj_uv_160:
     ext.l   d0
     ext.l   d1
     ext.l   d2
-    muls.l  #135,d0
-    muls.l  #135,d1
+    muls.l  #140,d0
+    muls.l  #140,d1
     divs.l  d2,d0
     divs.l  d2,d1
     add.w   #80,d0
     add.w   #64,d1
     rts
-
-render_256_mesh:
-    move.w  (a4)+,d4
-.um_lp: move.w d4,-(sp)
-    move.w  (a4)+,d6
-    move.w  (a4)+,d5
-    bne.s   .has_bk
-    ; Oblicz srodek trojkata sciany/sklepienia dla dynamicznego swiatla z 4 zrodel!
-    move.w  (a4),d0
-    add.w   6(a4),d0
-    add.w   12(a4),d0
-    divs.w  #3,d0
-    move.w  2(a4),d1
-    add.w   8(a4),d1
-    add.w   14(a4),d1
-    divs.w  #3,d1
-    move.w  4(a4),d2
-    add.w   10(a4),d2
-    add.w   16(a4),d2
-    divs.w  #3,d2
-    moveq   #0,d0
-    move.w  d0,d5
-.has_bk:
-    clr.w   uv_anim_v
-    cmp.w   #1,d6
-    bne.s   .no_wf
-    move.l  vbl_tick(pc),d0
-    neg.w   d0
-    and.w   #63,d0
-    move.w  d0,uv_anim_v
-.no_wf:
-    lea     uv_tri(pc),a1
-    move.w  (a4)+,d0
-    move.w  (a4)+,d1
-    move.w  (a4)+,d2
-    bsr.w   proj_uv_160
-    move.w  d0,(a1)+
-    move.w  d1,(a1)+
-    move.w  #0,(a1)+
-    move.w  uv_anim_v(pc),(a1)+
-    move.w  (a4)+,d0
-    move.w  (a4)+,d1
-    move.w  (a4)+,d2
-    bsr.w   proj_uv_160
-    move.w  d0,(a1)+
-    move.w  d1,(a1)+
-    move.w  #63,(a1)+
-    move.w  uv_anim_v(pc),(a1)+
-    move.w  (a4)+,d0
-    move.w  (a4)+,d1
-    move.w  (a4)+,d2
-    bsr.w   proj_uv_160
-    move.w  d0,(a1)+
-    move.w  d1,(a1)+
-    move.w  #63,(a1)+
-    move.w  #63,(a1)+
-    cmp.w   #-500,uv_tri
-    blt.s   .skip_t
-    cmp.w   #-500,uv_tri+8
-    blt.s   .skip_t
-    cmp.w   #-500,uv_tri+16
-    blt.s   .skip_t
-    tst.w   d5
-    beq.s   .do_bf
-    cmp.w   #1,d6
-    bne.s   .draw_ok
-    tst.w   -16(a4)                 ; jezeli wierzcholek wody ma Y < 0 -> to wodospad (jednostronny!)
-    bpl.s   .draw_ok
-.do_bf:
-    move.w  uv_tri+8(pc),d0
-    sub.w   uv_tri(pc),d0
-    move.w  uv_tri+18(pc),d1
-    sub.w   uv_tri+2(pc),d1
-    muls.w  d1,d0
-    move.w  uv_tri+10(pc),d2
-    sub.w   uv_tri+2(pc),d2
-    move.w  uv_tri+16(pc),d3
-    sub.w   uv_tri(pc),d3
-    muls.w  d3,d2
-    sub.l   d2,d0
-    ble.s   .skip_t
-.draw_ok:
-    move.l  a4,-(sp)
-    lea     uv_tri(pc),a4
-    move.w  d5,d7
-    bsr.w   draw_uv_tri
-    move.l  (sp)+,a4
-.skip_t: move.w (sp)+,d4
-    dbf     d4,.um_lp
-    rts
-
-draw_ff_trail:
-    ; Rysuje 5-punktowa swietlista smuge za swietlikiem (d0=x, d1=y, d7=kolor)
-    cmp.w   #12,d0
-    blo.s   .te
-    cmp.w   #147,d0
-    bhi.s   .te
-    cmp.w   #12,d1
-    blo.s   .te
-    cmp.w   #115,d1
-    bhi.s   .te
-    lea     chunky_buf,a0
-    mulu.w  #160,d1
-    add.w   d0,d1
-    add.w   d1,a0
-    move.b  d7,d2
-    subq.b  #4,d2
-    move.b  d2,-162(a0)
-    move.b  d2,158(a0)
-    subq.b  #5,d2
-    move.b  d2,-324(a0)
-    move.b  d2,316(a0)
-    subq.b  #5,d2
-    move.b  d2,-486(a0)
-.te: rts
-draw_256_firefly_scaled:
-    cmp.w   #1,ff_scale
-    beq.w   draw_256_firefly
-    cmp.w   #14,d0
-    blo.w   .fe2
-    cmp.w   #145,d0
-    bhi.w   .fe2
-    cmp.w   #14,d1
-    blo.w   .fe2
-    cmp.w   #113,d1
-    bhi.w   .fe2
-    lea     chunky_buf,a0
-    mulu.w  #160,d1
-    add.w   d0,d1
-    add.w   d1,a0
-    move.b  d7,d2
-    move.b  #48,d3                  ; ciepla poswiata wokol powiekszonego swietlika
-    ; Skrzydla i poswiata 2x/3x
-    move.b  d3,-640(a0)
-    move.b  d2,-486(a0)
-    move.b  d2,-474(a0)
-    move.b  d2,-325(a0)
-    move.b  d2,-324(a0)
-    move.b  d2,-316(a0)
-    move.b  d2,-315(a0)
-    move.b  d3,-320(a0)
-    move.b  d2,-162(a0)
-    move.b  d2,-161(a0)
-    move.b  d2,-160(a0)
-    move.b  d2,-159(a0)
-    move.b  d2,-158(a0)
-    move.b  d3,-5(a0)
-    move.b  d2,-4(a0)
-    move.b  d2,-3(a0)
-    move.b  d2,-2(a0)
-    move.b  d2,-1(a0)
-    move.b  #255,(a0)
-    move.b  #255,1(a0)
-    move.b  #255,-160(a0)
-    move.b  #255,160(a0)
-    move.b  d2,2(a0)
-    move.b  d2,3(a0)
-    move.b  d2,4(a0)
-    move.b  d3,5(a0)
-    move.b  d2,158(a0)
-    move.b  d2,159(a0)
-    move.b  d2,161(a0)
-    move.b  d2,162(a0)
-    move.b  d3,320(a0)
-    move.b  d2,319(a0)
-    move.b  d2,321(a0)
-    move.b  d3,480(a0)
-    cmp.w   #3,ff_scale
-    blo.s   .fe2
-    move.b  d2,-648(a0)
-    move.b  d2,-632(a0)
-    move.b  d3,-7(a0)
-    move.b  d3,7(a0)
-    move.b  #255,-161(a0)
-    move.b  #255,-159(a0)
-    move.b  #255,159(a0)
-    move.b  #255,161(a0)
-.fe2: rts
 draw_256_firefly:
     cmp.w   #8,d0
-    blo.w   .fe
+    blo.s   .fe
     cmp.w   #151,d0
-    bhi.w   .fe
+    bhi.s   .fe
     cmp.w   #8,d1
-    blo.w   .fe
+    blo.s   .fe
     cmp.w   #119,d1
-    bhi.w   .fe
+    bhi.s   .fe
     lea     chunky_buf,a0
     mulu.w  #160,d1
     add.w   d0,d1
     add.w   d1,a0
-    ; Punktowa poswiata 7x7 wokol swietlika (rozjasnia tlo + barwi je zlotem lub turkusem!)
-    move.w  d7,d5
-    subq.b  #8,d5
-    lea     -483(a0),a1
-    moveq   #6,d3
-.gy: moveq  #6,d4
-.gx: move.b (a1),d2
-    beq.s   .gnx
-    cmp.b   #240,d2
-    bhs.s   .gnx
-    and.b   #15,d2
-    lsr.b   #1,d2
-    add.b   d5,d2
-    move.b  d2,(a1)
-.gnx: addq.l #1,a1
-    dbf     d4,.gx
-    lea     153(a1),a1
-    dbf     d3,.gy
-    ; Skrzydelka i bialy rdzen swietlika
     move.b  d7,d2
     move.b  d2,-324(a0)
     move.b  d2,-316(a0)
-    move.b  d2,-163(a0)
-    move.b  d2,-157(a0)
-    move.b  d2,-320(a0)
     move.b  d2,-161(a0)
     move.b  d2,-160(a0)
     move.b  d2,-159(a0)
-    move.b  d2,-3(a0)
     move.b  d2,-2(a0)
     move.b  d2,-1(a0)
     move.b  #255,(a0)
     move.b  d2,1(a0)
     move.b  d2,2(a0)
-    move.b  d2,3(a0)
-    move.b  d2,159(a0)
     move.b  d2,160(a0)
-    move.b  d2,161(a0)
-    move.b  d2,320(a0)
 .fe: rts
-
-draw_256_sunbeam:
-    ; Maly, owalny otwor w suficie (X=73..87, Y=2..8) + slabszy, delikatny stozek swiatla na drzewo!
-    lea     chunky_buf,a0
-    move.l  vbl_tick(pc),d6
-    moveq   #2,d3
-.by: move.w d3,d4
-    lsr.w   #2,d4
-    move.w  #73,d0
-    sub.w   d4,d0
-    move.w  #87,d1
-    add.w   d4,d1
-    move.w  d3,d2
-    mulu.w  #160,d2
-    add.w   d0,d2
-    lea     (a0,d2.w),a1
-    sub.w   d0,d1
-.bx: move.b (a1),d2
-    beq.s   .bn
-    cmp.b   #240,d2
-    bhs.s   .bn
-    ; Maly owalny otwor w suficie (Y=2..7, bez rogow -> zaokraglony!)
-    cmp.w   #7,d3
-    bhs.s   .beam_px
-    cmp.w   #3,d3
-    blo.s   .oval_mid
-    cmp.w   #6,d3
-    bhi.s   .oval_mid
-    move.b  #244,(a1)
-    bra.s   .bn
-.oval_mid:
-    cmp.w   #2,d1
-    blo.s   .bn
-    cmp.w   #12,d1
-    bhi.s   .bn
-    move.b  #244,(a1)
-    bra.s   .bn
-.beam_px:
-    ; Jezeli piksel to zielone liscie drzewa (64..95) -> tanczace przeswity swiatla w konarach!
-    cmp.b   #64,d2
-    blo.s   .not_leaf
-    cmp.b   #95,d2
-    bhi.s   .not_leaf
-    move.w  d1,d5
-    add.w   d3,d5
-    add.w   d6,d5
-    and.w   #7,d5
-    cmp.w   #2,d5
-    bhi.s   .not_leaf
-    move.b  #94,(a1)                ; jasny sloneczny przeswit w lisciach!
-    bra.s   .bn
-.not_leaf:
-    move.b  d2,d5
-    and.b   #31,d5
-    cmp.b   #24,d5
-    bhs.s   .bn
-    addq.b  #4,(a1)
-.bn: addq.l #1,a1
-    dbf     d1,.bx
-    addq.w  #1,d3
-    cmp.w   #96,d3
-    blo.w   .by
-    rts
-
-draw_256_mist:
-    move.l  vbl_tick(pc),d6
-    lea     mist_coords(pc),a4
-    moveq   #11,d5
-.gm: move.w (a4)+,d0
-    move.w  (a4)+,d1
-    add.w   d6,d1
-    and.w   #$0f,d1
-    neg.w   d1
-    add.w   #46,d1
-    move.w  (a4)+,d2
-    bsr.w   proj_uv_160
-    cmp.w   #156,d0
-    bhi.s   .gn
-    cmp.w   #124,d1
-    bhi.s   .gn
-    lea     chunky_buf,a0
-    mulu.w  #160,d1
-    add.w   d0,d1
-    add.w   d1,a0
-    move.b  #252,(a0)
-    move.b  #240,1(a0)
-.gn: dbf d5,.gm
-    rts
-
-draw_256_rusalka_lantern:
-    move.w  #-16,d0
-    move.w  #26,d1
-    move.w  #0,d2
-    bsr.w   proj_uv_160
-    cmp.w   #136,d0
-    bhi.w   .re
-    cmp.w   #98,d1
-    bhi.w   .re
-    lea     chunky_buf,a0
-    mulu.w  #160,d1
-    add.w   d0,d1
-    add.w   d1,a0
-    ; 1. Ciepla zlota poswiata 9x9 od latarni trzymanej w wyciagnietej dloni rusalki (offset +14 px, +8 linii)
-    lea     8*160+14(a0),a2
-    lea     -644(a2),a1
-    moveq   #8,d3
-.ly: moveq  #8,d4
-.lx: move.b (a1),d2
-    beq.s   .lnx
-    cmp.b   #240,d2
-    bhs.s   .lnx
-    and.b   #15,d2
-    lsr.b   #1,d2
-    add.b   #46,d2
-    move.b  d2,(a1)
-.lnx: addq.l #1,a1
-    dbf     d4,.lx
-    lea     151(a1),a1
-    dbf     d3,.ly
-    ; 2. Siedzaca rusalka z wyciagnieta reka
-    lea     rusalka_seated_bmp(pc),a1
-    moveq   #17,d5
-.ry: move.w (a1)+,d4
-    moveq   #15,d6
-.rx: btst d6,d4
-    beq.s   .rn
-    move.b  #255,(a0)
-.rn: addq.l #1,a0
-    dbf     d6,.rx
-    lea     144(a0),a0
-    dbf     d5,.ry
-    ; 3. Latarnia w dloni rusalki (lancuszek, daszek, plomien, podstawa)
-    move.b  #180,-320(a2)
-    move.b  #185,-161(a2)
-    move.b  #185,-160(a2)
-    move.b  #185,-159(a2)
-    move.b  #62,-1(a2)
-    move.b  #255,(a2)
-    move.b  #62,1(a2)
-    move.b  #62,160(a2)
-    move.b  #180,320(a2)
-.re: rts
     even
-ff_scale: dc.w 1
-exit_r2: dc.l 0
-ff_rad: dc.w 2600
-uv_anim_v: dc.w 0
-cur_v: dc.w 0
-cur_dy2: dc.l 0
-cur_dy2_2: dc.l 0
-ff2_sx: dc.w 80
-ff2_sy: dc.w 64
-tun_cx: dc.w 0
-tun_cy: dc.w 0
-ff_sx: dc.w 80
-ff_sy: dc.w 64
+zsort_cnt: dc.w 0
+zsort_buf: ds.b 400*6
 uv_tri: ds.w 12
-mist_coords: dc.w 64,0,144, 70,4,140, 76,8,136, 82,12,132, 88,2,128, 94,6,124, 100,10,120, 106,14,116, 72,3,134, 84,7,126, 96,11,122, 108,5,118
-rusalka_seated_bmp: dc.w $0380,$07c0,$0fe0,$0ee0,$07c0,$0380,$07c0,$0fe0,$1ff0,$1ff0,$0fe0,$0fe0,$1ff8,$3ffc,$3ffe,$1fff,$07ff,$03fe
-cave_env_mesh:
-    dc.w 178
-    dc.w 1,128,0,48,0,0,48,75,28,48,69
-    dc.w 1,128,0,48,75,0,48,132,52,48,127
-    dc.w 1,128,0,48,75,52,48,127,28,48,69
-    dc.w 1,128,0,48,132,0,48,182,68,48,157
-    dc.w 1,128,0,48,132,68,48,157,52,48,127
-    dc.w 0,0,0,-40,182,68,-40,157,68,48,157
-    dc.w 0,0,0,-40,182,68,48,157,0,48,182
-    dc.w 0,0,0,-112,182,68,-112,157,68,-40,157
-    dc.w 0,0,0,-112,182,68,-40,157,0,-40,182
-    dc.w 0,0,68,-112,157,0,-112,182,0,-142,0
-    dc.w 0,0,13,-120,113,31,-120,113,22,-68,113
-    dc.w 1,128,0,48,0,28,48,69,53,48,53
-    dc.w 1,128,28,48,69,52,48,127,88,48,91
-    dc.w 1,128,28,48,69,88,48,91,53,48,53
-    dc.w 1,128,52,48,127,68,48,157,114,48,122
-    dc.w 1,128,52,48,127,114,48,122,88,48,91
-    dc.w 0,0,68,-40,157,114,-40,122,114,48,122
-    dc.w 0,0,68,-40,157,114,48,122,68,48,157
-    dc.w 0,0,68,-112,157,114,-112,122,114,-40,122
-    dc.w 0,0,68,-112,157,114,-40,122,68,-40,157
-    dc.w 0,0,114,-112,122,68,-112,157,0,-142,0
-    dc.w 0,0,51,-120,93,69,-120,93,60,-68,93
-    dc.w 1,128,0,48,0,53,48,53,69,48,28
-    dc.w 1,128,53,48,53,88,48,91,124,48,52
-    dc.w 1,128,53,48,53,124,48,52,69,48,28
-    dc.w 1,128,88,48,91,114,48,122,159,48,67
-    dc.w 1,128,88,48,91,159,48,67,124,48,52
-    dc.w 0,0,114,-40,122,159,-40,67,159,48,67
-    dc.w 0,0,114,-40,122,159,48,67,114,48,122
-    dc.w 0,0,114,-112,122,159,-112,67,159,-40,67
-    dc.w 0,0,114,-112,122,159,-40,67,114,-40,122
-    dc.w 0,0,159,-112,67,114,-112,122,0,-142,0
-    dc.w 0,0,82,-120,63,100,-120,63,91,-68,63
-    dc.w 1,128,0,48,0,69,48,28,75,48,0
-    dc.w 1,128,69,48,28,124,48,52,136,48,0
-    dc.w 1,128,69,48,28,136,48,0,75,48,0
-    dc.w 1,128,124,48,52,159,48,67,175,48,0
-    dc.w 1,128,124,48,52,175,48,0,136,48,0
-    dc.w 0,0,159,-40,67,175,-40,0,175,48,0
-    dc.w 0,0,159,-40,67,175,48,0,159,48,67
-    dc.w 0,0,159,-112,67,175,-112,0,175,-40,0
-    dc.w 0,0,159,-112,67,175,-40,0,159,-40,67
-    dc.w 0,0,175,-112,0,159,-112,67,0,-142,0
-    dc.w 0,0,102,-120,22,120,-120,22,111,-68,22
-    dc.w 1,128,0,48,0,75,48,0,69,48,-28
-    dc.w 1,128,75,48,0,136,48,0,112,48,-47
-    dc.w 1,128,75,48,0,112,48,-47,69,48,-28
-    dc.w 1,128,136,48,0,175,48,0,160,48,-68
-    dc.w 1,128,136,48,0,160,48,-68,112,48,-47
-    dc.w 0,0,175,-40,0,160,-40,-68,160,48,-68
-    dc.w 0,0,175,-40,0,160,48,-68,175,48,0
-    dc.w 0,0,175,-112,0,160,-112,-68,160,-40,-68
-    dc.w 0,0,175,-112,0,160,-40,-68,175,-40,0
-    dc.w 0,0,160,-112,-68,175,-112,0,0,-142,0
-    dc.w 0,0,102,-120,-23,120,-120,-23,111,-68,-23
-    dc.w 1,128,0,48,0,69,48,-28,53,48,-53
-    dc.w 1,128,69,48,-28,112,48,-47,88,48,-92
-    dc.w 1,128,69,48,-28,88,48,-92,53,48,-53
-    dc.w 1,128,112,48,-47,160,48,-68,126,48,-125
-    dc.w 1,128,112,48,-47,126,48,-125,88,48,-92
-    dc.w 0,0,160,-40,-68,126,-40,-125,126,48,-125
-    dc.w 0,0,160,-40,-68,126,48,-125,160,48,-68
-    dc.w 0,0,160,-112,-68,126,-112,-125,126,-40,-125
-    dc.w 0,0,160,-112,-68,126,-40,-125,160,-40,-68
-    dc.w 0,0,126,-112,-125,160,-112,-68,0,-142,0
-    dc.w 0,0,86,-120,-65,104,-120,-65,95,-68,-65
-    dc.w 1,128,0,48,0,53,48,-53,28,48,-69
-    dc.w 1,128,53,48,-53,88,48,-92,47,48,-125
-    dc.w 1,128,53,48,-53,47,48,-125,28,48,-69
-    dc.w 1,128,88,48,-92,126,48,-125,63,48,-161
-    dc.w 1,128,88,48,-92,63,48,-161,47,48,-125
-    dc.w 0,0,126,-40,-125,63,-40,-161,63,48,-161
-    dc.w 0,0,126,-40,-125,63,48,-161,126,48,-125
-    dc.w 0,0,126,-112,-125,63,-112,-161,63,-40,-161
-    dc.w 0,0,126,-112,-125,63,-40,-161,126,-40,-125
-    dc.w 0,0,63,-112,-161,126,-112,-125,0,-142,0
-    dc.w 0,0,54,-120,-96,72,-120,-96,63,-68,-96
-    dc.w 1,128,0,48,0,28,48,-69,0,48,-75
-    dc.w 1,128,28,48,-69,47,48,-125,0,48,-137
-    dc.w 1,128,28,48,-69,0,48,-137,0,48,-75
-    dc.w 1,128,47,48,-125,63,48,-161,0,48,-181
-    dc.w 1,128,47,48,-125,0,48,-181,0,48,-137
-    dc.w 0,0,63,-40,-161,0,-40,-181,0,48,-181
-    dc.w 0,0,63,-40,-161,0,48,-181,63,48,-161
-    dc.w 0,0,63,-112,-161,0,-112,-181,0,-40,-181
-    dc.w 0,0,63,-112,-161,0,-40,-181,63,-40,-161
-    dc.w 0,0,0,-112,-181,63,-112,-161,0,-142,0
-    dc.w 0,0,12,-120,-114,30,-120,-114,21,-68,-114
-    dc.w 1,128,0,48,0,0,48,-75,-28,48,-69
-    dc.w 1,128,0,48,-75,0,48,-137,-50,48,-118
-    dc.w 1,128,0,48,-75,-50,48,-118,-28,48,-69
-    dc.w 1,128,0,48,-137,0,48,-181,-67,48,-160
-    dc.w 1,128,0,48,-137,-67,48,-160,-50,48,-118
-    dc.w 0,0,0,-40,-181,-67,-40,-160,-67,48,-160
-    dc.w 0,0,0,-40,-181,-67,48,-160,0,48,-181
-    dc.w 0,0,0,-112,-181,-67,-112,-160,-67,-40,-160
-    dc.w 0,0,0,-112,-181,-67,-40,-160,0,-40,-181
-    dc.w 0,0,-67,-112,-160,0,-112,-181,0,-142,0
-    dc.w 0,0,-32,-120,-114,-14,-120,-114,-23,-68,-114
-    dc.w 1,128,0,48,0,-28,48,-69,-53,48,-53
-    dc.w 1,128,-28,48,-69,-50,48,-118,-94,48,-91
-    dc.w 1,128,-28,48,-69,-94,48,-91,-53,48,-53
-    dc.w 1,128,-50,48,-118,-67,48,-160,-125,48,-120
-    dc.w 1,128,-50,48,-118,-125,48,-120,-94,48,-91
-    dc.w 0,0,-67,-40,-160,-125,-40,-120,-125,48,-120
-    dc.w 0,0,-67,-40,-160,-125,48,-120,-67,48,-160
-    dc.w 0,0,-67,-112,-160,-125,-112,-120,-125,-40,-120
-    dc.w 0,0,-67,-112,-160,-125,-40,-120,-67,-40,-160
-    dc.w 0,0,-125,-112,-120,-67,-112,-160,0,-142,0
-    dc.w 0,0,-73,-120,-94,-55,-120,-94,-64,-68,-94
-    dc.w 1,128,0,48,0,-53,48,-53,-69,48,-28
-    dc.w 1,128,-53,48,-53,-94,48,-91,-122,48,-50
-    dc.w 1,128,-53,48,-53,-122,48,-50,-69,48,-28
-    dc.w 1,128,-94,48,-91,-125,48,-120,-161,48,-68
-    dc.w 1,128,-94,48,-91,-161,48,-68,-122,48,-50
-    dc.w 0,0,-125,-40,-120,-161,-40,-68,-161,48,-68
-    dc.w 0,0,-125,-40,-120,-161,48,-68,-125,48,-120
-    dc.w 0,0,-125,-112,-120,-161,-112,-68,-161,-40,-68
-    dc.w 0,0,-125,-112,-120,-161,-40,-68,-125,-40,-120
-    dc.w 0,0,-161,-112,-68,-125,-112,-120,0,-142,0
-    dc.w 0,0,-105,-120,-63,-87,-120,-63,-96,-68,-63
-    dc.w 1,128,0,48,0,-69,48,-28,-75,48,0
-    dc.w 1,128,-69,48,-28,-122,48,-50,-134,48,0
-    dc.w 1,128,-69,48,-28,-134,48,0,-75,48,0
-    dc.w 1,128,-122,48,-50,-161,48,-68,-177,48,0
-    dc.w 1,128,-122,48,-50,-177,48,0,-134,48,0
-    dc.w 0,0,-161,-40,-68,-177,-40,0,-177,48,0
-    dc.w 0,0,-161,-40,-68,-177,48,0,-161,48,-68
-    dc.w 0,0,-161,-112,-68,-177,-112,0,-177,-40,0
-    dc.w 0,0,-161,-112,-68,-177,-40,0,-161,-40,-68
-    dc.w 0,0,-177,-112,0,-161,-112,-68,0,-142,0
-    dc.w 0,0,-122,-120,-23,-104,-120,-23,-113,-68,-23
-    dc.w 1,128,0,48,0,-75,48,0,-69,48,28
-    dc.w 1,128,-75,48,0,-134,48,0,-114,48,50
-    dc.w 1,128,-75,48,0,-114,48,50,-69,48,28
-    dc.w 1,128,-134,48,0,-177,48,0,-164,48,61
-    dc.w 1,128,-134,48,0,-164,48,61,-114,48,50
-    dc.w 0,0,-177,-40,0,-164,-40,61,-164,48,61
-    dc.w 0,0,-177,-40,0,-164,48,61,-177,48,0
-    dc.w 0,0,-177,-112,0,-164,-112,61,-164,-40,61
-    dc.w 0,0,-177,-112,0,-164,-40,61,-177,-40,0
-    dc.w 0,0,-164,-112,61,-177,-112,0,0,-142,0
-    dc.w 0,0,-123,-120,20,-105,-120,20,-114,-68,20
-    dc.w 1,128,0,48,0,-69,48,28,-53,48,53
-    dc.w 1,128,-69,48,28,-114,48,50,-87,48,92
-    dc.w 1,128,-69,48,28,-87,48,92,-53,48,53
-    dc.w 1,128,-114,48,50,-164,48,61,-127,48,119
-    dc.w 1,128,-114,48,50,-127,48,119,-87,48,92
-    dc.w 0,0,-164,-40,61,-127,-40,119,-127,48,119
-    dc.w 0,0,-164,-40,61,-127,48,119,-164,48,61
-    dc.w 0,0,-164,-112,61,-127,-112,119,-127,-40,119
-    dc.w 0,0,-164,-112,61,-127,-40,119,-164,-40,61
-    dc.w 0,0,-127,-112,119,-164,-112,61,0,-142,0
-    dc.w 0,0,-106,-120,60,-88,-120,60,-97,-68,60
-    dc.w 1,128,0,48,0,-53,48,53,-28,48,69
-    dc.w 1,128,-53,48,53,-87,48,92,-50,48,125
-    dc.w 1,128,-53,48,53,-50,48,125,-28,48,69
-    dc.w 1,128,-87,48,92,-127,48,119,-63,48,150
-    dc.w 1,128,-87,48,92,-63,48,150,-50,48,125
-    dc.w 0,0,-127,-40,119,-63,-40,150,-63,48,150
-    dc.w 0,0,-127,-40,119,-63,48,150,-127,48,119
-    dc.w 0,0,-127,-112,119,-63,-112,150,-63,-40,150
-    dc.w 0,0,-127,-112,119,-63,-40,150,-127,-40,119
-    dc.w 0,0,-63,-112,150,-127,-112,119,0,-142,0
-    dc.w 0,0,-73,-120,89,-55,-120,89,-64,-68,89
-    dc.w 1,128,0,48,0,-28,48,69,0,48,75
-    dc.w 1,128,-28,48,69,-50,48,125,0,48,132
-    dc.w 1,128,-28,48,69,0,48,132,0,48,75
-    dc.w 1,128,-50,48,125,-63,48,150,0,48,182
-    dc.w 1,128,-50,48,125,0,48,182,0,48,132
-    dc.w 0,0,-63,-40,150,0,-40,182,0,48,182
-    dc.w 0,0,-63,-40,150,0,48,182,-63,48,150
-    dc.w 0,0,-63,-112,150,0,-112,182,0,-40,182
-    dc.w 0,0,-63,-112,150,0,-40,182,-63,-40,150
-    dc.w 0,0,0,-112,182,-63,-112,150,0,-142,0
-    dc.w 0,0,-30,-120,110,-12,-120,110,-21,-68,110
-    dc.w 1,128,66,-105,148,110,-105,120,118,48,116
-    dc.w 1,128,66,-105,148,118,48,116,60,48,150
-    dc.w 1,128,48,44,154,128,44,110,88,32,126
-cave_fg_mesh:
-    dc.w 121
-    dc.w 0,64,0,48,54,38,48,38,0,32,0
-    dc.w 0,96,38,48,38,54,48,0,0,32,0
-    dc.w 0,96,54,48,0,38,48,-38,0,32,0
-    dc.w 0,64,38,48,-38,0,48,-54,0,32,0
-    dc.w 0,96,0,48,-54,-38,48,-38,0,32,0
-    dc.w 0,96,-38,48,-38,-54,48,0,0,32,0
-    dc.w 0,64,-54,48,0,-38,48,38,0,32,0
-    dc.w 0,96,-38,48,38,0,48,54,0,32,0
-    dc.w 0,160,-7,34,0,7,34,0,0,-20,0
-    dc.w 0,160,0,34,-7,0,34,7,0,-20,0
-    dc.w 0,160,-3,-10,0,-38,-26,16,-28,-32,12
-    dc.w 0,160,3,-12,0,38,-26,-16,28,-32,-12
-    dc.w 0,160,0,-12,3,0,-28,36,0,-34,26
-    dc.w 0,160,0,-12,-3,0,-28,-36,0,-34,-26
-    dc.w 2,64,0,-44,38,32,-44,19,0,-64,0
-    dc.w 2,64,0,-44,38,32,-44,19,0,-34,0
-    dc.w 2,64,32,-44,19,32,-44,-18,0,-64,0
-    dc.w 2,64,32,-44,19,32,-44,-18,0,-34,0
-    dc.w 2,64,32,-44,-18,0,-44,-38,0,-64,0
-    dc.w 2,64,32,-44,-18,0,-44,-38,0,-34,0
-    dc.w 2,64,0,-44,-38,-32,-44,-19,0,-64,0
-    dc.w 2,64,0,-44,-38,-32,-44,-19,0,-34,0
-    dc.w 2,64,-32,-44,-19,-32,-44,19,0,-64,0
-    dc.w 2,64,-32,-44,-19,-32,-44,19,0,-34,0
-    dc.w 2,64,-32,-44,19,0,-44,38,0,-64,0
-    dc.w 2,64,-32,-44,19,0,-44,38,0,-34,0
-    dc.w 2,64,-34,-30,42,-9,-30,28,-34,-46,14
-    dc.w 2,64,-34,-30,42,-9,-30,28,-34,-22,14
-    dc.w 2,64,-9,-30,28,-9,-30,0,-34,-46,14
-    dc.w 2,64,-9,-30,28,-9,-30,0,-34,-22,14
-    dc.w 2,64,-9,-30,0,-34,-30,-14,-34,-46,14
-    dc.w 2,64,-9,-30,0,-34,-30,-14,-34,-22,14
-    dc.w 2,64,-34,-30,-14,-58,-30,0,-34,-46,14
-    dc.w 2,64,-34,-30,-14,-58,-30,0,-34,-22,14
-    dc.w 2,64,-58,-30,0,-58,-30,28,-34,-46,14
-    dc.w 2,64,-58,-30,0,-58,-30,28,-34,-22,14
-    dc.w 2,64,-58,-30,28,-34,-30,42,-34,-46,14
-    dc.w 2,64,-58,-30,28,-34,-30,42,-34,-22,14
-    dc.w 2,64,34,-30,14,58,-30,0,34,-46,-14
-    dc.w 2,64,34,-30,14,58,-30,0,34,-22,-14
-    dc.w 2,64,58,-30,0,58,-30,-27,34,-46,-14
-    dc.w 2,64,58,-30,0,58,-30,-27,34,-22,-14
-    dc.w 2,64,58,-30,-27,34,-30,-42,34,-46,-14
-    dc.w 2,64,58,-30,-27,34,-30,-42,34,-22,-14
-    dc.w 2,64,34,-30,-42,9,-30,-28,34,-46,-14
-    dc.w 2,64,34,-30,-42,9,-30,-28,34,-22,-14
-    dc.w 2,64,9,-30,-28,9,-30,0,34,-46,-14
-    dc.w 2,64,9,-30,-28,9,-30,0,34,-22,-14
-    dc.w 2,64,9,-30,0,33,-30,14,34,-46,-14
-    dc.w 2,64,9,-30,0,33,-30,14,34,-22,-14
-    dc.w 2,64,0,-30,60,24,-30,46,0,-46,32
-    dc.w 2,64,0,-30,60,24,-30,46,0,-22,32
-    dc.w 2,64,24,-30,46,24,-30,18,0,-46,32
-    dc.w 2,64,24,-30,46,24,-30,18,0,-22,32
-    dc.w 2,64,24,-30,18,0,-30,4,0,-46,32
-    dc.w 2,64,24,-30,18,0,-30,4,0,-22,32
-    dc.w 2,64,0,-30,4,-24,-30,17,0,-46,32
-    dc.w 2,64,0,-30,4,-24,-30,17,0,-22,32
-    dc.w 2,64,-24,-30,17,-24,-30,46,0,-46,32
-    dc.w 2,64,-24,-30,17,-24,-30,46,0,-22,32
-    dc.w 2,64,-24,-30,46,0,-30,60,0,-46,32
-    dc.w 2,64,-24,-30,46,0,-30,60,0,-22,32
-    dc.w 2,64,0,-32,-4,24,-32,-17,0,-48,-32
-    dc.w 2,64,0,-32,-4,24,-32,-17,0,-24,-32
-    dc.w 2,64,24,-32,-17,24,-32,-45,0,-48,-32
-    dc.w 2,64,24,-32,-17,24,-32,-45,0,-24,-32
-    dc.w 2,64,24,-32,-45,0,-32,-60,0,-48,-32
-    dc.w 2,64,24,-32,-45,0,-32,-60,0,-24,-32
-    dc.w 2,64,0,-32,-60,-24,-32,-46,0,-48,-32
-    dc.w 2,64,0,-32,-60,-24,-32,-46,0,-24,-32
-    dc.w 2,64,-24,-32,-46,-24,-32,-17,0,-48,-32
-    dc.w 2,64,-24,-32,-46,-24,-32,-17,0,-24,-32
-    dc.w 2,64,-24,-32,-17,0,-32,-4,0,-48,-32
-    dc.w 2,64,-24,-32,-17,0,-32,-4,0,-24,-32
-    dc.w 2,64,-22,-42,5,0,-42,-7,-22,-57,-20
-    dc.w 2,64,-22,-42,5,0,-42,-7,-22,-35,-20
-    dc.w 2,64,0,-42,-7,0,-42,-32,-22,-57,-20
-    dc.w 2,64,0,-42,-7,0,-42,-32,-22,-35,-20
-    dc.w 2,64,0,-42,-32,-21,-42,-45,-22,-57,-20
-    dc.w 2,64,0,-42,-32,-21,-42,-45,-22,-35,-20
-    dc.w 2,64,-21,-42,-45,-43,-42,-32,-22,-57,-20
-    dc.w 2,64,-21,-42,-45,-43,-42,-32,-22,-35,-20
-    dc.w 2,64,-43,-42,-32,-43,-42,-7,-22,-57,-20
-    dc.w 2,64,-43,-42,-32,-43,-42,-7,-22,-35,-20
-    dc.w 2,64,-43,-42,-7,-22,-42,5,-22,-57,-20
-    dc.w 2,64,-43,-42,-7,-22,-42,5,-22,-35,-20
-    dc.w 2,64,22,-42,45,43,-42,32,22,-57,20
-    dc.w 2,64,22,-42,45,43,-42,32,22,-35,20
-    dc.w 2,64,43,-42,32,43,-42,7,22,-57,20
-    dc.w 2,64,43,-42,32,43,-42,7,22,-35,20
-    dc.w 2,64,43,-42,7,22,-42,-5,22,-57,20
-    dc.w 2,64,43,-42,7,22,-42,-5,22,-35,20
-    dc.w 2,64,22,-42,-5,0,-42,7,22,-57,20
-    dc.w 2,64,22,-42,-5,0,-42,7,22,-35,20
-    dc.w 2,64,0,-42,7,0,-42,32,22,-57,20
-    dc.w 2,64,0,-42,7,0,-42,32,22,-35,20
-    dc.w 2,64,0,-42,32,21,-42,45,22,-57,20
-    dc.w 2,64,0,-42,32,21,-42,45,22,-35,20
-    dc.w 2,64,-20,-24,0,0,-24,-10,-20,-38,-22
-    dc.w 2,64,-20,-24,0,0,-24,-10,-20,-17,-22
-    dc.w 2,64,0,-24,-10,0,-24,-32,-20,-38,-22
-    dc.w 2,64,0,-24,-10,0,-24,-32,-20,-17,-22
-    dc.w 2,64,0,-24,-32,-19,-24,-44,-20,-38,-22
-    dc.w 2,64,0,-24,-32,-19,-24,-44,-20,-17,-22
-    dc.w 2,64,-19,-24,-44,-39,-24,-33,-20,-38,-22
-    dc.w 2,64,-19,-24,-44,-39,-24,-33,-20,-17,-22
-    dc.w 2,64,-39,-24,-33,-39,-24,-10,-20,-38,-22
-    dc.w 2,64,-39,-24,-33,-39,-24,-10,-20,-17,-22
-    dc.w 2,64,-39,-24,-10,-20,-24,0,-20,-38,-22
-    dc.w 2,64,-39,-24,-10,-20,-24,0,-20,-17,-22
-    dc.w 2,64,20,-24,44,39,-24,33,20,-38,22
-    dc.w 2,64,20,-24,44,39,-24,33,20,-17,22
-    dc.w 2,64,39,-24,33,39,-24,11,20,-38,22
-    dc.w 2,64,39,-24,33,39,-24,11,20,-17,22
-    dc.w 2,64,39,-24,11,20,-24,0,20,-38,22
-    dc.w 2,64,39,-24,11,20,-24,0,20,-17,22
-    dc.w 2,64,20,-24,0,0,-24,10,20,-38,22
-    dc.w 2,64,20,-24,0,0,-24,10,20,-17,22
-    dc.w 2,64,0,-24,10,0,-24,33,20,-38,22
-    dc.w 2,64,0,-24,10,0,-24,33,20,-17,22
-    dc.w 2,64,0,-24,33,19,-24,44,20,-38,22
-    dc.w 2,64,0,-24,33,19,-24,44,20,-17,22
+star_pts: dc.w 12,8,45,14,88,6,115,19,23,28,67,22,102,31,134,12,19,44,54,39,93,48,128,36,8,62,41,58,76,66,119,54,31,78,63,84,99,73,138,81,14,96,49,92,84,104,122,98,27,112,58,118,91,109,131,116,17,21,73,33,108,42,44,71
     include "imported_mesh.i"
 vec_frame_count: dc.w 1
     even
