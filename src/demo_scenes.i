@@ -162,56 +162,58 @@ render_zsorted_hero:
     move.l  2(a3),a4
     addq.l  #6,a3
     move.l  a3,-(sp)
-    move.w  (a4)+,d6
-    move.w  (a4)+,d5
+    move.w  (a4)+,d6                ; tex_id
+    move.w  (a4)+,d5                ; low byte = bank koloru, high byte = kierunkowa jasnosc 3D (N dot L)!
+    move.w  d5,d3
+    lsr.w   #8,d3                   ; d3 = shade_u (0..63)
+    bne.s   .has_sh
+    moveq   #36,d3                  ; domyslna jasnosc dla cokolu
+.has_sh:
+    and.w   #$00ff,d5               ; d5 = bank palety (0, 32, 128, 160, 192)
+    ; Moduluj jasnosc U lekkim obrotem swiatla wraz z kamera!
+    move.w  cam_sin(pc),d0
+    asr.w   #5,d0
+    add.w   d0,d3
+    cmp.w   #63,d3
+    ble.s   .u_hi
+    moveq   #63,d3
+.u_hi: cmp.w #2,d3
+    bge.s   .u_ok
+    moveq   #2,d3
+.u_ok: move.w d3,u_tmp
     lea     uv_tri(pc),a1
-    ; Wierzcholek 0 + ciagle UV z pozycji 3D (brak szumu na malych trojkatach!)
     move.w  (a4)+,d0
     move.w  (a4)+,d1
     move.w  (a4)+,d2
-    move.w  d0,u_tmp
     move.w  d1,v_tmp
     bsr.w   proj_uv_160
     move.w  d0,(a1)+
     move.w  d1,(a1)+
-    move.w  u_tmp(pc),d0
-    add.w   #64,d0
-    and.w   #63,d0
-    move.w  d0,(a1)+
+    move.w  u_tmp(pc),(a1)+
     move.w  v_tmp(pc),d0
     add.w   #64,d0
     and.w   #63,d0
     move.w  d0,(a1)+
-    ; Wierzcholek 1
     move.w  (a4)+,d0
     move.w  (a4)+,d1
     move.w  (a4)+,d2
-    move.w  d0,u_tmp
     move.w  d1,v_tmp
     bsr.w   proj_uv_160
     move.w  d0,(a1)+
     move.w  d1,(a1)+
-    move.w  u_tmp(pc),d0
-    add.w   #64,d0
-    and.w   #63,d0
-    move.w  d0,(a1)+
+    move.w  u_tmp(pc),(a1)+
     move.w  v_tmp(pc),d0
     add.w   #64,d0
     and.w   #63,d0
     move.w  d0,(a1)+
-    ; Wierzcholek 2
     move.w  (a4)+,d0
     move.w  (a4)+,d1
     move.w  (a4)+,d2
-    move.w  d0,u_tmp
     move.w  d1,v_tmp
     bsr.w   proj_uv_160
     move.w  d0,(a1)+
     move.w  d1,(a1)+
-    move.w  u_tmp(pc),d0
-    add.w   #64,d0
-    and.w   #63,d0
-    move.w  d0,(a1)+
+    move.w  u_tmp(pc),(a1)+
     move.w  v_tmp(pc),d0
     add.w   #64,d0
     and.w   #63,d0
