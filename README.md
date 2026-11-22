@@ -16,7 +16,7 @@
 * **Act II (`5.2s – 7.6s`) — Tunnel-to-Grotto Transition (`act2_tunnel_exit_scene`):**
   * Camera flies through a 3D rocky archway (`tunnel_arch_mesh`, 3 triangles) out of the tunnel into the underground cavern while the golden firefly meets the turquoise cavern firefly.
 * **Act III (`7.6s+`) — 360° UV-Textured Underground Grotto (`act3_360_grotto`):**
-  * **Total 3D Mesh Complexity:** **238 UV-textured 3D triangles** per frame (`74` environment triangles + `14` foreground island/tree triangles + `3` archway triangles) + pixel-accurate seated rusalka & dual animated fireflies.
+  * **Total 3D Mesh Complexity:** **295 UV-textured 3D triangles** per frame (`74` environment triangles + `14` foreground island/tree triangles + `3` archway triangles) + pixel-accurate seated rusalka & dual animated fireflies.
   * **Environment (`cavern_env_mesh` — 74 triangles):** 12-sided 360° rock walls (`24` tris), 12-sided vaulted ceiling (`12` tris), 2-ring 360° shimmering lake (`36` tris), and animated UV-scrolling waterfall (`2` tris).
   * **Centerpiece (`cavern_fg_mesh` — 14 triangles):** Golden-sand island (`3` tris), tree trunk (`2` tris), and 3-tier emerald leafy tree crown (`9` tris) with a seated rusalka at the shore.
 
