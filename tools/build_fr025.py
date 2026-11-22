@@ -46,7 +46,7 @@ while True:
             while par != -1: d += 1; par = int(hr.item(par, 3))
             items.append((d, i))
         items.sort()
-        for eps in (1.1, 1.6, 2.2):
+        for eps in (1.6, 2.3, 3.2):
             cur, v_tot = list(), 0
             for d, i in items:
                 if op_base == 2 and (d & 1): continue
@@ -60,7 +60,7 @@ while True:
                 if len(m) >= 3:
                     cur.append((2 if op_base == 2 else (d & 1), tuple(m)))
                     v_tot += len(m)
-            if v_tot <= 280 or eps == 2.2: dp.extend(cur); break
+            if v_tot <= 200 or eps == 3.2: dp.extend(cur); break
     key = (c0, c1, c2, c4, tuple(dp))
     if key not in uniq: uniq[key] = f"vf_{len(uniq)}"
     pr_raw, pr_lbl = raw, uniq[key]
