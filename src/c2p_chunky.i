@@ -40,17 +40,17 @@ c2p_160x128_to_aga:
     or.l    d2,d1
     move.b  (a0)+,d0
     or.l    (a5,d0.w*4),d1
-    move.b  d1,40(a4)
-    move.b  d1,(a4)+
-    lsr.l   #8,d1
-    move.b  d1,40(a3)
-    move.b  d1,(a3)+
+    move.b  d1,40(a1)
+    move.b  d1,(a1)+
     lsr.l   #8,d1
     move.b  d1,40(a2)
     move.b  d1,(a2)+
     lsr.l   #8,d1
-    move.b  d1,40(a1)
-    move.b  d1,(a1)+
+    move.b  d1,40(a3)
+    move.b  d1,(a3)+
+    lsr.l   #8,d1
+    move.b  d1,40(a4)
+    move.b  d1,(a4)+
     dbf     d7,.col_lp
     lea     40(a1),a1
     lea     40(a2),a2
