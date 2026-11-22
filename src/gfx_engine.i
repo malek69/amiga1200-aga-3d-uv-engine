@@ -138,7 +138,7 @@ sys_takeover:
 
     move.l  #copperlist,COP1LC(a5)
     move.w  d0,COPJMP1(a5)
-    move.w  #$83ef,DMACON(a5)
+    move.w  #$83cf,DMACON(a5)
     move.w  #$c020,INTENA(a5)
     moveq   #1,d0
     rts
@@ -335,17 +335,6 @@ build_copper:
     move.l  #(COLOR05<<16)|$0247,(a0)+
     move.l  #(COLOR06<<16)|$05df,(a0)+
     move.l  #(COLOR07<<16)|$0fff,(a0)+
-    move.l  #($01a2<<16)|$02e6,(a0)+
-    move.l  #($01a4<<16)|$0fe0,(a0)+
-    move.l  #($01a6<<16)|$0f24,(a0)+
-    lea     eq_sprite,a1
-    move.l  #$f0480000,(a1)
-    move.l  a1,d0
-    move.w  #$0122,(a0)+
-    move.w  d0,(a0)+
-    swap    d0
-    move.w  #$0120,(a0)+
-    move.w  d0,(a0)+
     move.l  a0,cop_sky_ptr
     moveq   #31,d2
     move.w  #$2c07,d3
