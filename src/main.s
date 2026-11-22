@@ -60,6 +60,7 @@ exit_program:
     include "scene_player.i"
     include "pt_player.i"
     include "demo_gfx.i"
+    include "engine3d_core.i"
     include "realtime_3d.i"
     include "sincos_tab.i"
 

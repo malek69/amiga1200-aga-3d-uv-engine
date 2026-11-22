@@ -1,5 +1,4 @@
-; [EN/PL] AUTHORS: malek69 & Gemini AI (Vibe Coding Edition, 2026)
-; [EN/PL] MODULE: realtime_3d.i | True 3D Tunnel Flight Behind Illuminated 3D Firefly -> Wet Grotto & Rusalka
+; [EN/PL] MODULE: realtime_3d.i | 3D Textured Tunnel Flight Behind Firefly -> Wet Grotto with Rusalka
 render_realtime_3d:
     movem.l d0-d7/a0-a5,-(sp)
     move.l  vbl_tick(pc),d7
@@ -8,305 +7,167 @@ render_realtime_3d:
     bra.w   act2_grotto
 act1_tunnel:
     move.l  cop_pal_ptr(pc),a1
-    move.w  #$0001,2(a1)            ; COLOR00: gleboki mrok
-    move.w  #$0124,6(a1)            ; COLOR01: BPL1 chlodne mokre sciany tunelu w cieniu
-    move.w  #$0961,10(a1)           ; COLOR02: BPL2 cieple swiatlo od tylka swietlika na scianach i skrzydlach
-    move.w  #$0fe4,14(a1)           ; COLOR03: BPL1+BPL2 jasny swiecacy odwlok swietlika
-    move.w  #$0113,18(a1)           ; COLOR04: Blitter AA
+    move.w  #$0001,2(a1)
+    move.w  #$0124,6(a1)            ; COLOR01: ciemna mokra skala
+    move.w  #$0a72,10(a1)           ; COLOR02: cieple zlote swiatlo od tylka swietlika
+    move.w  #$0fe6,14(a1)           ; COLOR03: jasny rdzen swietlika
+    move.w  #$0113,18(a1)
     lea     sin_tab,a2
     move.w  d7,d0
     add.w   d0,d0
     and.w   #$ff,d0
     move.w  (a2,d0.w*2),d1
-    asr.w   #3,d1                   ; lead_x (-32..+32)
-    move.w  d1,lead_x
+    asr.w   #3,d1
+    move.w  d1,light_x
     move.w  d7,d0
     mulu.w  #3,d0
     and.w   #$ff,d0
     move.w  (a2,d0.w*2),d2
     asr.w   #4,d2
-    add.w   #26,d2                  ; lead_y (+10..+42 -> kamera leci troche nad swietlikiem)
-    move.w  d2,lead_y
-    ext.l   d2
-    muls.l  #240,d2
-    divs.l  #155,d2
-    add.w   #124,d2
-    move.w  d2,ff_scr_y
-    bsr.w   update_tunnel_light_copper
-    ; Wyczysc flage poprzedniego pierscienia do laczenia podluznych zeber 3D
-    clr.b   has_prev_ring
+    add.w   #24,d2
+    move.w  d2,light_y
+    move.w  #160,light_z
+    bsr.w   update_tunnel_copper
+    ; 10 oteksturowanych segmentow tunelu 3D (lewa i prawa sciana skalna oswietlana przez swietlika)
     move.w  d7,d6
     mulu.w  #5,d6
-    moveq   #13,d4                  ; 14 pierscieni tunelu 3D od najdalszego do najblizszego
-.ring_lp:
+    moveq   #9,d4
+.seg_lp:
     move.w  d4,d0
-    lsl.w   #5,d0
+    mulu.w  #48,d0
     sub.w   d6,d0
     and.w   #$01ff,d0
-    add.w   #52,d0                  ; Z = 52..563
-    move.w  d0,cur_pz
-    lsr.w   #2,d0
-    add.w   d7,d0
-    and.w   #$ff,d0
-    move.w  (a2,d0.w*2),d2
+    add.w   #55,d0                  ; Z_front = 55..566
+    move.w  d0,seg_z0
+    add.w   #46,d0
+    move.w  d0,seg_z1
+    ; Zakret tunelu
+    move.w  seg_z0(pc),d1
+    lsr.w   #2,d1
+    add.w   d7,d1
+    and.w   #$ff,d1
+    move.w  (a2,d1.w*2),d2
     asr.w   #3,d2
-    sub.w   lead_x(pc),d2
-    move.w  d2,cur_cx
-    move.w  128(a2,d0.w*2),d2
-    asr.w   #4,d2
-    sub.w   lead_y(pc),d2
-    move.w  d2,cur_cy
-    ; Odleglosc pierscienia od swiecacego odwloka swietlika (Z = 155)
-    move.w  cur_pz(pc),d1
-    sub.w   #155,d1
-    bpl.s   .dz_ok
-    neg.w   d1
-.dz_ok: move.w d1,cur_ldist
-    bsr.w   draw_3d_tunnel_segment
-    dbf     d4,.ring_lp
-    ; Rysuj 3D swietlika (tulow, trzepoczace skrzydelka i swiecacy tylek)
-    bsr.w   draw_3d_firefly_model
+    sub.w   light_x(pc),d2
+    move.w  d2,seg_x0
+    move.w  seg_z1(pc),d1
+    lsr.w   #2,d1
+    add.w   d7,d1
+    and.w   #$ff,d1
+    move.w  (a2,d1.w*2),d2
+    asr.w   #3,d2
+    sub.w   light_x(pc),d2
+    move.w  d2,seg_x1
+    ; Oblicz oswietlenie 3D z odwłoka swietlika dla tego segmentu
+    move.w  seg_x0(pc),d0
+    moveq   #0,d1
+    move.w  seg_z0(pc),d2
+    bsr.w   calc_3d_light
+    move.w  d0,seg_lit
+    bsr.w   draw_textured_tunnel_seg
+    dbf     d4,.seg_lp
+    bsr.w   draw_3d_firefly
     movem.l (sp)+,d0-d7/a0-a5
     rts
-draw_3d_tunnel_segment:
-    move.w  cur_pz(pc),d2
-    ext.l   d2
-    move.w  cur_cx(pc),d0
-    ext.l   d0
-    muls.l  #240,d0
-    divs.l  d2,d0
-    add.w   #160,d0
-    move.w  d0,rc_x
-    move.w  cur_cy(pc),d1
-    ext.l   d1
-    muls.l  #240,d1
-    divs.l  d2,d1
-    add.w   #124,d1
-    move.w  d1,rc_y
-    move.l  #96*240,d3
-    divs.l  d2,d3
-    cmp.w   #4,d3
-    blt.w   .rg_end
-    cmp.w   #270,d3
-    bgt.w   .rg_end
-    move.w  d3,rc_r
-    mulu.w  #181,d3
-    lsr.l   #8,d3
-    move.w  d3,rc_rd
-    move.l  draw_bpl1(pc),a3
-    cmp.w   #92,cur_ldist
-    bhi.s   .use_p
-    move.l  draw_bpl2(pc),a3        ; sciana rozswietlona przez tylek swietlika!
-.use_p: lea ring_pts(pc),a0
-    move.w  rc_x(pc),d0
-    move.w  rc_y(pc),d1
-    move.w  rc_r(pc),d2
-    move.w  rc_rd(pc),d3
-    move.w  d0,(a0)+
-    move.w  d1,d4
-    sub.w   d2,d4
-    move.w  d4,(a0)+
-    move.w  d0,d4
-    add.w   d3,d4
-    move.w  d4,(a0)+
-    move.w  d1,d4
-    sub.w   d3,d4
-    move.w  d4,(a0)+
-    move.w  d0,d4
-    add.w   d2,d4
-    move.w  d4,(a0)+
-    move.w  d1,(a0)+
-    move.w  d0,d4
-    add.w   d3,d4
-    move.w  d4,(a0)+
-    move.w  d1,d4
-    add.w   d3,d4
-    move.w  d4,(a0)+
-    move.w  d0,(a0)+
-    move.w  d1,d4
-    add.w   d2,d4
-    move.w  d4,(a0)+
-    move.w  d0,d4
-    sub.w   d3,d4
-    move.w  d4,(a0)+
-    move.w  d1,d4
-    add.w   d3,d4
-    move.w  d4,(a0)+
-    move.w  d0,d4
-    sub.w   d2,d4
-    move.w  d4,(a0)+
-    move.w  d1,(a0)+
-    move.w  d0,d4
-    sub.w   d3,d4
-    move.w  d4,(a0)+
-    move.w  d1,d4
-    sub.w   d3,d4
-    move.w  d4,(a0)+
-    ; 1. Rysuj 8 krawedzi oktagonu pierscienia
-    lea     ring_pts(pc),a0
-    moveq   #6,d7
-.eg_lp: move.w (a0),d0
-    move.w  2(a0),d1
-    move.w  4(a0),d2
-    move.w  6(a0),d3
-    bsr.w   draw_line_clipped
-    addq.l  #4,a0
-    dbf     d7,.eg_lp
-    move.w  (a0),d0
-    move.w  2(a0),d1
-    lea     ring_pts(pc),a0
-    move.w  (a0),d2
-    move.w  2(a0),d3
-    bsr.w   draw_line_clipped
-    ; 2. Rysuj 8 podluznych zeber 3D laczacych ten pierscien z poprzednim!
-    tst.b   has_prev_ring
-    beq.s   .save_pr
-    lea     ring_pts(pc),a0
-    lea     prev_ring_pts(pc),a1
-    moveq   #7,d7
-.rb_lp: move.w (a0)+,d0
-    move.w  (a0)+,d1
-    move.w  (a1)+,d2
-    move.w  (a1)+,d3
-    bsr.w   draw_line_clipped
-    dbf     d7,.rb_lp
-.save_pr: lea ring_pts(pc),a0
-    lea     prev_ring_pts(pc),a1
-    moveq   #7,d7
-.cp_pr: move.l (a0)+,(a1)+
-    dbf     d7,.cp_pr
-    move.b  #1,has_prev_ring
-.rg_end: rts
-draw_3d_firefly_model:
-    ; Rzutuj 3D swietlika na pozycji (lead_x, lead_y, Z=155)
-    move.w  lead_x(pc),d0
-    ext.l   d0
-    muls.l  #240,d0
-    divs.l  #155,d0
-    add.w   #160,d0
+draw_textured_tunnel_seg:
+    movem.l d4/d6-d7,-(sp)
+    ; Lewa sciana tunelu (2 oteksturowane trojkaty z tekstura mokrej skaly tex_id=0)
+    lea     tmp_tri(pc),a4
+    move.w  seg_x0(pc),d0
+    sub.w   #62,d0
+    move.w  d0,(a4)+
+    move.w  #-75,(a4)+
+    move.w  seg_z0(pc),(a4)+
+    move.w  seg_x1(pc),d0
+    sub.w   #62,d0
+    move.w  d0,(a4)+
+    move.w  #-75,(a4)+
+    move.w  seg_z1(pc),(a4)+
+    move.w  seg_x1(pc),d0
+    sub.w   #62,d0
+    move.w  d0,(a4)+
+    move.w  #85,(a4)+
+    move.w  seg_z1(pc),(a4)+
+    lea     tmp_tri(pc),a4
+    moveq   #0,d6
+    move.w  seg_lit(pc),d7
+    bsr.w   draw_tex_tri
+    ; Prawa sciana tunelu
+    lea     tmp_tri(pc),a4
+    move.w  seg_x0(pc),d0
+    add.w   #62,d0
+    move.w  d0,(a4)+
+    move.w  #-75,(a4)+
+    move.w  seg_z0(pc),(a4)+
+    move.w  seg_x1(pc),d0
+    add.w   #62,d0
+    move.w  d0,(a4)+
+    move.w  #85,(a4)+
+    move.w  seg_z1(pc),(a4)+
+    move.w  seg_x1(pc),d0
+    add.w   #62,d0
+    move.w  d0,(a4)+
+    move.w  #-75,(a4)+
+    move.w  seg_z1(pc),(a4)+
+    lea     tmp_tri(pc),a4
+    moveq   #0,d6
+    move.w  seg_lit(pc),d7
+    bsr.w   draw_tex_tri
+    movem.l (sp)+,d4/d6-d7
+    rts
+draw_3d_firefly:
+    move.w  light_x(pc),d0
+    move.w  light_y(pc),d1
+    move.w  light_z(pc),d2
+    bsr.w   proj_3d
     move.w  d0,fb_x
-    move.w  lead_y(pc),d1
-    ext.l   d1
-    muls.l  #240,d1
-    divs.l  #155,d1
-    add.w   #124,d1
     move.w  d1,fb_y
-    ; Przechyl (bank) przy skrecie oraz kat trzepotania skrzydel (sin_tab)
+    ; Trzepoczace skrzydelka 3D (BPL2)
     lea     sin_tab,a2
     move.l  vbl_tick(pc),d7
-    lsl.w   #4,d7                   ; szybkie machanie skrzydelkami!
+    lsl.w   #4,d7
     and.w   #$ff,d7
     move.w  (a2,d7.w*2),d5
-    asr.w   #5,d5                   ; wing_dy (-8..+8 px)
-    ; A) Dwa trzepoczace skrzydelka 3D (BPL2)
+    asr.w   #5,d5
     move.l  draw_bpl2(pc),a3
     move.w  fb_x(pc),d0
+    sub.w   #11,d0
     move.w  fb_y(pc),d1
-    subq.w  #3,d1
-    move.w  d0,d2
-    sub.w   #14,d2
-    move.w  d1,d3
-    add.w   d5,d3
-    subq.w  #4,d3
-    bsr.w   draw_line_clipped
+    add.w   d5,d1
+    subq.w  #4,d1
+    bsr.s   plot_safe
     move.w  fb_x(pc),d0
-    move.w  fb_y(pc),d1
-    subq.w  #2,d1
-    move.w  d0,d2
-    sub.w   #11,d2
-    move.w  d1,d3
-    add.w   d5,d3
-    bsr.w   draw_line_clipped
-    move.w  fb_x(pc),d0
-    move.w  fb_y(pc),d1
-    subq.w  #3,d1
-    move.w  d0,d2
-    add.w   #14,d2
-    move.w  d1,d3
-    add.w   d5,d3
-    subq.w  #4,d3
-    bsr.w   draw_line_clipped
-    move.w  fb_x(pc),d0
-    move.w  fb_y(pc),d1
-    subq.w  #2,d1
-    move.w  d0,d2
-    add.w   #11,d2
-    move.w  d1,d3
-    add.w   d5,d3
-    bsr.w   draw_line_clipped
-    ; B) Ciemny tulow i glowka swietlika (BPL1, nad swiecacym odwlokiem)
-    move.l  draw_bpl1(pc),a3
-    move.w  fb_x(pc),d0
-    move.w  fb_y(pc),d1
-    subq.w  #6,d1
-    move.w  d0,d2
-    move.w  fb_y(pc),d3
-    bsr.w   draw_line_clipped
-    addq.w  #1,d0
-    addq.w  #1,d2
-    bsr.w   draw_line_clipped
-    ; C) Duzy, swiecacy odwlok (tylek) swietlika + poswiata + promienie swiatla!
-    move.w  fb_x(pc),d0
-    move.w  fb_y(pc),d1
-    addq.w  #2,d1
-    bsr.w   draw_bulb_glow_at
-    rts
-draw_bulb_glow_at:
-    ; Rysuje swiecacy odwlok swietlika na (d0, d1): poswiata 7x5 na BPL2 + promienie + jasny rdzen 3x3 (BPL1+BPL2)
-    cmp.w   #14,d0
-    blo.w   .bg_ex
-    cmp.w   #305,d0
-    bhi.w   .bg_ex
-    cmp.w   #14,d1
-    blo.w   .bg_ex
-    cmp.w   #240,d1
-    bhi.w   .bg_ex
-    move.w  d0,fb_x
-    move.w  d1,fb_y
-    move.l  draw_bpl2(pc),a3
-    subq.w  #2,d1
-    moveq   #4,d5
-.bhl_y: move.w fb_x(pc),d0
-    subq.w  #3,d0
-    moveq   #6,d4
-.bhl_x: bsr.s set_px_a3
-    addq.w  #1,d0
-    dbf     d4,.bhl_x
-    addq.w  #1,d1
-    dbf     d5,.bhl_y
-    move.l  vbl_tick(pc),d6
-    and.w   #7,d6
-    addq.w  #5,d6
-    move.w  fb_x(pc),d0
-    sub.w   d6,d0
-    move.w  fb_y(pc),d1
-    move.w  fb_x(pc),d2
-    add.w   d6,d2
-    move.w  d1,d3
-    bsr.w   draw_line_clipped
-    move.w  fb_x(pc),d0
-    move.w  fb_y(pc),d1
-    sub.w   d6,d1
-    move.w  d0,d2
-    move.w  fb_y(pc),d3
-    add.w   d6,d3
-    bsr.w   draw_line_clipped
-    move.l  draw_bpl1(pc),a3
-    move.w  fb_x(pc),d0
-    subq.w  #1,d0
+    add.w   #11,d0
+    bsr.s   plot_safe
+    ; Swiecacy odwlok swietlika (poswiata 5x5 na BPL2 + jasny rdzen 3x3 BPL1+BPL2)
     move.w  fb_y(pc),d1
     subq.w  #1,d1
+    moveq   #4,d5
+.gy: move.w fb_x(pc),d0
+    subq.w  #2,d0
+    moveq   #4,d4
+.gx: bsr.s plot_safe
+    addq.w  #1,d0
+    dbf     d4,.gx
+    addq.w  #1,d1
+    dbf     d5,.gy
+    move.l  draw_bpl1(pc),a3
+    move.w  fb_y(pc),d1
     moveq   #2,d5
-.bcr_y: move.w fb_x(pc),d0
+.cy: move.w fb_x(pc),d0
     subq.w  #1,d0
     moveq   #2,d4
-.bcr_x: bsr.s set_px_a3
+.cx: bsr.s plot_safe
     addq.w  #1,d0
-    dbf     d4,.bcr_x
+    dbf     d4,.cx
     addq.w  #1,d1
-    dbf     d5,.bcr_y
-.bg_ex: rts
-set_px_a3:
+    dbf     d5,.cy
+    rts
+plot_safe:
+    cmp.w   #319,d0
+    bhi.s   .ps_no
+    cmp.w   #254,d1
+    bhi.s   .ps_no
     move.w  d1,d2
     mulu.w  #40,d2
     move.w  d0,d3
@@ -316,96 +177,10 @@ set_px_a3:
     not.w   d3
     and.w   #7,d3
     bset    d3,(a3,d2.l)
-    rts
-draw_line_clipped:
-    movem.l d0-d7/a0,-(sp)
-    cmp.w   #-160,d0
-    bge.s   .c0a
-    move.w  #-160,d0
-.c0a: cmp.w #480,d0
-    ble.s   .c0b
-    move.w  #480,d0
-.c0b: cmp.w #-160,d2
-    bge.s   .c2a
-    move.w  #-160,d2
-.c2a: cmp.w #480,d2
-    ble.s   .c2b
-    move.w  #480,d2
-.c2b: cmp.w #-160,d1
-    bge.s   .c1a
-    move.w  #-160,d1
-.c1a: cmp.w #420,d1
-    ble.s   .c1b
-    move.w  #420,d1
-.c1b: cmp.w #-160,d3
-    bge.s   .c3a
-    move.w  #-160,d3
-.c3a: cmp.w #420,d3
-    ble.s   .c3b
-    move.w  #420,d3
-.c3b:
-    sub.w   d0,d2
-    sub.w   d1,d3
-    moveq   #1,d4
-    tst.w   d2
-    bpl.s   .dxp
-    neg.w   d2
-    moveq   #-1,d4
-.dxp: moveq #1,d5
-    tst.w   d3
-    bpl.s   .dyp
-    neg.w   d3
-    moveq   #-1,d5
-.dyp: cmp.w d3,d2
-    blt.s   .steep
-    move.w  d2,d6
-    lsr.w   #1,d6
-    move.w  d2,d7
-.lx_lp: bsr.s .plot
-    add.w   d4,d0
-    sub.w   d3,d6
-    bge.s   .lx_nx
-    add.w   d5,d1
-    add.w   d2,d6
-.lx_nx: dbf d7,.lx_lp
-    bra.s   .ln_ex
-.steep: move.w d3,d6
-    lsr.w   #1,d6
-    move.w  d3,d7
-.ly_lp: bsr.s .plot
-    add.w   d5,d1
-    sub.w   d2,d6
-    bge.s   .ly_nx
-    add.w   d4,d0
-    add.w   d3,d6
-.ly_nx: dbf d7,.ly_lp
-.ln_ex: movem.l (sp)+,d0-d7/a0
-    rts
-.plot: cmp.w #319,d0
-    bhi.s   .pl_no
-    cmp.w   #254,d1
-    bhi.s   .pl_no
-    move.w  d1,a0
-    mulu.w  #40,d1
-    move.w  d0,-(sp)
-    lsr.w   #3,d0
-    add.w   d0,d1
-    move.w  (sp),d0
-    not.w   d0
-    and.w   #7,d0
-    bset    d0,(a3,d1.l)
-    move.w  (sp)+,d0
-    move.w  a0,d1
-.pl_no: rts
+.ps_no: rts
 act2_grotto:
     lea     sin_tab,a2
     sub.l   #450,d7
-    move.w  d7,d0
-    lsr.w   #1,d0
-    and.w   #$ff,d0
-    move.w  (a2,d0.w*2),d5
-    asr.w   #4,d5
-    move.w  d5,cam_x
     move.w  d7,d0
     add.w   d0,d0
     and.w   #$ff,d0
@@ -439,219 +214,135 @@ act2_grotto:
     move.w  #$0001,2(a1)
     move.w  #$0123,6(a1)
     cmp.w   #250,ff1_z
-    bge.s   .col_cyan
+    bge.s   .col_c
     move.w  #$0962,10(a1)
     move.w  #$0fe5,14(a1)
-    bra.s   .col_ok
-.col_cyan: move.w #$0289,10(a1)
+    bra.s   .col_o
+.col_c: move.w #$0289,10(a1)
     move.w  #$06fe,14(a1)
-.col_ok: move.w #$0112,18(a1)
+.col_o: move.w #$0112,18(a1)
     bsr.w   update_grotto_copper
-    lea     grotto_walls(pc),a4
-    moveq   #5,d7
-.gw_lp: moveq #0,d0
-    bsr.w   draw_mesh_tri_lut
-    dbf     d7,.gw_lp
-    bsr.w   render_lake_ripples
-    lea     thin_waterfall(pc),a4
+    ; 1. Oteksturowane sciany groty (tex 0 = mokra skala)
+    lea     grotto_tris(pc),a4
+    moveq   #5,d4
+.gt_lp: moveq #0,d6
     moveq   #1,d7
-.wf_lp: moveq #2,d0
-    bsr.w   draw_mesh_tri_lut
-    dbf     d7,.wf_lp
-    bsr.w   render_waterfall_mist
-    lea     island_and_tree_b1(pc),a4
-    moveq   #3,d7
-.tr1_lp: moveq #0,d0
-    bsr.w   draw_mesh_tri_lut
-    dbf     d7,.tr1_lp
-    lea     tree_crown_glow(pc),a4
+    bsr.w   draw_tex_tri
+    lea     18(a4),a4
+    dbf     d4,.gt_lp
+    ; 2. Oteksturowana tafla jeziorka (tex 1 = falujaca woda) + cienki wodospad z mgielka
+    lea     lake_tris(pc),a4
+    moveq   #1,d4
+.lk_lp: moveq #1,d6
+    moveq   #2,d7
+    bsr.w   draw_tex_tri
+    lea     18(a4),a4
+    dbf     d4,.lk_lp
+    lea     wf_tris(pc),a4
+    moveq   #1,d4
+.wf_lp: moveq #1,d6
+    moveq   #2,d7
+    bsr.w   draw_tex_tri
+    lea     18(a4),a4
+    dbf     d4,.wf_lp
+    bsr.w   render_mist_particles
+    ; 3. Wysepka i drzewo (tex 2 = liscie i mech) + Rusalka + 2 kolorowe swietliki
+    lea     tree_tris(pc),a4
+    moveq   #3,d4
+.tr_lp: moveq #2,d6
     moveq   #1,d7
-.tr2_lp: moveq #2,d0
-    bsr.w   draw_mesh_tri_lut
-    dbf     d7,.tr2_lp
-    bsr.w   draw_rusalka_sprite
-    move.w  ff1_x(pc),d0
-    move.w  ff1_y(pc),d1
-    move.w  ff1_z(pc),d2
-    bsr.w   proj_grotto_pt
-    bsr.w   draw_bulb_glow_at
-    move.w  ff2_x(pc),d0
-    move.w  ff2_y(pc),d1
-    move.w  ff2_z(pc),d2
-    bsr.w   proj_grotto_pt
-    bsr.w   draw_bulb_glow_at
+    bsr.w   draw_tex_tri
+    lea     18(a4),a4
+    dbf     d4,.tr_lp
+    bsr.w   draw_rusalka
+    move.w  ff1_x(pc),light_x
+    move.w  ff1_y(pc),light_y
+    move.w  ff1_z(pc),light_z
+    bsr.w   draw_3d_firefly
+    move.w  ff2_x(pc),light_x
+    move.w  ff2_y(pc),light_y
+    move.w  ff2_z(pc),light_z
+    bsr.w   draw_3d_firefly
     movem.l (sp)+,d0-d7/a0-a5
     rts
-render_lake_ripples:
-    move.l  draw_bpl2(pc),a3
-    lea     sin_tab,a2
-    move.l  vbl_tick(pc),d7
-    moveq   #13,d6
-    move.w  #172,d5
-.lk_lp: move.w d5,d0
-    lsl.w   #2,d0
-    add.w   d7,d0
-    and.w   #$ff,d0
-    move.w  (a2,d0.w*2),d4
-    asr.w   #4,d4
-    move.w  #26,d0
-    add.w   d4,d0
-    move.w  d5,d1
-    move.w  #294,d2
-    sub.w   d4,d2
-    move.w  d5,d3
-    bsr.w   draw_line_clipped
-    addq.w  #5,d5
-    dbf     d6,.lk_lp
-    rts
-draw_mesh_tri_lut:
-    move.w  d0,-(sp)
-    lea     poly_tmp(pc),a1
-    move.w  #3,(a1)+
-    move.w  (a4)+,d0
-    move.w  (a4)+,d1
-    move.w  (a4)+,d2
-    bsr.s   proj_grotto_pt
-    move.w  d0,(a1)+
-    move.w  d1,(a1)+
-    move.w  (a4)+,d0
-    move.w  (a4)+,d1
-    move.w  (a4)+,d2
-    bsr.s   proj_grotto_pt
-    move.w  d0,(a1)+
-    move.w  d1,(a1)+
-    move.w  (a4)+,d0
-    move.w  (a4)+,d1
-    move.w  (a4)+,d2
-    bsr.s   proj_grotto_pt
-    move.w  d0,(a1)+
-    move.w  d1,(a1)+
-    move.w  (sp)+,d0
-    lea     poly_tmp(pc),a1
-    bsr.w   draw_polygon_mode
-    rts
-proj_grotto_pt:
-    sub.w   cam_x(pc),d0
-    ext.l   d0
-    ext.l   d1
-    muls.l  #260,d0
-    muls.l  #260,d1
-    ext.l   d2
-    divs.l  d2,d0
-    divs.l  d2,d1
-    add.w   #160,d0
-    add.w   #118,d1
-    rts
-draw_rusalka_sprite:
-    move.w  #-14,d0
-    move.w  #28,d1
-    move.w  #242,d2
-    bsr.s   proj_grotto_pt
+draw_rusalka:
     move.l  draw_bpl1(pc),a2
     move.l  draw_bpl2(pc),a3
-    lea     rusalka_bitmap(pc),a0
-    mulu.w  #40,d1
-    move.w  d0,d3
-    lsr.w   #3,d3
-    and.w   #$fffe,d3
-    add.w   d3,d1
-    add.l   d1,a2
-    add.l   d1,a3
-    and.w   #15,d0
+    lea     rusalka_bmp(pc),a0
+    add.l   #144*40+17,a2
+    add.l   #144*40+17,a3
     moveq   #21,d7
-.rs_lp: moveq #0,d2
-    move.w  (a0)+,d2
-    swap    d2
-    lsr.l   d0,d2
-    or.l    d2,(a2)
-    or.l    d2,(a3)
+.rs_l: move.w (a0)+,d0
+    or.w    d0,(a2)
+    or.w    d0,(a3)
     lea     40(a2),a2
     lea     40(a3),a3
-    dbf     d7,.rs_lp
+    dbf     d7,.rs_l
     rts
-render_waterfall_mist:
-    move.l  draw_bpl1(pc),a2
+render_mist_particles:
     move.l  draw_bpl2(pc),a3
     move.l  vbl_tick(pc),d7
-    lea     mist_seeds(pc),a4
-    moveq   #23,d6
-.wf_dr: move.w (a4)+,d0
-    and.w   #7,d0
-    add.w   #78,d0
-    move.w  (a4)+,d1
-    add.w   d7,d1
-    add.w   d7,d1
-    and.w   #$3f,d1
-    sub.w   #45,d1
-    move.w  #272,d2
-    bsr.w   proj_grotto_pt
-    mulu.w  #40,d1
-    move.w  d0,d3
-    lsr.w   #3,d3
-    add.w   d3,d1
-    not.w   d0
-    and.w   #7,d0
-    bset    d0,(a2,d1.l)
-    bset    d0,(a3,d1.l)
-    bset    d0,40(a3,d1.l)
-    dbf     d6,.wf_dr
-    moveq   #35,d6
-.ms_lp: move.w (a4)+,d0
-    asr.w   #1,d0
-    add.w   #72,d0
+    lea     mist_pts(pc),a4
+    moveq   #31,d6
+.ms_l: move.w (a4)+,d0
     move.w  (a4)+,d1
     add.w   d7,d1
     and.w   #$1f,d1
     neg.w   d1
-    add.w   #46,d1
-    move.w  #268,d2
-    bsr.w   proj_grotto_pt
-    mulu.w  #40,d1
-    move.w  d0,d3
-    lsr.w   #3,d3
-    add.w   d3,d1
-    not.w   d0
-    and.w   #7,d0
-    bset    d0,(a3,d1.l)
-    dbf     d6,.ms_lp
+    add.w   #172,d1
+    bsr.w   plot_safe
+    dbf     d6,.ms_l
     rts
-update_tunnel_light_copper:
+update_tunnel_copper:
     move.l  cop_sky_ptr(pc),a2
-    move.w  ff_scr_y(pc),d5
-    moveq   #0,d6
     moveq   #31,d4
-.tl_lp: move.w d6,d1
-    sub.w   d5,d1
-    bpl.s   .ay_ok
-    neg.w   d1
-.ay_ok: move.w #$0001,d0
-    cmp.w   #24,d1
-    bhi.s   .t_c2
-    move.w  #$0221,d0
-    bra.s   .t_wr
-.t_c2: cmp.w #52,d1
-    bhi.s   .t_wr
-    move.w  #$0111,d0
-.t_wr: move.w d0,6(a2)
-    move.w  d0,14(a2)
-    addq.w  #8,d6
+.tc_l: move.w #$0001,6(a2)
+    move.w  #$0001,14(a2)
     lea     20(a2),a2
-    dbf     d4,.tl_lp
+    dbf     d4,.tc_l
     rts
 update_grotto_copper:
     move.l  cop_sky_ptr(pc),a2
     lea     grotto_grad(pc),a0
     moveq   #31,d4
-.gc_lp: move.w (a0)+,d1
+.gc_l: move.w (a0)+,d1
     move.w  d1,6(a2)
     move.w  d1,14(a2)
     lea     20(a2),a2
-    dbf     d4,.gc_lp
+    dbf     d4,.gc_l
     rts
     even
-has_prev_ring: dc.b 0,0
-prev_ring_pts: ds.l 8
-
+seg_z0: dc.w 60
+seg_z1: dc.w 100
+seg_x0: dc.w 0
+seg_x1: dc.w 0
+seg_lit: dc.w 0
+fb_x: dc.w 160
+fb_y: dc.w 140
+ff1_x: dc.w 0
+ff1_y: dc.w 0
+ff1_z: dc.w 220
+ff2_x: dc.w 0
+ff2_y: dc.w 0
+ff2_z: dc.w 280
+tmp_tri: ds.w 9
+grotto_grad: dc.w $0001,$0001,$0011,$0012,$0112,$0123,$0123,$0124,$0124,$0123,$0123,$0112,$0012,$0011,$0001,$0001,$0011,$0123,$0134,$0145,$0256,$0267,$0256,$0145,$0134,$0023,$0012,$0011,$0001,$0001,$0000,$0000
+rusalka_bmp: dc.w $0380,$07c0,$0fe0,$0ee0,$1ef0,$1c70,$07c0,$0380,$0fe0,$1ff0,$1bb0,$07c0,$07c0,$0fe0,$0fe0,$1ff0,$1ff0,$3ff8,$3ff8,$1ef0,$0c60,$0c60
+grotto_tris:
+    dc.w -170,-115,260, -85,-115,260, -110,50,260, -170,-115,260, -110,50,260, -170,50,260
+    dc.w 95,-115,260, 170,-115,260, 115,50,260, 170,-115,260, 170,50,260, 115,50,260
+    dc.w -95,-115,260, -55,-115,260, -75,-65,260, 45,-115,260, 88,-115,260, 66,-70,260
+lake_tris:
+    dc.w -155,48,220, 155,48,220, 165,86,330, -155,48,220, 165,86,330, -165,86,330
+wf_tris:
+    dc.w 78,-55,275, 86,-55,275, 88,48,275, 78,-55,275, 88,48,275, 76,48,275
+tree_tris:
+    dc.w -52,48,250, 52,48,250, 38,38,250, -52,48,250, 38,38,250, -38,38,250
+    dc.w -48,-12,250, 48,-12,250, 0,-56,250, -36,-28,250, 36,-28,250, 0,-68,250
+mist_pts: dc.w 220,0,224,7,228,14,232,21,236,3,240,10,244,18,248,25,222,12,226,19,230,27,234,4,238,11,242,20,246,28,250,6,221,15,225,22,229,29,233,8,237,16,241,24,245,2,249,9,223,17,227,26,231,5,235,13,239,23,243,30,247,1,251,14
+vec_frame_count: dc.w 1
+    even
+vec_frame_table: dc.l 0
 
     even
 lead_x: dc.w 0
