@@ -5,6 +5,7 @@ scene_timeline_table:
 
 scene_01_tunnel:
     lea     sin_tab,a2
+    ; Swietlik #1 (zloty)
     move.w  d7,d0
     add.w   d0,d0
     and.w   #$ff,d0
@@ -16,19 +17,35 @@ scene_01_tunnel:
     move.w  (a2,d0.w*2),d2
     asr.w   #4,d2
     addq.w  #4,d2
-    ; Od tick 460 swietlik kieruje sie ku srodkowi i zbliza do kamery (rosnie 1x -> 2x -> 3x!)
+    ; Swietlik #2 (turkusowy - w przeciwfazie)
+    move.w  d7,d0
+    add.w   d0,d0
+    add.w   #110,d0
+    and.w   #$ff,d0
+    move.w  (a2,d0.w*2),d3
+    asr.w   #3,d3
+    move.w  d7,d0
+    mulu.w  #3,d0
+    add.w   #85,d0
+    and.w   #$ff,d0
+    move.w  (a2,d0.w*2),d4
+    asr.w   #4,d4
+    subq.w  #2,d4
+    ; Od tick 460 oba swietliki leca razem ku srodkowi tunelu i rosna (1x -> 2x -> 3x)
     move.w  #1,ff_scale
     cmp.w   #460,d7
     blo.s   .ff_fly
-    move.w  d7,d3
-    sub.w   #460,d3                 ; 0..179
-    move.w  d3,d4
-    lsr.w   #5,d4                   ; 0..5
-    asr.w   d4,d1
-    asr.w   d4,d2
-    cmp.w   #110,d3
+    move.w  d7,d5
+    sub.w   #460,d5
+    move.w  d5,d6
+    lsr.w   #5,d6
+    asr.w   d6,d1
+    asr.w   d6,d2
+    asr.w   d6,d3
+    asr.w   d6,d4
+    cmp.w   #110,d5
     bhs.s   .sc3
-    cmp.w   #55,d3
+    cmp.w   #55,d5
     bhs.s   .sc2
     bra.s   .ff_fly
 .sc2: move.w #2,ff_scale
@@ -39,6 +56,10 @@ scene_01_tunnel:
     move.w  d1,ff_sx
     add.w   #64,d2
     move.w  d2,ff_sy
+    add.w   #80,d3
+    move.w  d3,ff2_sx
+    add.w   #64,d4
+    move.w  d4,ff2_sy
     ; Kolyszaca kamera 3D
     move.w  d7,d0
     add.w   d7,d0
@@ -51,14 +72,13 @@ scene_01_tunnel:
     move.w  (a2,d0.w*2),d1
     asr.w   #5,d1
     move.w  d1,tun_cy
-    ; Oblicz wspolczynnik wygaszania scian w ciemnosc od tick 480..639 (fade_sub = 0..31)
     clr.l   exit_r2
     cmp.w   #480,d7
     blo.s   .no_fsub
     move.w  d7,d0
-    sub.w   #480,d0                 ; 0..159
+    sub.w   #480,d0
     mulu.w  d0,d0
-    lsr.l   #1,d0                   ; promien^2 czarnego otworu rosnie kwadratowo (0 -> 12700 = caly ekran!)
+    lsr.l   #1,d0
     move.l  d0,exit_r2
 .no_fsub:
     lea     tunnel_lut,a0
@@ -80,6 +100,10 @@ scene_01_tunnel:
     sub.w   ff_sy(pc),d4
     muls.w  d4,d4
     move.l  d4,cur_dy2
+    move.w  d3,d4
+    sub.w   ff2_sy(pc),d4
+    muls.w  d4,d4
+    move.l  d4,cur_dy2_2
     moveq   #0,d2
 .tx: move.b (a0)+,d0
     add.b   d5,d0
@@ -99,32 +123,47 @@ scene_01_tunnel:
     cmp.l   exit_r2(pc),d1
     bls.w   .is_hole
 .not_ex:
+    move.b  cur_v(pc),d1
     add.b   d6,d1
     and.w   #63,d1
     lsl.w   #6,d1
     or.w    d0,d1
-    move.b  (a2,d1.w),d0           ; 1..30 (Bank 0 = lupkowa skala)
+    move.b  (a2,d1.w),d0
     cmp.b   #26,cur_v
     blo.s   .dp_ok
     lsr.b   #1,d0
 .dp_ok:
-    ; Plynne, organiczne swiatlo punktowe (Bank 1: 32..63 zaczyna sie od identycznego cienia skaly!)
+    ; Oswietlenie scian od zlotego swietlika #1
     move.w  d2,d1
     sub.w   ff_sx(pc),d1
     muls.w  d1,d1
     add.l   cur_dy2(pc),d1
-    cmp.l   #1450,d1
-    bhi.s   .wr_p
-    lsr.l   #6,d1                   ; 0..17 tlumienie
-    lsr.b   #1,d0                   ; 0..15 faktura skaly
-    add.b   #48,d0
+    cmp.l   #950,d1
+    bhi.s   .chk_f2
+    lsr.l   #6,d1
+    lsr.b   #1,d0
+    add.b   #46,d0
     sub.b   d1,d0
     cmp.b   #32,d0
     bhs.s   .wr_p
     moveq   #32,d0
-.wr_p:
-    ; Plynne zanurzanie tunelu w ciemnosci jaskini (tick 480..639)
-.put_px: move.b d0,(a1)+
+    bra.s   .wr_p
+.chk_f2:
+    ; Oswietlenie scian od turkusowego swietlika #2 (Bank 6: 192..223)
+    move.w  d2,d1
+    sub.w   ff2_sx(pc),d1
+    muls.w  d1,d1
+    add.l   cur_dy2_2(pc),d1
+    cmp.l   #950,d1
+    bhi.s   .wr_p
+    lsr.l   #6,d1
+    lsr.b   #1,d0
+    add.b   #206,d0
+    sub.b   d1,d0
+    cmp.b   #192,d0
+    bhs.s   .wr_p
+    move.w  #192,d0
+.wr_p: move.b d0,(a1)+
     addq.w  #1,d2
     cmp.w   #160,d2
     blo.w   .tx
@@ -144,14 +183,28 @@ scene_01_tunnel:
 .dn_t:
     cmp.w   #628,d7
     bhs.s   .skip_ff
+    ; Rysuj smugi swiatla za oboma swietlikami + oba swietliki!
+    move.w  ff_sx(pc),d0
+    move.w  ff_sy(pc),d1
+    moveq   #58,d7
+    bsr.w   draw_ff_trail
     move.w  ff_sx(pc),d0
     move.w  ff_sy(pc),d1
     moveq   #62,d7
+    bsr.w   draw_256_firefly_scaled
+    move.w  ff2_sx(pc),d0
+    move.w  ff2_sy(pc),d1
+    move.w  #216,d7
+    bsr.w   draw_ff_trail
+    move.w  ff2_sx(pc),d0
+    move.w  ff2_sy(pc),d1
+    move.w  #220,d7
     bsr.w   draw_256_firefly_scaled
 .skip_ff:
     rts
 
 scene_02_cave_emerge:
+    ; Oba swietliki wlatuja z tunelu do ciemnej jaskini i swoim blaskiem zaczynaja rozswietlac drzewo!
     bsr.w   clear_chunky
     cmp.w   #10,d7
     blo.s   .em_out
@@ -159,12 +212,25 @@ scene_02_cave_emerge:
     move.w  #-235,cam_oz
     clr.w   cam_sin
     move.w  #256,cam_cos
-    move.w  #-35,l1_x
-    move.w  #-18,l1_y
-    move.w  #40,l1_z
-    move.w  #45,l2_x
+    move.w  #-45,d0
+    add.w   d7,d0
+    move.w  d0,l1_x
+    move.w  #-16,l1_y
+    move.w  #35,l1_z
+    move.w  #50,d0
+    sub.w   d7,d0
+    move.w  d0,l2_x
     move.w  #-10,l2_y
-    move.w  #60,l2_z
+    move.w  #55,l2_z
+    cmp.w   #32,d7
+    blo.s   .em_ff
+    lea     cave_env_mesh(pc),a4
+    bsr.w   render_256_mesh
+    lea     cave_fg_mesh(pc),a4
+    bsr.w   render_256_mesh
+    bsr.w   draw_256_sunbeam
+    bsr.w   draw_256_rusalka_lantern
+.em_ff:
     move.w  l1_x(pc),d0
     move.w  l1_y(pc),d1
     move.w  l1_z(pc),d2
@@ -230,12 +296,24 @@ scene_03_cave_360:
     move.w  l1_y(pc),d1
     move.w  l1_z(pc),d2
     bsr.w   proj_uv_160
+    move.w  d0,d5
+    move.w  d1,d6
+    moveq   #58,d7
+    bsr.w   draw_ff_trail
+    move.w  d5,d0
+    move.w  d6,d1
     moveq   #62,d7
     bsr.w   draw_256_firefly
     move.w  l2_x(pc),d0
     move.w  l2_y(pc),d1
     move.w  l2_z(pc),d2
     bsr.w   proj_uv_160
+    move.w  d0,d5
+    move.w  d1,d6
+    move.w  #216,d7
+    bsr.w   draw_ff_trail
+    move.w  d5,d0
+    move.w  d6,d1
     move.w  #220,d7
     bsr.w   draw_256_firefly
     rts
@@ -361,6 +439,30 @@ render_256_mesh:
     dbf     d4,.um_lp
     rts
 
+draw_ff_trail:
+    ; Rysuje 5-punktowa swietlista smuge za swietlikiem (d0=x, d1=y, d7=kolor)
+    cmp.w   #12,d0
+    blo.s   .te
+    cmp.w   #147,d0
+    bhi.s   .te
+    cmp.w   #12,d1
+    blo.s   .te
+    cmp.w   #115,d1
+    bhi.s   .te
+    lea     chunky_buf,a0
+    mulu.w  #160,d1
+    add.w   d0,d1
+    add.w   d1,a0
+    move.b  d7,d2
+    subq.b  #4,d2
+    move.b  d2,-162(a0)
+    move.b  d2,158(a0)
+    subq.b  #5,d2
+    move.b  d2,-324(a0)
+    move.b  d2,316(a0)
+    subq.b  #5,d2
+    move.b  d2,-486(a0)
+.te: rts
 draw_256_firefly_scaled:
     cmp.w   #1,ff_scale
     beq.w   draw_256_firefly
@@ -479,15 +581,15 @@ draw_256_firefly:
 .fe: rts
 
 draw_256_sunbeam:
-    ; 1. Dziura w suficie + stozek swiatla padajacy z gory na korone drzewa i wyspe
+    ; Maly, owalny otwor w suficie (X=73..87, Y=2..8) + slabszy, delikatny stozek swiatla na drzewo!
     lea     chunky_buf,a0
     move.l  vbl_tick(pc),d6
-    moveq   #0,d3
+    moveq   #2,d3
 .by: move.w d3,d4
     lsr.w   #2,d4
-    move.w  #66,d0
+    move.w  #73,d0
     sub.w   d4,d0
-    move.w  #94,d1
+    move.w  #87,d1
     add.w   d4,d1
     move.w  d3,d2
     mulu.w  #160,d2
@@ -498,10 +600,21 @@ draw_256_sunbeam:
     beq.s   .bn
     cmp.b   #240,d2
     bhs.s   .bn
-    ; Jasny otwor na samej gorze sklepienia (Y < 8)
-    cmp.w   #8,d3
+    ; Maly owalny otwor w suficie (Y=2..7, bez rogow -> zaokraglony!)
+    cmp.w   #7,d3
     bhs.s   .beam_px
-    move.b  #246,(a1)
+    cmp.w   #3,d3
+    blo.s   .oval_mid
+    cmp.w   #6,d3
+    bhi.s   .oval_mid
+    move.b  #244,(a1)
+    bra.s   .bn
+.oval_mid:
+    cmp.w   #2,d1
+    blo.s   .bn
+    cmp.w   #12,d1
+    bhi.s   .bn
+    move.b  #244,(a1)
     bra.s   .bn
 .beam_px:
     ; Jezeli piksel to zielone liscie drzewa (64..95) -> tanczace przeswity swiatla w konarach!
@@ -522,7 +635,7 @@ draw_256_sunbeam:
     and.b   #31,d5
     cmp.b   #24,d5
     bhs.s   .bn
-    addq.b  #7,(a1)
+    addq.b  #4,(a1)
 .bn: addq.l #1,a1
     dbf     d1,.bx
     addq.w  #1,d3
@@ -615,6 +728,9 @@ ff_rad: dc.w 2600
 uv_anim_v: dc.w 0
 cur_v: dc.w 0
 cur_dy2: dc.l 0
+cur_dy2_2: dc.l 0
+ff2_sx: dc.w 80
+ff2_sy: dc.w 64
 tun_cx: dc.w 0
 tun_cy: dc.w 0
 ff_sx: dc.w 80
