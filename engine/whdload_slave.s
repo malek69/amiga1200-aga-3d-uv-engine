@@ -7,7 +7,7 @@ ws: moveq #-1,d0
     dc.l $200000,0
     dc.w _start-ws,0,0
     dc.b 0,$59
-    dc.l $00080000
+    dc.l $00100000
     dc.w _n-ws,_c-ws,_i-ws,0
     dc.l 0
     dc.w 0,0
@@ -53,10 +53,10 @@ _start:
     move.l a0,-268(a3)
     lea _e(pc),a0
     move.l ws+$20(pc),a1
-    add.l #$00000000,a1
+    add.l #$00080000,a1
     jsr 8(a2)
     move.l ws+$20(pc),a0
-    add.l #$00000000,a0
+    add.l #$00080000,a0
     cmp.l #$000003f3,(a0)+
     bne.w .ex
     addq.l #4,a0
