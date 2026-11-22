@@ -60,6 +60,7 @@ exit_program:
     include "pt_player.i"
     include "demo_gfx.i"
     include "engine3d_core.i"
+    include "c2p_chunky.i"
     include "realtime_3d.i"
     include "sincos_tab.i"
 
@@ -76,9 +77,12 @@ disp_bpl3:      dc.l 0
 draw_bpl1:      dc.l 0
 draw_bpl2:      dc.l 0
 draw_bpl3:      dc.l 0
+disp_bpl4:      dc.l 0
+draw_bpl4:      dc.l 0
 cop_bpl1_ptr:   dc.l 0
 cop_bpl2_ptr:   dc.l 0
 cop_bpl3_ptr:   dc.l 0
+cop_bpl4_ptr:   dc.l 0
 cop_pal_ptr:    dc.l 0
 oldintena:      dc.w 0
 olddmacon:      dc.w 0
