@@ -15,53 +15,90 @@ clear_chunky:
     rts
 
 c2p_160x128_to_aga:
-    movem.l d0-d7/a0-a5,-(sp)
+    movem.l d0-d7/a0-a6,-(sp)
     lea     chunky_buf,a0
-    move.l  draw_bpl1(pc),a1
-    move.l  draw_bpl2(pc),a2
-    move.l  draw_bpl3(pc),a3
-    move.l  draw_bpl4(pc),a4
     lea     c2p_exp(pc),a5
-    moveq   #127,d6
+    moveq   #0,d6                   ; offset linii * 80
 .row_lp:
-    moveq   #39,d7
+    moveq   #0,d7                   ; kolumna 0..39
 .col_lp:
+    move.l  d6,d5
+    add.l   d7,d5
+    ; Low nibbles -> BPL1..BPL4
     moveq   #0,d0
-    move.b  (a0)+,d0
+    move.b  (a0),d0
     and.w   #15,d0
     move.l  (a5,d0.w*4),d1
     lsl.l   #6,d1
-    move.b  (a0)+,d0
+    move.b  1(a0),d0
     and.w   #15,d0
     move.l  (a5,d0.w*4),d2
     lsl.l   #4,d2
     or.l    d2,d1
-    move.b  (a0)+,d0
+    move.b  2(a0),d0
     and.w   #15,d0
     move.l  (a5,d0.w*4),d2
     lsl.l   #2,d2
     or.l    d2,d1
-    move.b  (a0)+,d0
+    move.b  3(a0),d0
     and.w   #15,d0
     or.l    (a5,d0.w*4),d1
-    move.b  d1,40(a4)
-    move.b  d1,(a4)+
+    move.l  draw_bpl4(pc),a1
+    move.b  d1,40(a1,d5.l)
+    move.b  d1,(a1,d5.l)
     lsr.l   #8,d1
-    move.b  d1,40(a3)
-    move.b  d1,(a3)+
+    move.l  draw_bpl3(pc),a1
+    move.b  d1,40(a1,d5.l)
+    move.b  d1,(a1,d5.l)
     lsr.l   #8,d1
-    move.b  d1,40(a2)
-    move.b  d1,(a2)+
+    move.l  draw_bpl2(pc),a1
+    move.b  d1,40(a1,d5.l)
+    move.b  d1,(a1,d5.l)
     lsr.l   #8,d1
-    move.b  d1,40(a1)
-    move.b  d1,(a1)+
-    dbf     d7,.col_lp
-    lea     40(a1),a1
-    lea     40(a2),a2
-    lea     40(a3),a3
-    lea     40(a4),a4
-    dbf     d6,.row_lp
-    movem.l (sp)+,d0-d7/a0-a5
+    move.l  draw_bpl1(pc),a1
+    move.b  d1,40(a1,d5.l)
+    move.b  d1,(a1,d5.l)
+    ; High nibbles -> BPL5..BPL8
+    moveq   #0,d0
+    move.b  (a0)+,d0
+    lsr.b   #4,d0
+    move.l  (a5,d0.w*4),d1
+    lsl.l   #6,d1
+    move.b  (a0)+,d0
+    lsr.b   #4,d0
+    move.l  (a5,d0.w*4),d2
+    lsl.l   #4,d2
+    or.l    d2,d1
+    move.b  (a0)+,d0
+    lsr.b   #4,d0
+    move.l  (a5,d0.w*4),d2
+    lsl.l   #2,d2
+    or.l    d2,d1
+    move.b  (a0)+,d0
+    lsr.b   #4,d0
+    or.l    (a5,d0.w*4),d1
+    move.l  draw_bpl8(pc),a1
+    move.b  d1,40(a1,d5.l)
+    move.b  d1,(a1,d5.l)
+    lsr.l   #8,d1
+    move.l  draw_bpl7(pc),a1
+    move.b  d1,40(a1,d5.l)
+    move.b  d1,(a1,d5.l)
+    lsr.l   #8,d1
+    move.l  draw_bpl6(pc),a1
+    move.b  d1,40(a1,d5.l)
+    move.b  d1,(a1,d5.l)
+    lsr.l   #8,d1
+    move.l  draw_bpl5(pc),a1
+    move.b  d1,40(a1,d5.l)
+    move.b  d1,(a1,d5.l)
+    addq.w  #1,d7
+    cmp.w   #40,d7
+    blo.w   .col_lp
+    add.l   #80,d6
+    cmp.l   #128*80,d6
+    blo.w   .row_lp
+    movem.l (sp)+,d0-d7/a0-a6
     rts
 draw_uv_tri:
     ; Trojkat 3D z prawdziwa tekstura UV 64x64: a4 -> 3x(sx,sy,u,v), d6=tex_id (0..3), d7=light (0..7)
@@ -69,7 +106,6 @@ draw_uv_tri:
     move.w  d6,uv_tex
     lsl.w   #4,d7
     and.w   #7,d7
-    lsl.w   #4,d7
     move.w  d7,uv_shade
     move.w  (a4)+,uv_x0
     move.w  (a4)+,uv_y0
@@ -184,8 +220,8 @@ draw_uv_tri:
     and.w   #$003f,d3               ; (U >> 8) & 63 (bity 0..5 - zero kolizji!)
     or.w    d3,d0
     move.b  (a3,d0.w),d0
-    and.w   #15,d0
-    move.b  (a4,d0.w),(a0)+
+    add.b   uv_shade+1(pc),d0
+    move.b  d0,(a0)+
     add.w   d2,d4
     add.w   d3,d5
     dbf     d1,.px_lp

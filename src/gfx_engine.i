@@ -75,164 +75,116 @@ _LVOOwnBlitter    equ -456
 _LVODisownBlitter equ -462
 
 sys_takeover:
+    movem.l d0-d7/a0-a6,-(sp)
     move.l  4.w,a6
-    lea     gfxname(pc),a1
-    moveq   #0,d0
-    jsr     _LVOOpenLibrary(a6)
-    move.l  d0,gfxbase
-    beq.w   .fail
-    move.l  d0,a6
-    move.l  34(a6),oldview
-    sub.l   a1,a1
-    jsr     _LVOLoadView(a6)
-    jsr     _LVOWaitTOF(a6)
-    jsr     _LVOWaitTOF(a6)
-    jsr     _LVOOwnBlitter(a6)
-
-    move.l  4.w,a6
-    moveq   #0,d0
-    btst    #0,297(a6)
-    beq.s   .vok
-    lea     .get_vbr(pc),a5
-    jsr     _LVOSupervisor(a6)
-.vok:
-    move.l  d0,vbr_base
-    jsr     _LVOForbid(a6)
-
-    lea     CUSTOM,a5
-    move.w  INTENAR(a5),oldintena
-    move.w  DMACONR(a5),olddmacon
+    jsr     -132(a6)
+    lea     $dff000,a5
+    move.w  #$7fff,DMACON(a5)
     move.w  #$7fff,INTENA(a5)
     move.w  #$7fff,INTREQ(a5)
-    move.w  #$7fff,DMACON(a5)
-
-    ; Bezposrednie, gwarantowane adresy w dolnym Chip RAM ($010000-$01F000)
-    move.l  #$00080000,disp_bpl1
-    move.l  #$00082800,draw_bpl1
-    move.l  #$00085000,disp_bpl2
-    move.l  #$00087800,draw_bpl2
-    move.l  #$0008a000,disp_bpl3
-    move.l  #$0008c800,draw_bpl3
-    move.l  #$00090000,disp_bpl4
-    move.l  #$00092800,draw_bpl4
-    move.l  #$00095000,disp_bpl5
-    move.l  #$00097800,draw_bpl5
     move.w  #$8240,DMACON(a5)
-
+    move.l  #$00080000,disp_bpl1
+    move.l  #$00082800,disp_bpl2
+    move.l  #$00085000,disp_bpl3
+    move.l  #$00087800,disp_bpl4
+    move.l  #$0008a000,disp_bpl5
+    move.l  #$0008c800,disp_bpl6
+    move.l  #$0008f000,disp_bpl7
+    move.l  #$00091800,disp_bpl8
+    move.l  #$00094000,draw_bpl1
+    move.l  #$00096800,draw_bpl2
+    move.l  #$00099000,draw_bpl3
+    move.l  #$0009b800,draw_bpl4
+    move.l  #$0009e000,draw_bpl5
+    move.l  #$000a0800,draw_bpl6
+    move.l  #$000a3000,draw_bpl7
+    move.l  #$000a5800,draw_bpl8
     bsr.w   build_copper
-    bsr.w   clear_draw_bpl
-    bsr.w   wait_blitter
-    lea     bpl3_a,a0
-    bsr.w   blit_clear_full
-    lea     bpl3_b,a0
-    bsr.w   blit_clear_full
-    bsr.w   swap_buffers
-    bsr.w   clear_draw_bpl
-    bsr.w   wait_blitter
-    bsr.w   pt_init
-
-    move.l  vbr_base(pc),a0
-    move.l  $6c(a0),old_vbl_vec
-    move.l  #vbl_irq_handler,$6c(a0)
-
-    move.l  #$0008f000,COP1LC(a5)
+    move.l  #$000a8000,COP1LC(a5)
     move.w  d0,COPJMP1(a5)
     move.w  #$83cf,DMACON(a5)
-    move.w  #$c020,INTENA(a5)
-    moveq   #1,d0
+    movem.l (sp)+,d0-d7/a0-a6
     rts
-.fail:
-    moveq   #0,d0
-    rts
-.get_vbr:
-    movec   vbr,d0
-    rte
 
-sys_restore:
-    lea     CUSTOM,a5
+wait_vbl:
     bsr.w   wait_blitter
-    move.w  #$7fff,INTENA(a5)
-    move.w  #$7fff,INTREQ(a5)
-    move.w  #$7fff,DMACON(a5)
-    move.w  #0,AUD0VOL(a5)
-    move.w  #0,AUD1VOL(a5)
-    move.w  #0,AUD2VOL(a5)
-    move.w  #0,AUD3VOL(a5)
-    move.l  vbr_base(pc),a0
-    move.l  old_vbl_vec(pc),$6c(a0)
-    move.l  old_aud_vec(pc),$70(a0)
-    move.w  #$0000,FMODE(a5)
-    move.w  #$0c00,BPLCON3(a5)
-    move.w  olddmacon(pc),d0
-    or.w    #$8000,d0
-    move.w  d0,DMACON(a5)
-    move.w  oldintena(pc),d0
-    or.w    #$8000,d0
-    move.w  d0,INTENA(a5)
-    move.l  gfxbase(pc),a6
-    move.l  38(a6),COP1LC(a5)
-    move.w  d0,COPJMP1(a5)
-    jsr     _LVODisownBlitter(a6)
-    move.l  oldview(pc),a1
-    jsr     _LVOLoadView(a6)
-    jsr     _LVOWaitTOF(a6)
-    jsr     _LVOWaitTOF(a6)
-    move.l  4.w,a6
-    jsr     _LVOPermit(a6)
-    move.l  gfxbase(pc),a1
-    jsr     _LVOCloseLibrary(a6)
+    move.b  #1,swap_ready
+.wv: tst.b  swap_ready
+    bne.s   .wv
+    rts
+
+clear_draw_bpl:
     rts
 
 swap_buffers:
-    move.l  disp_bpl1(pc),d0
-    move.l  draw_bpl1(pc),d1
-    move.l  d1,disp_bpl1
-    move.l  d0,draw_bpl1
-    move.l  d1,$0e0(a5)
-    move.l  cop_bpl1_ptr(pc),a0
+    lea     disp_bpl1(pc),a1
+    lea     cop_bpl1_ptr(pc),a2
+    lea     $0e0(a5),a3
+    moveq   #7,d2
+.sw_lp:
+    move.l  (a1),d0
+    move.l  4(a1),d1
+    move.l  d1,(a1)+
+    move.l  d0,(a1)+
+    move.l  d1,(a3)+
+    move.l  (a2)+,a0
     move.w  d1,2(a0)
     swap    d1
     move.w  d1,6(a0)
-
-    move.l  disp_bpl2(pc),d0
-    move.l  draw_bpl2(pc),d1
-    move.l  d1,disp_bpl2
-    move.l  d0,draw_bpl2
-    move.l  d1,$0e4(a5)
-    move.l  cop_bpl2_ptr(pc),a0
-    move.w  d1,2(a0)
-    swap    d1
-    move.w  d1,6(a0)
-
-    move.l  disp_bpl3(pc),d0
-    move.l  draw_bpl3(pc),d1
-    move.l  d1,disp_bpl3
-    move.l  d0,draw_bpl3
-    move.l  d1,$0e8(a5)
-    move.l  cop_bpl3_ptr(pc),a0
-    move.w  d1,2(a0)
-    swap    d1
-    move.w  d1,6(a0)
-    move.l  disp_bpl4(pc),d0
-    move.l  draw_bpl4(pc),d1
-    move.l  d1,disp_bpl4
-    move.l  d0,draw_bpl4
-    move.l  d1,$0ec(a5)
-    move.l  cop_bpl4_ptr(pc),a0
-    move.w  d1,2(a0)
-    swap    d1
-    move.w  d1,6(a0)
-    move.l  disp_bpl5(pc),d0
-    move.l  draw_bpl5(pc),d1
-    move.l  d1,disp_bpl5
-    move.l  d0,draw_bpl5
-    move.l  d1,$0f0(a5)
-    move.l  cop_bpl5_ptr(pc),a0
-    move.w  d1,2(a0)
-    swap    d1
-    move.w  d1,6(a0)
+    dbf     d2,.sw_lp
     rts
 
+load_aga_256_palette:
+    ; a0 -> 256 longwords ($00RRGGBB) -> laduje 8 bankow po 32 kolory 24-bitowe AGA!
+    movem.l d0-d5/a0-a2,-(sp)
+    lea     $dff000,a2
+    moveq   #0,d4
+.bk_lp:
+    move.w  d4,d5
+    ror.w   #3,d5
+    move.w  d5,$106(a2)
+    lea     $180(a2),a1
+    moveq   #31,d3
+.hi_lp:
+    move.l  (a0)+,d0
+    move.l  d0,d1
+    lsr.l   #4,d1
+    and.w   #$000f,d1
+    move.l  d0,d2
+    lsr.l   #8,d2
+    and.w   #$00f0,d2
+    or.w    d2,d1
+    swap    d0
+    and.w   #$00f0,d0
+    lsl.w   #4,d0
+    or.w    d0,d1
+    move.w  d1,(a1)+
+    dbf     d3,.hi_lp
+    lea     -128(a0),a0
+    or.w    #$0200,d5
+    move.w  d5,$106(a2)
+    lea     $180(a2),a1
+    moveq   #31,d3
+.lo_lp:
+    move.l  (a0)+,d0
+    move.l  d0,d1
+    and.w   #$000f,d1
+    move.l  d0,d2
+    lsr.w   #4,d2
+    and.w   #$00f0,d2
+    or.w    d2,d1
+    swap    d0
+    lsl.w   #8,d0
+    and.w   #$0f00,d0
+    or.w    d0,d1
+    move.w  d1,(a1)+
+    dbf     d3,.lo_lp
+    addq.w  #1,d4
+    cmp.w   #8,d4
+    blo.s   .bk_lp
+    move.w  #$0c00,$106(a2)
+    movem.l (sp)+,d0-d5/a0-a2
+    rts
 wait_blitter:
     btst    #6,DMACONR(a5)
 .wb: btst   #6,DMACONR(a5)
@@ -306,72 +258,38 @@ set_col01_shade:
     rts
 
 build_copper:
-    move.l  #$0008f000,a0
+    move.l  #$000a8000,a0
     move.l  #(FMODE<<16)|$0000,(a0)+
     move.l  #(DIWSTRT<<16)|$3881,(a0)+
     move.l  #(DIWSTOP<<16)|$1cc1,(a0)+
     move.l  #(DDFSTRT<<16)|$0038,(a0)+
     move.l  #(DDFSTOP<<16)|$00d0,(a0)+
-    move.l  #(BPLCON0<<16)|$4200,(a0)+
+    move.l  #(BPLCON0<<16)|$0210,(a0)+    ; 8 bitplanow AGA = 256 kolorow!
     move.l  #(BPLCON1<<16)|$0000,(a0)+
     move.l  #(BPLCON2<<16)|$0024,(a0)+
     move.l  #(BPL1MOD<<16)|$0000,(a0)+
     move.l  #(BPL2MOD<<16)|$0000,(a0)+
     move.l  #$0107fffe,(a0)+
-    move.l  a0,cop_bpl1_ptr
-    move.l  disp_bpl1(pc),d0
-    move.w  #$00e2,(a0)+
+    lea     disp_bpl1(pc),a1
+    lea     cop_bpl1_ptr(pc),a2
+    move.w  #$00e0,d2
+    moveq   #7,d3
+.cp_bp:
+    move.l  a0,(a2)+
+    move.l  (a1),d0
+    addq.l  #8,a1
+    move.w  d2,d1
+    addq.w  #2,d1
+    move.w  d1,(a0)+
     move.w  d0,(a0)+
     swap    d0
-    move.w  #$00e0,(a0)+
+    move.w  d2,(a0)+
     move.w  d0,(a0)+
-    move.l  a0,cop_bpl2_ptr
-    move.l  disp_bpl2(pc),d0
-    move.w  #$00e6,(a0)+
-    move.w  d0,(a0)+
-    swap    d0
-    move.w  #$00e4,(a0)+
-    move.w  d0,(a0)+
-    move.l  a0,cop_bpl3_ptr
-    move.l  disp_bpl3(pc),d0
-    move.w  #$00ea,(a0)+
-    move.w  d0,(a0)+
-    swap    d0
-    move.w  #$00e8,(a0)+
-    move.w  d0,(a0)+
-    move.l  a0,cop_bpl4_ptr
-    move.l  disp_bpl4(pc),d0
-    move.w  #$00ee,(a0)+
-    move.w  d0,(a0)+
-    swap    d0
-    move.w  #$00ec,(a0)+
-    move.w  d0,(a0)+
-    move.l  a0,cop_bpl5_ptr
-    move.l  disp_bpl5(pc),d0
-    move.w  #$00f2,(a0)+
-    move.w  d0,(a0)+
-    swap    d0
-    move.w  #$00f0,(a0)+
-    move.w  d0,(a0)+
+    addq.w  #4,d2
+    dbf     d3,.cp_bp
     move.l  #(BPLCON3<<16)|$0c00,(a0)+
     move.l  #($010c<<16)|$0000,(a0)+
-    move.l  a0,cop_pal_ptr
     move.l  #(COLOR00<<16)|$0000,(a0)+
-    move.l  #(COLOR01<<16)|$0113,(a0)+
-    move.l  #(COLOR02<<16)|$0225,(a0)+
-    move.l  #(COLOR03<<16)|$0347,(a0)+
-    move.l  #(COLOR04<<16)|$0136,(a0)+
-    move.l  #(COLOR05<<16)|$0269,(a0)+
-    move.l  #(COLOR06<<16)|$04bc,(a0)+
-    move.l  #(COLOR07<<16)|$0ffd,(a0)+
-    move.l  #($0190<<16)|$0862,(a0)+
-    move.l  #($0192<<16)|$0b93,(a0)+
-    move.l  #($0194<<16)|$0ed5,(a0)+
-    move.l  #($0196<<16)|$0fa4,(a0)+
-    move.l  #($0198<<16)|$0162,(a0)+
-    move.l  #($019a<<16)|$02a3,(a0)+
-    move.l  #($019c<<16)|$05e5,(a0)+
-    move.l  #($019e<<16)|$0fff,(a0)+
     move.l  #$fffffffe,(a0)+
     rts
 cop_sky_ptr: dc.l 0
