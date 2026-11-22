@@ -66,7 +66,7 @@ draw_aga_overlays:
     dbf     d5,.sc_ch
     movem.l (sp)+,d0-d6/a0-a3
     rts
-scroll_text: dc.b "   *** WATERFALL & FIREFLIES 3D V2.0 *** MUSIC: FANTASEA (COMPOSED BY ABSYS) VIA AMINET *** CODE & 3D ENGINE: MALEK69 & GEMINI AI (VIBE CODING) ***   "
+scroll_text: dc.b "   *** TWILIGHT FIREFLIES 3D V2.0 *** MUSIC: 1991-NOT A NUMBER ())) COSMIQ ((( MUSIC COMPOSED DURING THE SUMMER 1991 TEL (1) 6929) VIA AMINET *** CODE & 3D ENGINE: MALEK69 & GEMINI AI (VIBE CODING) ***   "
     even
 
 draw_starfield_3d:
