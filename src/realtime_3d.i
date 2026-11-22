@@ -1,47 +1,49 @@
 ; [EN/PL] AUTHORS: malek69 & Gemini AI (Vibe Coding Edition, 2026)
-; [EN/PL] MODULE: realtime_3d.i | Demoscene 3D Tunnel + Firefly Light Source -> Wet Grotto
+; [EN/PL] MODULE: realtime_3d.i | True 3D Tunnel Flight Behind Illuminated 3D Firefly -> Wet Grotto & Rusalka
 render_realtime_3d:
     movem.l d0-d7/a0-a5,-(sp)
     move.l  vbl_tick(pc),d7
-    cmp.l   #425,d7
+    cmp.l   #450,d7
     blo.w   act1_tunnel
     bra.w   act2_grotto
 act1_tunnel:
     move.l  cop_pal_ptr(pc),a1
-    move.w  #$0001,2(a1)
-    move.w  #$0123,6(a1)
-    move.w  #$0872,10(a1)
-    move.w  #$0fe5,14(a1)
-    move.w  #$0112,18(a1)
+    move.w  #$0001,2(a1)            ; COLOR00: gleboki mrok
+    move.w  #$0124,6(a1)            ; COLOR01: BPL1 chlodne mokre sciany tunelu w cieniu
+    move.w  #$0961,10(a1)           ; COLOR02: BPL2 cieple swiatlo od tylka swietlika na scianach i skrzydlach
+    move.w  #$0fe4,14(a1)           ; COLOR03: BPL1+BPL2 jasny swiecacy odwlok swietlika
+    move.w  #$0113,18(a1)           ; COLOR04: Blitter AA
     lea     sin_tab,a2
     move.w  d7,d0
     add.w   d0,d0
     and.w   #$ff,d0
     move.w  (a2,d0.w*2),d1
-    asr.w   #3,d1
+    asr.w   #3,d1                   ; lead_x (-32..+32)
     move.w  d1,lead_x
     move.w  d7,d0
     mulu.w  #3,d0
     and.w   #$ff,d0
     move.w  (a2,d0.w*2),d2
     asr.w   #4,d2
-    add.w   #22,d2
+    add.w   #26,d2                  ; lead_y (+10..+42 -> kamera leci troche nad swietlikiem)
     move.w  d2,lead_y
     ext.l   d2
     muls.l  #240,d2
-    divs.l  #165,d2
+    divs.l  #155,d2
     add.w   #124,d2
     move.w  d2,ff_scr_y
     bsr.w   update_tunnel_light_copper
+    ; Wyczysc flage poprzedniego pierscienia do laczenia podluznych zeber 3D
+    clr.b   has_prev_ring
     move.w  d7,d6
     mulu.w  #5,d6
-    moveq   #15,d4
+    moveq   #13,d4                  ; 14 pierscieni tunelu 3D od najdalszego do najblizszego
 .ring_lp:
     move.w  d4,d0
     lsl.w   #5,d0
     sub.w   d6,d0
     and.w   #$01ff,d0
-    add.w   #56,d0
+    add.w   #52,d0                  ; Z = 52..563
     move.w  d0,cur_pz
     lsr.w   #2,d0
     add.w   d7,d0
@@ -54,20 +56,19 @@ act1_tunnel:
     asr.w   #4,d2
     sub.w   lead_y(pc),d2
     move.w  d2,cur_cy
+    ; Odleglosc pierscienia od swiecacego odwloka swietlika (Z = 155)
     move.w  cur_pz(pc),d1
-    sub.w   #165,d1
+    sub.w   #155,d1
     bpl.s   .dz_ok
     neg.w   d1
 .dz_ok: move.w d1,cur_ldist
-    bsr.w   draw_demoscene_ring
+    bsr.w   draw_3d_tunnel_segment
     dbf     d4,.ring_lp
-    move.w  lead_x(pc),d0
-    move.w  lead_y(pc),d1
-    move.w  #165,d2
-    bsr.w   draw_3d_firefly_bulb
+    ; Rysuj 3D swietlika (tulow, trzepoczace skrzydelka i swiecacy tylek)
+    bsr.w   draw_3d_firefly_model
     movem.l (sp)+,d0-d7/a0-a5
     rts
-draw_demoscene_ring:
+draw_3d_tunnel_segment:
     move.w  cur_pz(pc),d2
     ext.l   d2
     move.w  cur_cx(pc),d0
@@ -82,20 +83,20 @@ draw_demoscene_ring:
     divs.l  d2,d1
     add.w   #124,d1
     move.w  d1,rc_y
-    move.l  #92*240,d3
+    move.l  #96*240,d3
     divs.l  d2,d3
     cmp.w   #4,d3
     blt.w   .rg_end
-    cmp.w   #260,d3
+    cmp.w   #270,d3
     bgt.w   .rg_end
     move.w  d3,rc_r
     mulu.w  #181,d3
     lsr.l   #8,d3
     move.w  d3,rc_rd
     move.l  draw_bpl1(pc),a3
-    cmp.w   #95,cur_ldist
+    cmp.w   #92,cur_ldist
     bhi.s   .use_p
-    move.l  draw_bpl2(pc),a3
+    move.l  draw_bpl2(pc),a3        ; sciana rozswietlona przez tylek swietlika!
 .use_p: lea ring_pts(pc),a0
     move.w  rc_x(pc),d0
     move.w  rc_y(pc),d1
@@ -141,6 +142,7 @@ draw_demoscene_ring:
     move.w  d1,d4
     sub.w   d3,d4
     move.w  d4,(a0)+
+    ; 1. Rysuj 8 krawedzi oktagonu pierscienia
     lea     ring_pts(pc),a0
     moveq   #6,d7
 .eg_lp: move.w (a0),d0
@@ -156,79 +158,155 @@ draw_demoscene_ring:
     move.w  (a0),d2
     move.w  2(a0),d3
     bsr.w   draw_line_clipped
+    ; 2. Rysuj 8 podluznych zeber 3D laczacych ten pierscien z poprzednim!
+    tst.b   has_prev_ring
+    beq.s   .save_pr
+    lea     ring_pts(pc),a0
+    lea     prev_ring_pts(pc),a1
+    moveq   #7,d7
+.rb_lp: move.w (a0)+,d0
+    move.w  (a0)+,d1
+    move.w  (a1)+,d2
+    move.w  (a1)+,d3
+    bsr.w   draw_line_clipped
+    dbf     d7,.rb_lp
+.save_pr: lea ring_pts(pc),a0
+    lea     prev_ring_pts(pc),a1
+    moveq   #7,d7
+.cp_pr: move.l (a0)+,(a1)+
+    dbf     d7,.cp_pr
+    move.b  #1,has_prev_ring
 .rg_end: rts
-draw_3d_firefly_bulb:
+draw_3d_firefly_model:
+    ; Rzutuj 3D swietlika na pozycji (lead_x, lead_y, Z=155)
+    move.w  lead_x(pc),d0
     ext.l   d0
-    ext.l   d1
     muls.l  #240,d0
-    muls.l  #240,d1
-    ext.l   d2
-    divs.l  d2,d0
-    divs.l  d2,d1
+    divs.l  #155,d0
     add.w   #160,d0
+    move.w  d0,fb_x
+    move.w  lead_y(pc),d1
+    ext.l   d1
+    muls.l  #240,d1
+    divs.l  #155,d1
     add.w   #124,d1
-    cmp.w   #12,d0
-    blo.w   .fb_ex
-    cmp.w   #307,d0
-    bhi.w   .fb_ex
-    cmp.w   #12,d1
-    blo.w   .fb_ex
-    cmp.w   #242,d1
-    bhi.w   .fb_ex
+    move.w  d1,fb_y
+    ; Przechyl (bank) przy skrecie oraz kat trzepotania skrzydel (sin_tab)
+    lea     sin_tab,a2
+    move.l  vbl_tick(pc),d7
+    lsl.w   #4,d7                   ; szybkie machanie skrzydelkami!
+    and.w   #$ff,d7
+    move.w  (a2,d7.w*2),d5
+    asr.w   #5,d5                   ; wing_dy (-8..+8 px)
+    ; A) Dwa trzepoczace skrzydelka 3D (BPL2)
+    move.l  draw_bpl2(pc),a3
+    move.w  fb_x(pc),d0
+    move.w  fb_y(pc),d1
+    subq.w  #3,d1
+    move.w  d0,d2
+    sub.w   #14,d2
+    move.w  d1,d3
+    add.w   d5,d3
+    subq.w  #4,d3
+    bsr.w   draw_line_clipped
+    move.w  fb_x(pc),d0
+    move.w  fb_y(pc),d1
+    subq.w  #2,d1
+    move.w  d0,d2
+    sub.w   #11,d2
+    move.w  d1,d3
+    add.w   d5,d3
+    bsr.w   draw_line_clipped
+    move.w  fb_x(pc),d0
+    move.w  fb_y(pc),d1
+    subq.w  #3,d1
+    move.w  d0,d2
+    add.w   #14,d2
+    move.w  d1,d3
+    add.w   d5,d3
+    subq.w  #4,d3
+    bsr.w   draw_line_clipped
+    move.w  fb_x(pc),d0
+    move.w  fb_y(pc),d1
+    subq.w  #2,d1
+    move.w  d0,d2
+    add.w   #11,d2
+    move.w  d1,d3
+    add.w   d5,d3
+    bsr.w   draw_line_clipped
+    ; B) Ciemny tulow i glowka swietlika (BPL1, nad swiecacym odwlokiem)
+    move.l  draw_bpl1(pc),a3
+    move.w  fb_x(pc),d0
+    move.w  fb_y(pc),d1
+    subq.w  #6,d1
+    move.w  d0,d2
+    move.w  fb_y(pc),d3
+    bsr.w   draw_line_clipped
+    addq.w  #1,d0
+    addq.w  #1,d2
+    bsr.w   draw_line_clipped
+    ; C) Duzy, swiecacy odwlok (tylek) swietlika + poswiata + promienie swiatla!
+    move.w  fb_x(pc),d0
+    move.w  fb_y(pc),d1
+    addq.w  #2,d1
+    bsr.w   draw_bulb_glow_at
+    rts
+draw_bulb_glow_at:
+    ; Rysuje swiecacy odwlok swietlika na (d0, d1): poswiata 7x5 na BPL2 + promienie + jasny rdzen 3x3 (BPL1+BPL2)
+    cmp.w   #14,d0
+    blo.w   .bg_ex
+    cmp.w   #305,d0
+    bhi.w   .bg_ex
+    cmp.w   #14,d1
+    blo.w   .bg_ex
+    cmp.w   #240,d1
+    bhi.w   .bg_ex
     move.w  d0,fb_x
     move.w  d1,fb_y
     move.l  draw_bpl2(pc),a3
-    subq.w  #1,d1
+    subq.w  #2,d1
     moveq   #4,d5
-.hl_y: move.w fb_x(pc),d0
-    subq.w  #2,d0
-    moveq   #4,d4
-.hl_x: bsr.s set_px_a3
+.bhl_y: move.w fb_x(pc),d0
+    subq.w  #3,d0
+    moveq   #6,d4
+.bhl_x: bsr.s set_px_a3
     addq.w  #1,d0
-    dbf     d4,.hl_x
+    dbf     d4,.bhl_x
     addq.w  #1,d1
-    dbf     d5,.hl_y
+    dbf     d5,.bhl_y
     move.l  vbl_tick(pc),d6
     and.w   #7,d6
-    addq.w  #4,d6
+    addq.w  #5,d6
     move.w  fb_x(pc),d0
     sub.w   d6,d0
     move.w  fb_y(pc),d1
-    addq.w  #1,d1
     move.w  fb_x(pc),d2
     add.w   d6,d2
     move.w  d1,d3
     bsr.w   draw_line_clipped
     move.w  fb_x(pc),d0
     move.w  fb_y(pc),d1
-    addq.w  #1,d1
     sub.w   d6,d1
     move.w  d0,d2
     move.w  fb_y(pc),d3
-    addq.w  #1,d3
     add.w   d6,d3
     bsr.w   draw_line_clipped
     move.l  draw_bpl1(pc),a3
     move.w  fb_x(pc),d0
-    move.w  fb_y(pc),d1
-    addq.w  #1,d1
-    bsr.s   set_px_a3
-    addq.w  #1,d0
-    bsr.s   set_px_a3
-    addq.w  #1,d1
-    bsr.s   set_px_a3
     subq.w  #1,d0
-    bsr.s   set_px_a3
-.fb_ex: rts
+    move.w  fb_y(pc),d1
+    subq.w  #1,d1
+    moveq   #2,d5
+.bcr_y: move.w fb_x(pc),d0
+    subq.w  #1,d0
+    moveq   #2,d4
+.bcr_x: bsr.s set_px_a3
+    addq.w  #1,d0
+    dbf     d4,.bcr_x
+    addq.w  #1,d1
+    dbf     d5,.bcr_y
+.bg_ex: rts
 set_px_a3:
-    cmp.w   #2,d0
-    blo.s   .sp_no
-    cmp.w   #317,d0
-    bhi.s   .sp_no
-    cmp.w   #2,d1
-    blo.s   .sp_no
-    cmp.w   #252,d1
-    bhi.s   .sp_no
     move.w  d1,d2
     mulu.w  #40,d2
     move.w  d0,d3
@@ -238,7 +316,7 @@ set_px_a3:
     not.w   d3
     and.w   #7,d3
     bset    d3,(a3,d2.l)
-.sp_no: rts
+    rts
 draw_line_clipped:
     movem.l d0-d7/a0,-(sp)
     sub.w   d0,d2
@@ -296,7 +374,7 @@ draw_line_clipped:
 .pl_no: rts
 act2_grotto:
     lea     sin_tab,a2
-    sub.l   #425,d7
+    sub.l   #450,d7
     move.w  d7,d0
     lsr.w   #1,d0
     and.w   #$ff,d0
@@ -370,11 +448,13 @@ act2_grotto:
     move.w  ff1_x(pc),d0
     move.w  ff1_y(pc),d1
     move.w  ff1_z(pc),d2
-    bsr.w   draw_3d_firefly_bulb
+    bsr.w   proj_grotto_pt
+    bsr.w   draw_bulb_glow_at
     move.w  ff2_x(pc),d0
     move.w  ff2_y(pc),d1
     move.w  ff2_z(pc),d2
-    bsr.w   draw_3d_firefly_bulb
+    bsr.w   proj_grotto_pt
+    bsr.w   draw_bulb_glow_at
     movem.l (sp)+,d0-d7/a0-a5
     rts
 render_lake_ripples:
@@ -520,11 +600,11 @@ update_tunnel_light_copper:
     bpl.s   .ay_ok
     neg.w   d1
 .ay_ok: move.w #$0001,d0
-    cmp.w   #22,d1
+    cmp.w   #24,d1
     bhi.s   .t_c2
     move.w  #$0221,d0
     bra.s   .t_wr
-.t_c2: cmp.w #48,d1
+.t_c2: cmp.w #52,d1
     bhi.s   .t_wr
     move.w  #$0111,d0
 .t_wr: move.w d0,6(a2)
@@ -543,8 +623,9 @@ update_grotto_copper:
     lea     20(a2),a2
     dbf     d4,.gc_lp
     rts
-
-
+    even
+has_prev_ring: dc.b 0,0
+prev_ring_pts: ds.l 8
 
     even
 lead_x: dc.w 0
