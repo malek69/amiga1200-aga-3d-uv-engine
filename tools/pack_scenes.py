@@ -1,13 +1,13 @@
 import os, struct
 
 ASSETS = [
-    ("PAL256  ", "src/pal256.bin"),
-    ("UVTEX64 ", "src/uv_textures.bin"),
-    ("TUNLUT  ", "src/tunnel_lut.bin"),
-    ("MESH3D  ", "src/imported_mesh.bin"),
+    ("PAL256  ", "demo_v1/pal256.bin"),
+    ("UVTEX64 ", "demo_v1/uv_textures.bin"),
+    ("TUNLUT  ", "demo_v1/tunnel_lut.bin"),
+    ("MESH3D  ", "demo_v1/imported_mesh.bin"),
 ]
 
-def build_pak(out_path="src/grotto_assets.pak"):
+def build_pak(out_path="demo_v1/grotto_assets.pak"):
     blobs = list()
     for tag, path in ASSETS:
         data = open(path, "rb").read()

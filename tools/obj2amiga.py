@@ -71,11 +71,11 @@ def convert_obj(obj_path, max_tris=260, target_r=72.0):
         vals = (tex_id, bank, c0[0], c0[1], c0[2], c1[0], c1[1], c1[2], c2[0], c2[1], c2[2])
         amiga_tris.append(vals)
         bin_blob.extend(struct.pack(">11h", *vals))
-    open("src/imported_mesh.bin", "wb").write(bin_blob)
+    open("demo_v1/imported_mesh.bin", "wb").write(bin_blob)
     asm = ["    even", "imported_mesh:", f"    dc.w {len(amiga_tris)-1}"]
     asm += ["    dc.w " + ",".join(str(v) for v in t) for t in amiga_tris]
-    open("src/imported_mesh.i", "w").write(chr(10).join(asm) + chr(10))
-    print(f"OBJ2AMIGA OK: {obj_path} -> {len(amiga_tris)} trojkatow UV (src/imported_mesh.bin + src/imported_mesh.i)")
+    open("demo_v1/imported_mesh.i", "w").write(chr(10).join(asm) + chr(10))
+    print(f"OBJ2AMIGA OK: {obj_path} -> {len(amiga_tris)} trojkatow UV (demo_v1/imported_mesh.bin + demo_v1/imported_mesh.i)")
 
 if __name__ == "__main__":
     src_obj = sys.argv[1] if len(sys.argv) > 1 else "assets_raw/sample_temple.obj"

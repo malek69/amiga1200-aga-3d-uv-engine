@@ -16,7 +16,7 @@ for (r0, g0, b0), (r1, g1, b1) in grads:
     for i in range(32):
         t = (i / 31.0) ** 0.85
         pal.extend(struct.pack(">BBBB", 0, int(r0+(r1-r0)*t), int(g0+(g1-g0)*t), int(b0+(b1-b0)*t)))
-open("src/pal256.bin", "wb").write(pal)
+open("demo_v1/pal256.bin", "wb").write(pal)
 
 # 2. Gladkie tekstury UV 64x64 (U = kat swiatla 0..63, V = delikatny marmur/metal -> brak szumu!)
 tex = bytearray()
@@ -26,7 +26,7 @@ for tid in range(4):
             base = 3 + int((x / 63.0) * 26)
             vein = int(2.5 * math.sin(y * 0.22 + math.sin(x * 0.12) * 1.5))
             tex.append(max(2, min(31, base + vein)))
-open("src/uv_textures.bin", "wb").write(tex)
+open("demo_v1/uv_textures.bin", "wb").write(tex)
 
 # 3. Konwersja beast.obj z prawdziwym cieniowaniem od normalnych 3D (N dot L)
 verts, faces = list(), list()
@@ -105,7 +105,7 @@ for (x0, y0, z0), (x1, y1, z1), (x2, y2, z2) in best_tris:
 bin_blob = bytearray(struct.pack(">H", len(amiga_tris) - 1))
 for t in amiga_tris:
     bin_blob.extend(struct.pack(">11h", *t))
-open("src/imported_mesh.bin", "wb").write(bin_blob)
+open("demo_v1/imported_mesh.bin", "wb").write(bin_blob)
 asm = ["    even", "imported_mesh:", f"    dc.w {len(amiga_tris)-1}"] + ["    dc.w " + ",".join(str(v) for v in t) for t in amiga_tris]
-open("src/imported_mesh.i", "w").write(chr(10).join(asm) + chr(10))
+open("demo_v1/imported_mesh.i", "w").write(chr(10).join(asm) + chr(10))
 print(f"SHOWCASE OK: {len(amiga_tris)} trojkatow z cieniowaniem normalnych 3D + 3-punktowe swiatlo!")
