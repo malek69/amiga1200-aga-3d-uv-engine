@@ -141,17 +141,17 @@ draw_hires_tri:
     move.w  tv_y0(pc),d1
     move.w  tv_x1(pc),d2
     move.w  tv_y1(pc),d3
-    bsr.w   .scan_e
+    bsr.w   scan_tri_edge
     move.w  tv_x1(pc),d0
     move.w  tv_y1(pc),d1
     move.w  tv_x2(pc),d2
     move.w  tv_y2(pc),d3
-    bsr.w   .scan_e
+    bsr.w   scan_tri_edge
     move.w  tv_x2(pc),d0
     move.w  tv_y2(pc),d1
     move.w  tv_x0(pc),d2
     move.w  tv_y0(pc),d3
-    bsr.w   .scan_e
+    bsr.w   scan_tri_edge
     lea     tex_bank(pc),a4
     move.w  cur_tex(pc),d0
     lsl.w   #7,d0                   ; 128 bajtow na teksture 32x32
@@ -254,7 +254,7 @@ span_blit_32:
     or.l    d2,(a2,d4.w*4)
     movem.l (sp)+,d0-d4
     rts
-.scan_e: cmp.w d1,d3
+scan_tri_edge: cmp.w d1,d3
     beq.s   .se_ex
     bgt.s   .se_ok
     exg     d0,d2
