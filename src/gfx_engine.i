@@ -200,63 +200,6 @@ blit_clear_full:
     move.w  #$4014,BLTSIZE(a5)
     rts
 
-clear_draw_bpl:
-    move.l  draw_bpl1(pc),a0
-    bsr.w   blit_clear_full
-    move.l  draw_bpl2(pc),a0
-    bsr.w   blit_clear_full
-    bsr.w   wait_blitter
-    rts
-
-apply_blitter_aa:
-    bsr.w   wait_blitter
-    move.l  draw_bpl1(pc),a0
-    move.l  a0,a1
-    add.w   #40,a1
-    move.l  draw_bpl3(pc),a2
-    move.w  #$1dfc,BLTCON0(a5)
-    move.w  #$0000,BLTCON1(a5)
-    move.w  #$ffff,BLTAFWM(a5)
-    move.w  #$ffff,BLTALWM(a5)
-    move.w  #0,BLTAMOD(a5)
-    move.w  #0,BLTBMOD(a5)
-    move.w  #0,BLTDMOD(a5)
-    move.l  a0,BLTAPTH(a5)
-    move.l  a1,BLTBPTH(a5)
-    move.l  a2,BLTDPTH(a5)
-    move.w  #(255<<6)|20,BLTSIZE(a5)
-    bsr.w   wait_blitter
-    move.l  draw_bpl3(pc),a0
-    add.l   #255*40,a0
-    moveq   #9,d0
-.clr_last:
-    clr.l   (a0)+
-    dbf     d0,.clr_last
-    rts
-
-wait_vbl:
-    bsr.w   wait_blitter
-    move.b  #1,swap_ready
-.wv:
-    tst.b   swap_ready
-    bne.s   .wv
-    rts
-
-set_col01_shade:
-    move.l  cop_pal_ptr(pc),a0
-    move.w  d0,6(a0)
-    move.w  d0,22(a0)
-    and.w   #$000f,d0
-    add.w   #$000e,d0
-    lsr.w   #1,d0
-    move.w  d0,d1
-    lsl.w   #4,d1
-    or.w    d0,d1
-    lsl.w   #4,d1
-    or.w    d0,d1
-    move.w  d1,18(a0)
-    rts
-
 build_copper:
     move.l  #$000a8000,a0
     move.l  #(FMODE<<16)|$0000,(a0)+
