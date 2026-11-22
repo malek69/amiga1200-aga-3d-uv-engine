@@ -297,16 +297,15 @@ set_col01_shade:
 build_copper:
     move.l  #$0008f000,a0
     move.l  #(FMODE<<16)|$0000,(a0)+
-    move.l  #(DIWSTRT<<16)|$2c81,(a0)+
-    move.l  #(DIWSTOP<<16)|$2cc1,(a0)+
+    move.l  #(DIWSTRT<<16)|$3881,(a0)+
+    move.l  #(DIWSTOP<<16)|$1cc1,(a0)+
     move.l  #(DDFSTRT<<16)|$0038,(a0)+
     move.l  #(DDFSTOP<<16)|$00d0,(a0)+
-    move.l  #(BPLCON0<<16)|$3200,(a0)+
+    move.l  #(BPLCON0<<16)|$4200,(a0)+
     move.l  #(BPLCON1<<16)|$0000,(a0)+
     move.l  #(BPLCON2<<16)|$0024,(a0)+
     move.l  #(BPL1MOD<<16)|$0000,(a0)+
     move.l  #(BPL2MOD<<16)|$0000,(a0)+
-
     move.l  #$0107fffe,(a0)+
     move.l  a0,cop_bpl1_ptr
     move.l  disp_bpl1(pc),d0
@@ -315,7 +314,6 @@ build_copper:
     swap    d0
     move.w  #$00e0,(a0)+
     move.w  d0,(a0)+
-
     move.l  a0,cop_bpl2_ptr
     move.l  disp_bpl2(pc),d0
     move.w  #$00e6,(a0)+
@@ -323,7 +321,6 @@ build_copper:
     swap    d0
     move.w  #$00e4,(a0)+
     move.w  d0,(a0)+
-
     move.l  a0,cop_bpl3_ptr
     move.l  disp_bpl3(pc),d0
     move.w  #$00ea,(a0)+
@@ -338,49 +335,25 @@ build_copper:
     swap    d0
     move.w  #$00ec,(a0)+
     move.w  d0,(a0)+
-
     move.l  #(BPLCON3<<16)|$0c00,(a0)+
     move.l  #($010c<<16)|$0000,(a0)+
     move.l  a0,cop_pal_ptr
-    move.l  #(COLOR00<<16)|$0eee,(a0)+
-    move.l  #(COLOR01<<16)|$0254,(a0)+
-    move.l  #(COLOR02<<16)|$06ef,(a0)+
-    move.l  #(COLOR03<<16)|$0fff,(a0)+
+    move.l  #(COLOR00<<16)|$0000,(a0)+
+    move.l  #(COLOR01<<16)|$0113,(a0)+
+    move.l  #(COLOR02<<16)|$0225,(a0)+
+    move.l  #(COLOR03<<16)|$0347,(a0)+
     move.l  #(COLOR04<<16)|$0136,(a0)+
-    move.l  #(COLOR05<<16)|$0247,(a0)+
-    move.l  #(COLOR06<<16)|$05df,(a0)+
+    move.l  #(COLOR05<<16)|$0269,(a0)+
+    move.l  #(COLOR06<<16)|$04bc,(a0)+
     move.l  #(COLOR07<<16)|$0ffd,(a0)+
-    move.l  #(BPLCON3<<16)|$0000,(a0)+
-    move.l  #($0190<<16)|$0752,(a0)+
-    move.l  #($0192<<16)|$0a84,(a0)+
-    move.l  #($0194<<16)|$0db6,(a0)+
+    move.l  #($0190<<16)|$0862,(a0)+
+    move.l  #($0192<<16)|$0b93,(a0)+
+    move.l  #($0194<<16)|$0ed5,(a0)+
     move.l  #($0196<<16)|$0fa4,(a0)+
     move.l  #($0198<<16)|$0162,(a0)+
     move.l  #($019a<<16)|$02a3,(a0)+
     move.l  #($019c<<16)|$05e5,(a0)+
     move.l  #($019e<<16)|$0fff,(a0)+
-    move.l  #(BPLCON3<<16)|$0200,(a0)+
-    move.l  #($0190<<16)|$0752,(a0)+
-    move.l  #($0192<<16)|$0a84,(a0)+
-    move.l  #($0194<<16)|$0db6,(a0)+
-    move.l  #($0196<<16)|$0fa4,(a0)+
-    move.l  #($0198<<16)|$0162,(a0)+
-    move.l  #($019a<<16)|$02a3,(a0)+
-    move.l  #($019c<<16)|$05e5,(a0)+
-    move.l  #($019e<<16)|$0fff,(a0)+
-    move.l  #(BPLCON3<<16)|$0000,(a0)+
-    move.l  a0,cop_sky_ptr
-    moveq   #31,d2
-    move.w  #$2c07,d3
-.mk_sky:
-    move.w  d3,(a0)+
-    move.w  #$fffe,(a0)+
-    move.l  #(COLOR00<<16)|$0213,(a0)+
-    move.l  #(BPLCON3<<16)|$0200,(a0)+
-    move.l  #(COLOR00<<16)|$0213,(a0)+
-    move.l  #(BPLCON3<<16)|$0000,(a0)+
-    add.w   #$0800,d3
-    dbf     d2,.mk_sky
     move.l  #$fffffffe,(a0)+
     rts
 cop_sky_ptr: dc.l 0
