@@ -168,6 +168,8 @@ mod_data:
     section uv_data,data
     even
 uv_tex_bank: incbin "uv_textures.bin"
+    even
+tunnel_lut:  incbin "tunnel_lut.bin"
 
     section fastram_bss,bss
     even
