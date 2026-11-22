@@ -62,37 +62,22 @@ exit_program:
     include "engine3d_core.i"
     include "c2p_chunky.i"
     include "realtime_3d.i"
-    include "sincos_tab.i"
 
-gfxname:        dc.b "graphics.library",0
-                even
-gfxbase:        dc.l 0
-oldview:        dc.l 0
-old_vbl_vec:    dc.l 0
-old_aud_vec:    dc.l 0
-vbr_base:       dc.l 0
-disp_bpl1:      dc.l 0
-draw_bpl1:      dc.l 0
-disp_bpl2:      dc.l 0
-draw_bpl2:      dc.l 0
-disp_bpl3:      dc.l 0
-draw_bpl3:      dc.l 0
-disp_bpl4:      dc.l 0
-draw_bpl4:      dc.l 0
-disp_bpl5:      dc.l 0
-draw_bpl5:      dc.l 0
-disp_bpl6:      dc.l 0
-draw_bpl6:      dc.l 0
-disp_bpl7:      dc.l 0
-draw_bpl7:      dc.l 0
-disp_bpl8:      dc.l 0
-draw_bpl8:      dc.l 0
-cop_bpl1_ptr:   dc.l 0
-cop_bpl2_ptr:   dc.l 0
-cop_bpl3_ptr:   dc.l 0
-cop_bpl4_ptr:   dc.l 0
-cop_bpl5_ptr:   dc.l 0
-cop_bpl6_ptr:   dc.l 0
-cop_bpl7_ptr:   dc.l 0
-cop_bpl8_ptr:   dc.l 0
-d
+    section uv_data,data
+    even
+uv_tex_bank: incbin "uv_textures.bin"
+    even
+tunnel_lut:  incbin "tunnel_lut.bin"
+    even
+aga_pal256:  incbin "pal256.bin"
+    even
+scroll_font: ds.b 1024
+
+    section chip_mod,data_c
+    even
+mod_data:    incbin "music.mod"
+
+    section fastram_bss,bss
+    even
+chunky_buf:  ds.b 160*128
+edge_buf:    ds.b 256*8
