@@ -7,14 +7,14 @@ ws: moveq #-1,d0
     dc.l $200000,0
     dc.w _start-ws,0,0
     dc.b 0,$59
-    dc.l 00080000
+    dc.l $00080000
     dc.w _n-ws,_c-ws,_i-ws,0
     dc.l 0
     dc.w 0,0
-_n: dc.b "{DEMO_TITLE}",0
-_c: dc.b "{DEMO_CREDITS}",0
+_n: dc.b "AURA-3D Demo 1.0",0
+_c: dc.b "malek69 {DEMO_CREDITS} Gemini AI (2026)",0
 _i: dc.b "AGA 320x256 Vector Engine + 16.5kHz Paula Audio",0
-_e: dc.b "{EXE_NAME}",0
+_e: dc.b "AURA3D_DEMO",0
     even
 rl: dc.l 0
 hb: dcb.l 8,0
@@ -53,10 +53,10 @@ _start:
     move.l a0,-268(a3)
     lea _e(pc),a0
     move.l ws+$20(pc),a1
-    add.l #00000000,a1
+    add.l #$00000000,a1
     jsr 8(a2)
     move.l ws+$20(pc),a0
-    add.l #00000000,a0
+    add.l #$00000000,a0
     cmp.l #$000003f3,(a0)+
     bne.w .ex
     addq.l #4,a0
