@@ -5,23 +5,12 @@ rt = open("src/realtime_3d.i").read()
 cut = rt.find("    even\nlead_x:")
 if cut == -1: cut = rt.find("lead_x:")
 if cut != -1: rt = rt[:cut]
-grotto_grad = [0x0002,0x0002,0x0012,0x0013,0x0113,0x0124,0x0124,0x0135,0x0135,0x0124,0x0124,0x0113,0x0013,0x0012,0x0002,0x0002,0x0012,0x0124,0x0135,0x0146,0x0257,0x0268,0x0257,0x0146,0x0134,0x0023,0x0012,0x0012,0x0002,0x0002,0x0001,0x0001]
+grotto_grad = [0x0001,0x0001,0x0011,0x0012,0x0112,0x0123,0x0123,0x0124,0x0124,0x0123,0x0123,0x0112,0x0012,0x0011,0x0001,0x0001,0x0011,0x0123,0x0134,0x0145,0x0256,0x0267,0x0256,0x0145,0x0134,0x0023,0x0012,0x0011,0x0001,0x0001,0x0000,0x0000]
 rng = random.Random(7788)
 mist_s = [f"    dc.w {rng.randint(-120,120)},{rng.randint(0,63)}" for _ in range(60)]
-geo = "\n    even\nlead_x: dc.w 0
-ff_scr_y: dc.w 140
-cur_cx: dc.w 0
-cur_cy: dc.w 0
-cur_ldist: dc.w 0
-rc_x: dc.w 160
-rc_y: dc.w 124
-rc_r: dc.w 40
-rc_rd: dc.w 28
-fb_x: dc.w 160
-fb_y: dc.w 140
-ring_pts: ds.l 8\nlead_y: dc.w 16\ncam_x:  dc.w 0\nff1_x:  dc.w 0\nff1_y:  dc.w 0\nff1_z:  dc.w 220\nff2_x:  dc.w 0\nff2_y:  dc.w 0\nff2_z:  dc.w 280\ncur_px: dc.w 0\ncur_pz: dc.w 100\np_sx1:  dc.w 0\np_sx2:  dc.w 0\np_sy1:  dc.w 0\np_sy2:  dc.w 0\npoly_tmp: ds.w 20\n"
-geo += "grotto_grad:\n    dc.w " + ",".join(f"${c:04x}" for c in grotto_grad) + "\n"
-geo += """rusalka_bitmap:\n    dc.w $0380,$07c0,$0fe0,$0ee0,$1ef0,$1c70,$07c0,$0380,$0fe0,$1ff0,$1bb0,$07c0,$07c0,$0fe0,$0fe0,$1ff0,$1ff0,$3ff8,$3ff8,$1ef0,$0c60,$0c60\ngrotto_walls:\n    dc.w -180,-120,260, -85,-120,260, -115,52,260\n    dc.w -180,-120,260, -115,52,260, -180,52,260\n    dc.w 95,-120,260, 180,-120,260, 120,52,260\n    dc.w 180,-120,260, 180,52,260, 120,52,260\n    dc.w -95,-120,260, -55,-120,260, -75,-65,260\n    dc.w 45,-120,260, 88,-120,260, 66,-70,260\nlake_poly:\n    dc.w -155,48,220, 155,48,220, 165,86,330\n    dc.w -155,48,220, 165,86,330, -165,86,330\nthin_waterfall:\n    dc.w 78,-55,275, 86,-55,275, 88,48,275\n    dc.w 78,-55,275, 88,48,275, 76,48,275\nisland_and_tree_b1:\n    dc.w -52,48,250, 52,48,250, 38,38,250\n    dc.w -52,48,250, 38,38,250, -38,38,250\n    dc.w -4,40,250, 5,40,250, 3,-18,250\n    dc.w -4,40,250, 3,-18,250, -3,-18,250\ntree_crown_glow:\n    dc.w -48,-12,250, 48,-12,250, 0,-56,250\n    dc.w -36,-28,250, 36,-28,250, 0,-68,250\n"""
+vars_blk = ["    even","lead_x: dc.w 0","lead_y: dc.w 16","ff_scr_y: dc.w 140","cam_x: dc.w 0","ff1_x: dc.w 0","ff1_y: dc.w 0","ff1_z: dc.w 220","ff2_x: dc.w 0","ff2_y: dc.w 0","ff2_z: dc.w 280","cur_px: dc.w 0","cur_pz: dc.w 100","cur_cx: dc.w 0","cur_cy: dc.w 0","cur_ldist: dc.w 0","rc_x: dc.w 160","rc_y: dc.w 124","rc_r: dc.w 40","rc_rd: dc.w 28","fb_x: dc.w 160","fb_y: dc.w 140","ring_pts: ds.l 8","poly_tmp: ds.w 20"]
+geo = "\n" + "\n".join(vars_blk) + "\ngrotto_grad:\n    dc.w " + ",".join(f"${c:04x}" for c in grotto_grad) + "\n"
+geo += """rusalka_bitmap:\n    dc.w $0380,$07c0,$0fe0,$0ee0,$1ef0,$1c70,$07c0,$0380,$0fe0,$1ff0,$1bb0,$07c0,$07c0,$0fe0,$0fe0,$1ff0,$1ff0,$3ff8,$3ff8,$1ef0,$0c60,$0c60\ngrotto_walls:\n    dc.w -170,-115,260, -85,-115,260, -110,50,260\n    dc.w -170,-115,260, -110,50,260, -170,50,260\n    dc.w 95,-115,260, 170,-115,260, 115,50,260\n    dc.w 170,-115,260, 170,50,260, 115,50,260\n    dc.w -95,-115,260, -55,-115,260, -75,-65,260\n    dc.w 45,-115,260, 88,-115,260, 66,-70,260\nthin_waterfall:\n    dc.w 78,-55,275, 85,-55,275, 87,48,275\n    dc.w 78,-55,275, 87,48,275, 76,48,275\nisland_and_tree_b1:\n    dc.w -52,48,250, 52,48,250, 38,38,250\n    dc.w -52,48,250, 38,38,250, -38,38,250\n    dc.w -4,40,250, 5,40,250, 3,-18,250\n    dc.w -4,40,250, 3,-18,250, -3,-18,250\ntree_crown_glow:\n    dc.w -48,-12,250, 48,-12,250, 0,-56,250\n    dc.w -36,-28,250, 36,-28,250, 0,-68,250\n"""
 geo += "mist_seeds:\n" + "\n".join(mist_s) + "\nvec_frame_count: dc.w 1\n    even\nvec_frame_table: dc.l 0\n"
 open("src/realtime_3d.i", "w").write(rt + geo)
 mod_info = open("src/mod_credits.txt").read().strip() if os.path.exists("src/mod_credits.txt") else "1991-NOT A NUMBER (Aminet)"
