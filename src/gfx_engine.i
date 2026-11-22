@@ -136,7 +136,7 @@ sys_takeover:
 
     move.l  #copperlist,COP1LC(a5)
     move.w  d0,COPJMP1(a5)
-    move.w  #$83cf,DMACON(a5)
+    move.w  #$83ef,DMACON(a5)
     move.w  #$c020,INTENA(a5)
     moveq   #1,d0
     rts
@@ -288,7 +288,7 @@ set_col01_shade:
 
 build_copper:
     lea     copperlist,a0
-    move.l  #(FMODE<<16)|$0000,(a0)+
+    move.l  #(FMODE<<16)|$000c,(a0)+
     move.l  #(DIWSTRT<<16)|$2c81,(a0)+
     move.l  #(DIWSTOP<<16)|$2cc1,(a0)+
     move.l  #(DDFSTRT<<16)|$0038,(a0)+
@@ -328,10 +328,35 @@ build_copper:
     move.l  #(COLOR00<<16)|$0eee,(a0)+
     move.l  #(COLOR01<<16)|$0111,(a0)+
     move.l  #(COLOR02<<16)|$0e11,(a0)+
-    move.l  #(COLOR03<<16)|$0e11,(a0)+
+    move.l  #(COLOR03<<16)|$0fff,(a0)+
     move.l  #(COLOR04<<16)|$0888,(a0)+
     move.l  #(COLOR05<<16)|$0111,(a0)+
     move.l  #(COLOR06<<16)|$0e11,(a0)+
     move.l  #(COLOR07<<16)|$0e11,(a0)+
+    move.l  #($01a2<<16)|$02e6,(a0)+
+    move.l  #($01a4<<16)|$0fe0,(a0)+
+    move.l  #($01a6<<16)|$0f24,(a0)+
+    lea     eq_sprite,a1
+    move.l  #$f0480000,(a1)
+    move.l  a1,d0
+    move.w  #$0122,(a0)+
+    move.w  d0,(a0)+
+    swap    d0
+    move.w  #$0120,(a0)+
+    move.w  d0,(a0)+
+    move.l  a0,cop_sky_ptr
+    moveq   #31,d2
+    move.w  #$2c07,d3
+.mk_sky:
+    move.w  d3,(a0)+
+    move.w  #$fffe,(a0)+
+    move.l  #(COLOR00<<16)|$0213,(a0)+
+    move.l  #(BPLCON3<<16)|$0200,(a0)+
+    move.l  #(COLOR00<<16)|$0213,(a0)+
+    move.l  #(BPLCON3<<16)|$0000,(a0)+
+    add.w   #$0800,d3
+    dbf     d2,.mk_sky
     move.l  #$fffffffe,(a0)+
     rts
+cop_sky_ptr: dc.l 0
+beat_boost:  dc.b 0,0

@@ -139,7 +139,8 @@ pcm_end:
 
     section chipdata,bss_c
 dma_buf_a:   ds.b 2048
-dma_buf_b:   ds.b 2048
+dma_buf_b: ds.b 2048
+eq_sprite: ds.b 20*16   ds.b 2048
 bpl1_a:      ds.b BPL_SIZE
 bpl1_b:      ds.b BPL_SIZE
 bpl2_a:      ds.b BPL_SIZE
