@@ -9,13 +9,13 @@ setup_paula:
     clr.l   pcm_played
     move.l  #dma_buf_a,pcm_cur_buf
     move.l  #dma_buf_b,pcm_nxt_buf
-    move.l  dma_buf_a(pc),a0
+    lea     dma_buf_a,a0
     bsr.w   fill_pcm_chunk
-    move.l  dma_buf_b(pc),a0
+    lea     dma_buf_b,a0
     bsr.w   fill_pcm_chunk
     lea     $dff000,a5
     move.w  #$000f,$96(a5)
-    move.l  dma_buf_a(pc),d0
+    move.l  #dma_buf_a,d0
     move.l  d0,$a0(a5)
     move.l  d0,$b0(a5)
     move.l  d0,$c0(a5)
