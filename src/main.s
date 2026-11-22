@@ -169,5 +169,5 @@ mod_data:
 edge_buf:
     ds.b    10240
 fill_lut:
-    ds.l    131072
+    ds.l    256
     end

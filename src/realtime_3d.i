@@ -44,9 +44,9 @@ act1_full_3d_tunnel:
     mulu.w  #54,d0
     sub.w   d6,d0
     and.w   #$01ff,d0
-    add.w   #48,d0
+    add.w   #115,d0
     move.w  d0,sz0
-    add.w   #34,d0
+    add.w   #38,d0
     move.w  d0,sz1
     move.w  sz0(pc),d1
     lsr.w   #2,d1
@@ -97,124 +97,124 @@ emit_full_tunnel_box:
     ; 1. Lewa sciana
     lea     q_buf(pc),a4
     move.w  d0,d6
-    sub.w   #82,d6
+    sub.w   #118,d6
     move.w  d6,(a4)+
     move.w  d1,d6
-    sub.w   #64,d6
+    sub.w   #90,d6
     move.w  d6,(a4)+
     move.w  d2,(a4)+
     move.w  d3,d6
-    sub.w   #82,d6
+    sub.w   #118,d6
     move.w  d6,(a4)+
     move.w  d4,d6
-    sub.w   #64,d6
+    sub.w   #90,d6
     move.w  d6,(a4)+
     move.w  d5,(a4)+
     move.w  d3,d6
-    sub.w   #82,d6
+    sub.w   #118,d6
     move.w  d6,(a4)+
     move.w  d4,d6
-    add.w   #64,d6
+    add.w   #90,d6
     move.w  d6,(a4)+
     move.w  d5,(a4)+
     move.w  d0,d6
-    sub.w   #82,d6
+    sub.w   #118,d6
     move.w  d6,(a4)+
     move.w  d1,d6
-    add.w   #64,d6
+    add.w   #90,d6
     move.w  d6,(a4)+
     move.w  d2,(a4)+
     bsr.w   draw_qbuf_tex0
     ; 2. Prawa sciana
     lea     q_buf(pc),a4
     move.w  d0,d6
-    add.w   #82,d6
+    add.w   #118,d6
     move.w  d6,(a4)+
     move.w  d1,d6
-    sub.w   #64,d6
+    sub.w   #90,d6
     move.w  d6,(a4)+
     move.w  d2,(a4)+
     move.w  d3,d6
-    add.w   #82,d6
+    add.w   #118,d6
     move.w  d6,(a4)+
     move.w  d4,d6
-    sub.w   #64,d6
+    sub.w   #90,d6
     move.w  d6,(a4)+
     move.w  d5,(a4)+
     move.w  d3,d6
-    add.w   #82,d6
+    add.w   #118,d6
     move.w  d6,(a4)+
     move.w  d4,d6
-    add.w   #64,d6
+    add.w   #90,d6
     move.w  d6,(a4)+
     move.w  d5,(a4)+
     move.w  d0,d6
-    add.w   #82,d6
+    add.w   #118,d6
     move.w  d6,(a4)+
     move.w  d1,d6
-    add.w   #64,d6
+    add.w   #90,d6
     move.w  d6,(a4)+
     move.w  d2,(a4)+
     bsr.w   draw_qbuf_tex0
     ; 3. Sufit tunelu
     lea     q_buf(pc),a4
     move.w  d0,d6
-    sub.w   #82,d6
+    sub.w   #118,d6
     move.w  d6,(a4)+
     move.w  d1,d6
-    sub.w   #64,d6
+    sub.w   #90,d6
     move.w  d6,(a4)+
     move.w  d2,(a4)+
     move.w  d0,d6
-    add.w   #82,d6
+    add.w   #118,d6
     move.w  d6,(a4)+
     move.w  d1,d6
-    sub.w   #64,d6
+    sub.w   #90,d6
     move.w  d6,(a4)+
     move.w  d2,(a4)+
     move.w  d3,d6
-    add.w   #82,d6
+    add.w   #118,d6
     move.w  d6,(a4)+
     move.w  d4,d6
-    sub.w   #64,d6
+    sub.w   #90,d6
     move.w  d6,(a4)+
     move.w  d5,(a4)+
     move.w  d3,d6
-    sub.w   #82,d6
+    sub.w   #118,d6
     move.w  d6,(a4)+
     move.w  d4,d6
-    sub.w   #64,d6
+    sub.w   #90,d6
     move.w  d6,(a4)+
     move.w  d5,(a4)+
     bsr.w   draw_qbuf_tex0
     ; 4. Podloga tunelu
     lea     q_buf(pc),a4
     move.w  d0,d6
-    sub.w   #82,d6
+    sub.w   #118,d6
     move.w  d6,(a4)+
     move.w  d1,d6
-    add.w   #64,d6
+    add.w   #90,d6
     move.w  d6,(a4)+
     move.w  d2,(a4)+
     move.w  d0,d6
-    add.w   #82,d6
+    add.w   #118,d6
     move.w  d6,(a4)+
     move.w  d1,d6
-    add.w   #64,d6
+    add.w   #90,d6
     move.w  d6,(a4)+
     move.w  d2,(a4)+
     move.w  d3,d6
-    add.w   #82,d6
+    add.w   #118,d6
     move.w  d6,(a4)+
     move.w  d4,d6
-    add.w   #64,d6
+    add.w   #90,d6
     move.w  d6,(a4)+
     move.w  d5,(a4)+
     move.w  d3,d6
-    sub.w   #82,d6
+    sub.w   #118,d6
     move.w  d6,(a4)+
     move.w  d4,d6
-    add.w   #64,d6
+    add.w   #90,d6
     move.w  d6,(a4)+
     move.w  d5,(a4)+
     bsr.w   draw_qbuf_tex0
