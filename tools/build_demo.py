@@ -3,7 +3,7 @@ import os, shutil, struct, subprocess
 def write_whdload_info(path, slave_name="Aura3DDemo.slave"):
     # Standardowy plik Amiga Workbench WBPROJECT .info dla WHDLoad (wymagany przez FS-UAE i THEA1200)
     hdr = struct.pack(">HH", 0xE310, 1)
-    gad = struct.pack(">IHHHHHHIIIIIHI", 0, 0, 0, 32, 16, 0, 3, 1, 1, 0, 0, 0, 0, 0, 0)
+    gad = struct.pack(">IHHHHHHIIIIHII", 0, 0, 0, 32, 16, 0, 3, 1, 1, 0, 0, 0, 0, 0, 0)
     body = struct.pack(">BBIIIIIII", 4, 0, 1, 1, 0x80000000, 0x80000000, 0, 0, 8192)
     img = struct.pack(">hhhhhIbBbI", 0, 0, 32, 16, 1, 1, 1, 0, 0) + (b"\xff\x00\xff\x00" * 16)
     dt = b"WHDLoad\x00"
