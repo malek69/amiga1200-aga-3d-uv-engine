@@ -249,3 +249,9 @@ vbl_tick:       dc.l 0
 cur_frame:      dc.w 0
 swap_ready:     dc.b 0,0
 cop_pal_ptr:    dc.l 0
+    even
+bbox_x1: dc.w 0
+bbox_x2: dc.w 319
+bbox_y1: dc.w 0
+bbox_y2: dc.w 255
+fill_lut: ds.b 256
