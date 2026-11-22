@@ -41,6 +41,7 @@ mainloop:
     move.w  d0,cur_frame
 
     bsr.w   render_realtime_3d
+    bsr.w   draw_aga_overlays
     bsr.w   apply_blitter_aa
 
     btst    #6,CIAAPRA
@@ -58,7 +59,8 @@ exit_program:
     include "gfx_engine.i"
     include "vec3d_engine.i"
     include "scene_player.i"
-    include "audio_player.i"
+    include "pt_player.i"
+    include "demo_gfx.i"
     include "realtime_3d.i"
     include "sincos_tab.i"
 
@@ -134,15 +136,19 @@ inv_tab:
 
     section pcmdata,data
 pcm_start:
-    incbin  "median_audio.raw"
+mod_data:
+    incbin  "demo_tune.mod"
 pcm_end:
     dcb.b   256,0
     even
 
+logo_b1: incbin "logo_bpl1.bin"
+logo_b2: incbin "logo_bpl2.bin"
+scroll_font: incbin "scroll_font.bin"
+    even
     section chipdata,bss_c
 dma_buf_a:   ds.b 2048
 dma_buf_b: ds.b 2048
-eq_sprite: ds.b 20*16
 bpl1_a:      ds.b BPL_SIZE
 bpl1_b:      ds.b BPL_SIZE
 bpl2_a:      ds.b BPL_SIZE
@@ -150,6 +156,7 @@ bpl2_b:      ds.b BPL_SIZE
 bpl3_a:      ds.b BPL_SIZE
 bpl3_b:      ds.b BPL_SIZE
 copperlist:  ds.b 1024
+eq_sprite:   ds.b 320
 
 
 

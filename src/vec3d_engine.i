@@ -1,3 +1,4 @@
+; [EN/PL] MODULE: vec3d_engine.i | Fast-RAM XOR Scanline Polygon Rasterizer
 init_fill_lut:
     movem.l d0-d6/a0,-(sp)
     lea     fill_lut,a0
@@ -83,57 +84,28 @@ draw_polygon_mode:
     sub.w   d4,d7
     subq.w  #2,d7
     lea     fill_lut,a3
-    cmp.w   #1,d0
-    beq.s   .rc
-.ro: moveq  #0,d2
-    move.w  d4,d1
-.wo: moveq  #0,d0
-    move.w  (a0),d0
+.yl: moveq  #0,d1
+    move.w  d4,d6
+.xl: moveq  #0,d2
+    move.w  (a0),d2
     clr.w   (a0)+
-    or.l    d2,d0
-    move.l  (a3,d0.l*4),d0
-    move.l  d0,d2
-    and.l   #$00010000,d2
-    or.w    d0,(a2)+
-    dbf     d1,.wo
+    add.l   d1,d2
+    move.l  (a3,d2.l*4),d3
+    or.w    d3,(a2)+
+    swap    d3
+    move.l  d3,d1
+    swap    d1
+    dbf     d6,.xl
     add.w   d7,a0
     add.w   d7,a2
-    dbf     d5,.ro
-    bra.s   .pd
-.rc: moveq  #0,d2
-    move.w  d4,d1
-.wc: moveq  #0,d0
-    move.w  (a0),d0
-    clr.w   (a0)+
-    or.l    d2,d0
-    move.l  (a3,d0.l*4),d0
-    move.l  d0,d2
-    and.l   #$00010000,d2
-    not.w   d0
-    and.w   d0,(a2)+
-    dbf     d1,.wc
-    add.w   d7,a0
-    add.w   d7,a2
-    dbf     d5,.rc
-.pd: movem.l (sp)+,d0-d7/a0/a2-a5
+    dbf     d5,.yl
+    movem.l (sp)+,d0-d7/a0/a2-a5
     rts
 .pa: addq.l #2,sp
     movem.l (sp)+,d0-d7/a0/a2-a5
     rts
 .ed: movem.l d0-d7/a0,-(sp)
-    tst.w   d0
-    bpl.s   .x0a
-    moveq   #0,d0
-.x0a: cmp.w #319,d0
-    ble.s   .x0b
-    move.w  #319,d0
-.x0b: tst.w d2
-    bpl.s   .x1a
-    moveq   #0,d2
-.x1a: cmp.w #319,d2
-    ble.s   .x1b
-    move.w  #319,d2
-.x1b: tst.w d1
+    tst.w   d1
     bpl.s   .y0a
     moveq   #0,d1
 .y0a: cmp.w #255,d1

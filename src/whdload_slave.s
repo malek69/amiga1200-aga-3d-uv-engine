@@ -62,7 +62,7 @@ _start:
     addq.l #4,a0
     move.l (a0)+,d6
     addq.l #8,a0
-    move.l #$00010000,d3
+    move.l #$00040000,d3
     move.l ws+$20(pc),d4
     lea hb(pc),a3
     move.w d6,d7

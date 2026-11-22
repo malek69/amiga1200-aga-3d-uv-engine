@@ -122,13 +122,15 @@ sys_takeover:
 
     bsr.w   build_copper
     bsr.w   clear_draw_bpl
+    bsr.w   wait_blitter
     lea     bpl3_a,a0
     bsr.w   blit_clear_full
     lea     bpl3_b,a0
     bsr.w   blit_clear_full
     bsr.w   swap_buffers
     bsr.w   clear_draw_bpl
-    bsr.w   setup_paula
+    bsr.w   wait_blitter
+    bsr.w   pt_init
 
     move.l  vbr_base(pc),a0
     move.l  $6c(a0),old_vbl_vec
