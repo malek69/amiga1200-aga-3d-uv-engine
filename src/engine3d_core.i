@@ -34,7 +34,6 @@ proj_3d_cam:
     divs.l  d2,d1
     add.w   #160,d0
     add.w   #124,d1
-    movem.l (sp)+,d1-d5
     rts
 
 calc_dual_light:
@@ -201,7 +200,11 @@ draw_hires_tri:
 .xl_ok: cmp.w #319,d1
     ble.s   .xr_ok
     move.w  #319,d1
-.xr_ok: cmp.w d0,d1
+.xr_ok: cmp.w #319,d0
+    bgt.w   .ty_nx
+    tst.w   d1
+    bmi.w   .ty_nx
+    cmp.w   d0,d1
     blt.w   .ty_nx
     ; Pobierz 32-bitowy wzor tekstury hi-res dla wiersza Y & 31 + przesuniecie parallax
     move.w  d6,d2
