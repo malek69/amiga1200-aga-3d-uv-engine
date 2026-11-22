@@ -203,7 +203,7 @@ pt_wait_raster:
     dbf     d1,.wr_lp
     rts
 vbl_irq_handler:
-    movem.l d0-d1/a0/a5,-(sp)
+    movem.l d0-d2/a0-a1/a5,-(sp)
     lea     $dff000,a5
     move.w  #$0020,$9c(a5)
     addq.l  #1,vbl_tick
@@ -213,5 +213,5 @@ vbl_irq_handler:
     clr.b   swap_ready
     bsr.w   swap_buffers
 .no_swap:
-    movem.l (sp)+,d0-d1/a0/a5
+    movem.l (sp)+,d0-d2/a0-a1/a5
     rte
