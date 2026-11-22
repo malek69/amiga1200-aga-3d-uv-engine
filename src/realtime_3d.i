@@ -2,14 +2,14 @@
 render_realtime_3d:
     movem.l d0-d7/a0-a5,-(sp)
     move.l  cop_pal_ptr(pc),a1
-    move.w  #$0002,2(a1)            ; COLOR00: gleboki mrok
-    move.w  #$0125,6(a1)            ; COLOR01: cien / rzucany cien na wodzie
-    move.w  #$0248,10(a1)           ; COLOR02: mokra skala w polcieniu
-    move.w  #$037a,14(a1)           ; COLOR03: oswietlona skala / mech
-    move.w  #$0158,18(a1)           ; COLOR04: gleboka tafla jeziora
-    move.w  #$05ef,22(a1)           ; COLOR05: turkusowy blask / wodospad
-    move.w  #$0fa2,26(a1)           ; COLOR06: cieple zlote swiatlo swietlika
-    move.w  #$0fff,30(a1)           ; COLOR07: lustrzany blysk / rdzen swiatla / rusalka
+    move.w  #$0001,2(a1)            ; COLOR00: gleboki mrok
+    move.w  #$0113,6(a1)            ; COLOR01: gleboki cien kamienia / wody
+    move.w  #$0225,10(a1)           ; COLOR02: mokra skala w polcieniu
+    move.w  #$0347,14(a1)           ; COLOR03: oswietlona skala / mech
+    move.w  #$0136,18(a1)           ; COLOR04: gleboka woda jeziora
+    move.w  #$04bc,22(a1)           ; COLOR05: turkusowy blask / wodospad
+    move.w  #$0b72,26(a1)           ; COLOR06: cieple bursztynowe swiatlo swietlika
+    move.w  #$0ffd,30(a1)           ; COLOR07: jasny blask swietlika / rusalka
     move.l  vbl_tick(pc),d7
     cmp.l   #320,d7
     blo.w   act1_full_3d_tunnel
@@ -35,7 +35,7 @@ act1_full_3d_tunnel:
     asr.w   #4,d2
     add.w   #20,d2
     move.w  d2,l1_y
-    move.w  #175,l1_z
+    move.w  #165,l1_z
     move.w  #999,l2_z
     ; 10 ciaglych segmentow 3D tunelu (krok 48, glebokosc 50 -> brak dziur, 80 trojkatow/klatke!)
     move.w  d7,d6
@@ -45,9 +45,9 @@ act1_full_3d_tunnel:
     mulu.w  #48,d0
     sub.w   d6,d0
     and.w   #$01ff,d0
-    add.w   #95,d0
+    add.w   #75,d0
     move.w  d0,sz0
-    add.w   #50,d0
+    add.w   #54,d0
     move.w  d0,sz1
     move.w  sz0(pc),d1
     lsr.w   #2,d1
@@ -363,13 +363,13 @@ draw_firefly_3d:
     bsr.s   plot_aga_px
     subq.w  #1,d0
     bsr.s   plot_aga_px
-    ; Duza poswiata 7x7 wokol odwłoka
+    ; Duza poswiata 13x13 + krzyz promieni wokol swietlika
     move.w  ff_py(pc),d1
-    subq.w  #3,d1
-    moveq   #6,d5
+    subq.w  #6,d1
+    moveq   #12,d5
 .fy: move.w ff_px(pc),d0
-    subq.w  #3,d0
-    moveq   #6,d4
+    subq.w  #6,d0
+    moveq   #12,d4
 .fx: move.w ff_col(pc),d7
     bsr.s   plot_aga_px
     addq.w  #1,d0
