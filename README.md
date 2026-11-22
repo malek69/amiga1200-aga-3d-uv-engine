@@ -4,7 +4,9 @@
 **Platform:** Commodore Amiga 1200 (MC68020+ / AGA / 2 MB Chip + Fast RAM) & THEA1200  
 **Music:** *1991-Not A Number* (ProTracker 4-ch MOD)
 
-![Act I - 3D UV Tunnel](docs/tunnel.png)
+| Act I — 3D UV Tunnel | Act III — 256-Color 3D Cave |
+| :---: | :---: |
+| ![Act I - 3D UV Tunnel](docs/tunnel.png) | ![Act III - 256-Color 3D Cave](docs/cave.png) |
 
 ## 1. Specyfikacja silnika / Engine Specs (v1.0)
 * **Tryb graficzny / Graphics:** `256 kolorów AGA` (`BPLCON0 = $0210`, 8 bitplanów, 24-bitowa paleta RGB ładowana przez `BPLCON3`).
