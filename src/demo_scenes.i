@@ -123,24 +123,38 @@ render_zsorted_hero:
     addq.l  #6,a3
     lea     22(a4),a4
     dbf     d4,.zs_prep
-    move.w  zsort_cnt(pc),d4
-    subq.w  #1,d4
-    bmi.w   .zs_draw
-.zs_out:
+    ; Szybki Shell Z-Sort O(N log N) dla 1000+ trojkatow (kroki 384, 96, 24, 6 bajtow)
+    move.w  zsort_cnt(pc),d7
+    mulu.w  #6,d7                   ; max_off = cnt * 6
+    lea     shell_gaps(pc),a5
+.sh_glp:
+    move.w  (a5)+,d6                ; gap_bytes
+    beq.w   .zs_draw
+    move.w  d6,d5                   ; i = gap_bytes
+.sh_ilp:
+    cmp.w   d7,d5
+    bhi.s   .sh_glp
     lea     zsort_buf(pc),a3
+    move.w  (a3,d5.w),d0            ; key_z
+    move.l  2(a3,d5.w),d1           ; key_ptr
+    move.w  d5,d4                   ; j = i
+.sh_jlp:
+    cmp.w   d6,d4
+    blo.s   .sh_put
     move.w  d4,d3
-.zs_in:
-    move.w  (a3),d0
-    cmp.w   6(a3),d0
-    bge.s   .zs_ok
-    move.w  6(a3),(a3)
-    move.w  d0,6(a3)
-    move.l  2(a3),d1
-    move.l  8(a3),2(a3)
-    move.l  d1,8(a3)
-.zs_ok: addq.l #6,a3
-    dbf     d3,.zs_in
-    dbf     d4,.zs_out
+    sub.w   d6,d3                   ; j - gap
+    move.w  (a3,d3.w),d2
+    cmp.w   d0,d2
+    bge.s   .sh_put
+    move.w  d2,(a3,d4.w)
+    move.l  2(a3,d3.w),2(a3,d4.w)
+    move.w  d3,d4
+    bra.s   .sh_jlp
+.sh_put:
+    move.w  d0,(a3,d4.w)
+    move.l  d1,2(a3,d4.w)
+    addq.w  #6,d5
+    bra.s   .sh_ilp
 .zs_draw:
     lea     zsort_buf(pc),a3
     move.w  zsort_cnt(pc),d4
@@ -151,30 +165,57 @@ render_zsorted_hero:
     move.w  (a4)+,d6
     move.w  (a4)+,d5
     lea     uv_tri(pc),a1
+    ; Wierzcholek 0 + ciagle UV z pozycji 3D (brak szumu na malych trojkatach!)
     move.w  (a4)+,d0
     move.w  (a4)+,d1
     move.w  (a4)+,d2
+    move.w  d0,u_tmp
+    move.w  d1,v_tmp
     bsr.w   proj_uv_160
     move.w  d0,(a1)+
     move.w  d1,(a1)+
-    move.w  #0,(a1)+
-    move.w  #0,(a1)+
+    move.w  u_tmp(pc),d0
+    add.w   #64,d0
+    and.w   #63,d0
+    move.w  d0,(a1)+
+    move.w  v_tmp(pc),d0
+    add.w   #64,d0
+    and.w   #63,d0
+    move.w  d0,(a1)+
+    ; Wierzcholek 1
     move.w  (a4)+,d0
     move.w  (a4)+,d1
     move.w  (a4)+,d2
+    move.w  d0,u_tmp
+    move.w  d1,v_tmp
     bsr.w   proj_uv_160
     move.w  d0,(a1)+
     move.w  d1,(a1)+
-    move.w  #63,(a1)+
-    move.w  #0,(a1)+
+    move.w  u_tmp(pc),d0
+    add.w   #64,d0
+    and.w   #63,d0
+    move.w  d0,(a1)+
+    move.w  v_tmp(pc),d0
+    add.w   #64,d0
+    and.w   #63,d0
+    move.w  d0,(a1)+
+    ; Wierzcholek 2
     move.w  (a4)+,d0
     move.w  (a4)+,d1
     move.w  (a4)+,d2
+    move.w  d0,u_tmp
+    move.w  d1,v_tmp
     bsr.w   proj_uv_160
     move.w  d0,(a1)+
     move.w  d1,(a1)+
-    move.w  #63,(a1)+
-    move.w  #63,(a1)+
+    move.w  u_tmp(pc),d0
+    add.w   #64,d0
+    and.w   #63,d0
+    move.w  d0,(a1)+
+    move.w  v_tmp(pc),d0
+    add.w   #64,d0
+    and.w   #63,d0
+    move.w  d0,(a1)+
     cmp.w   #-500,uv_tri
     blt.s   .zs_sk
     cmp.w   #-500,uv_tri+8
@@ -188,6 +229,10 @@ render_zsorted_hero:
     move.w  (sp)+,d4
     dbf     d4,.zs_dlp
     rts
+    even
+u_tmp: dc.w 0
+v_tmp: dc.w 0
+shell_gaps: dc.w 384,96,24,6,0
 proj_uv_160:
     sub.w   cam_ox(pc),d0
     sub.w   cam_oy(pc),d1
@@ -246,7 +291,7 @@ draw_256_firefly:
 .fe: rts
     even
 zsort_cnt: dc.w 0
-zsort_buf: ds.b 400*6
+zsort_buf: ds.b 1200*6
 uv_tri: ds.w 12
 hero_stars: dc.w 12,8,45,14,88,6,115,19,23,28,67,22,102,31,134,12,19,44,54,39,93,48,128,36,8,62,41,58,76,66,119,54,31,78,63,84,99,73,138,81,14,96,49,92,84,104,122,98,27,112,58,118,91,109,131,116,17,21,73,33,108,42,44,71
     include "imported_mesh.i"
