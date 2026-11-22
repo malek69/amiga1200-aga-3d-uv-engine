@@ -4,6 +4,7 @@ ASSETS = [
     ("PAL256  ", "src/pal256.bin"),
     ("UVTEX64 ", "src/uv_textures.bin"),
     ("TUNLUT  ", "src/tunnel_lut.bin"),
+    ("MESH3D  ", "src/imported_mesh.bin"),
 ]
 
 def build_pak(out_path="src/grotto_assets.pak"):

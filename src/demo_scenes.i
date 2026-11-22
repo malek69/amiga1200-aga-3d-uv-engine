@@ -1,7 +1,8 @@
 scene_timeline_table:
     dc.l    0,640,scene_01_tunnel
     dc.l    640,700,scene_02_cave_emerge
-    dc.l    700,$ffffffff,scene_03_cave_360
+    dc.l    700,1340,scene_03_cave_360
+    dc.l    1340,$ffffffff,scene_04_imported_3d
 
 scene_01_tunnel:
     lea     sin_tab,a2
@@ -314,6 +315,33 @@ scene_03_cave_360:
     bsr.w   draw_ff_trail
     move.w  d5,d0
     move.w  d6,d1
+    move.w  #220,d7
+    bsr.w   draw_256_firefly
+    rts
+
+scene_04_imported_3d:
+    bsr.w   clear_chunky
+    lea     sin_tab,a2
+    move.w  d7,d0
+    lsr.w   #1,d0
+    and.w   #$ff,d0
+    move.w  (a2,d0.w*2),cam_sin
+    move.w  128(a2,d0.w*2),cam_cos
+    clr.w   cam_ox
+    move.w  #-10,cam_oy
+    move.w  #-185,cam_oz
+    lea     imported_mesh(pc),a4
+    bsr.w   render_256_mesh
+    move.w  #55,d0
+    move.w  #-25,d1
+    move.w  #20,d2
+    bsr.w   proj_uv_160
+    moveq   #62,d7
+    bsr.w   draw_256_firefly
+    move.w  #-55,d0
+    move.w  #-18,d1
+    move.w  #-20,d2
+    bsr.w   proj_uv_160
     move.w  #220,d7
     bsr.w   draw_256_firefly
     rts
@@ -1043,6 +1071,7 @@ cave_fg_mesh:
     dc.w 2,64,0,-24,10,0,-24,33,20,-17,22
     dc.w 2,64,0,-24,33,19,-24,44,20,-38,22
     dc.w 2,64,0,-24,33,19,-24,44,20,-17,22
+    include "imported_mesh.i"
 vec_frame_count: dc.w 1
     even
 vec_frame_table: dc.l 0
