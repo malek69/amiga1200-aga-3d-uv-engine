@@ -1,9 +1,23 @@
-; [EN/PL] MODULE: engine3d_core.i | M68020 3D Geometry, Point-Light Shading & Procedural 16x16 Texturing
-proj_3d:
-    ; Input: d0=X, d1=Y, d2=Z (kamera w 0,0,0) -> Output: d0=sx, d1=sy
-    cmp.w   #45,d2
+; [EN/PL] MODULE: engine3d_core.i | Pixel-Accurate 32x32 Textured 3D Engine & 8-Shade AGA Point-Lighting
+proj_3d_cam:
+    ; Input: d0=X, d1=Y, d2=Z -> stosuje obrot kamery Y (cam_sin, cam_cos) i rzutuje na 320x256
+    sub.w   cam_ox(pc),d0
+    sub.w   cam_oy(pc),d1
+    sub.w   cam_oz(pc),d2
+    move.w  d0,d3
+    muls.w  cam_cos(pc),d3
+    move.w  d2,d4
+    muls.w  cam_sin(pc),d4
+    sub.l   d4,d3
+    asr.l   #8,d3                   ; rx
+    muls.w  cam_sin(pc),d0
+    muls.w  cam_cos(pc),d2
+    add.l   d0,d2
+    asr.l   #8,d2                   ; rz
+    move.w  d3,d0
+    cmp.w   #42,d2
     bge.s   .z_ok
-    move.w  #45,d2
+    move.w  #42,d2
 .z_ok: ext.l d0
     ext.l   d1
     ext.l   d2
@@ -15,55 +29,78 @@ proj_3d:
     add.w   #124,d1
     rts
 
-calc_3d_light:
-    ; Input: d0=px, d1=py, d2=pz (srodek sciany 3D) vs (light_x, light_y, light_z)
-    ; Output: d0 = poziom swiatla (0=cien BPL1, 1=polcien tekstura, 2=jasne swiatlo BPL2)
-    sub.w   light_x(pc),d0
-    bpl.s   .lx_p
+calc_dual_light:
+    ; Input: d0=px, d1=py, d2=pz -> Output: d0 = kolor 1..7 wg odleglosci od zlotego (light1) i turkusowego (light2) swietlika
+    move.w  d0,d3
+    move.w  d1,d4
+    move.w  d2,d5
+    sub.w   l1_x(pc),d0
+    bpl.s   .a1
     neg.w   d0
-.lx_p: sub.w light_y(pc),d1
-    bpl.s   .ly_p
+.a1: sub.w l1_y(pc),d1
+    bpl.s   .a2
     neg.w   d1
-.ly_p: sub.w light_z(pc),d2
-    bpl.s   .lz_p
+.a2: sub.w l1_z(pc),d2
+    bpl.s   .a3
     neg.w   d2
-.lz_p: add.w d1,d0
-    add.w   d2,d0                   ; odleglosc 3D od swiecacego odwloka swietlika
+.a3: add.w d1,d0
+    add.w   d2,d0                   ; dist1 (zloty swietlik)
+    sub.w   l2_x(pc),d3
+    bpl.s   .b1
+    neg.w   d3
+.b1: sub.w l2_y(pc),d4
+    bpl.s   .b2
+    neg.w   d4
+.b2: sub.w l2_z(pc),d5
+    bpl.s   .b3
+    neg.w   d5
+.b3: add.w d4,d3
+    add.w   d5,d3                   ; dist2 (turkusowy swietlik)
     cmp.w   #95,d0
-    bhi.s   .l_mid
-    moveq   #2,d0                   ; blisko swietlika -> jasne swiatlo (BPL2)
+    bhi.s   .chk_l2
+    moveq   #6,d0                   ; blisko zlotego swietlika -> cieple zlote swiatlo (COLOR06)
     rts
-.l_mid: cmp.w #175,d0
-    bhi.s   .l_drk
-    moveq   #1,d0                   ; strefa przejsciowa -> tekstura mieszana
+.chk_l2: cmp.w #95,d3
+    bhi.s   .chk_md
+    moveq   #5,d0                   ; blisko turkusowego swietlika -> jasny turkus (COLOR05)
     rts
-.l_drk: moveq #0,d0                   ; daleko -> mrok (BPL1)
+.chk_md: cmp.w d3,d0
+    ble.s   .min_d
+    move.w  d3,d0
+.min_d: cmp.w #155,d0
+    bhi.s   .chk_dk
+    moveq   #3,d0                   ; sredni dystans -> oswietlona skala/mech (COLOR03)
+    rts
+.chk_dk: cmp.w #225,d0
+    bhi.s   .is_dk
+    moveq   #2,d0                   ; polcien (COLOR02)
+    rts
+.is_dk: moveq #1,d0                  ; gleboki cien groty/tunelu (COLOR01)
     rts
 
-draw_tex_tri:
-    ; Rysuje oteksturowany trojkat 3D: a4 -> 3 wierzcholki (x,y,z), d6=tex_id (0..3), d7=light (0..2)
+draw_hires_tri:
+    ; Pikselowo gladki trojkat 3D z tekstura 32x32: a4 -> 3 wierzcholki (x,y,z), d6=tex_id (0..3), d7=shade (1..7)
     movem.l d0-d7/a0-a5,-(sp)
     move.w  d6,cur_tex
     move.w  d7,cur_lit
     move.w  (a4)+,d0
     move.w  (a4)+,d1
     move.w  (a4)+,d2
-    bsr.s   proj_3d
+    bsr.w   proj_3d_cam
     move.w  d0,tv_x0
     move.w  d1,tv_y0
     move.w  (a4)+,d0
     move.w  (a4)+,d1
     move.w  (a4)+,d2
-    bsr.w   proj_3d
+    bsr.w   proj_3d_cam
     move.w  d0,tv_x1
     move.w  d1,tv_y1
     move.w  (a4)+,d0
     move.w  (a4)+,d1
     move.w  (a4)+,d2
-    bsr.w   proj_3d
+    bsr.w   proj_3d_cam
     move.w  d0,tv_x2
     move.w  d1,tv_y2
-    ; Wyznacz ymin..ymax
     move.w  tv_y0(pc),d6
     move.w  tv_y1(pc),d1
     move.w  tv_y2(pc),d2
@@ -115,10 +152,9 @@ draw_tex_tri:
     move.w  tv_x0(pc),d2
     move.w  tv_y0(pc),d3
     bsr.w   .scan_e
-    ; Wypelnij poziome pasy z tekstura 16x16 (a4 = baza tekstury 32B)
     lea     tex_bank(pc),a4
     move.w  cur_tex(pc),d0
-    lsl.w   #5,d0
+    lsl.w   #7,d0                   ; 128 bajtow na teksture 32x32
     add.w   d0,a4
     move.w  tri_y0(pc),d6
     move.w  tri_y1(pc),d7
@@ -128,14 +164,11 @@ draw_tex_tri:
     add.w   d0,d0
     add.w   d0,a0
     add.w   d0,a1
-    move.l  draw_bpl1(pc),a2
-    move.l  draw_bpl2(pc),a3
     move.w  d6,d0
     mulu.w  #40,d0
-    add.l   d0,a2
-    add.l   d0,a3
-.ty_lp: move.w (a0)+,d0
-    move.w  (a1)+,d1
+    move.l  d0,row_off
+.ty_lp: move.w (a0)+,d0             ; dokladny piksel xl
+    move.w  (a1)+,d1                ; dokladny piksel xr
     cmp.w   d0,d1
     blt.w   .ty_nx
     tst.w   d0
@@ -146,39 +179,80 @@ draw_tex_tri:
     move.w  #319,d1
 .xr_ok: cmp.w d0,d1
     blt.w   .ty_nx
+    ; Pobierz 32-bitowy wzor tekstury hi-res dla wiersza Y & 31 + przesuniecie parallax
     move.w  d6,d2
-    and.w   #15,d2
-    move.w  (a4,d2.w*2),d3          ; 16-bitowy wzor tekstury dla wiersza Y
-    move.w  d0,d4
-    lsr.w   #4,d4                   ; word start
-    move.w  d1,d5
-    lsr.w   #4,d5                   ; word end
-    sub.w   d4,d5
-    add.w   d4,d4                   ; byte offset
-    cmp.w   #2,cur_lit
-    beq.s   .lit_hi
-    cmp.w   #1,cur_lit
-    beq.s   .lit_md
-.lit_lo: or.w d3,(a2,d4.w)          ; cien: tekstura tylko na BPL1
-    addq.w  #2,d4
-    dbf     d5,.lit_lo
-    bra.s   .ty_nx
-.lit_md: or.w d3,(a2,d4.w)          ; polcien: tekstura na BPL1 + odwrotny wzor na BPL2
-    not.w   d3
-    or.w    d3,(a3,d4.w)
-    not.w   d3
-    addq.w  #2,d4
-    dbf     d5,.lit_md
-    bra.s   .ty_nx
-.lit_hi: or.w d3,(a3,d4.w)          ; jasne swiatlo: tekstura na BPL2
-    addq.w  #2,d4
-    dbf     d5,.lit_hi
-.ty_nx: lea 40(a2),a2
-    lea     40(a3),a3
+    add.w   tex_scroll(pc),d2
+    and.w   #31,d2
+    move.l  (a4,d2.w*4),d3          ; 32-bitowy wzor tekstury
+    move.w  tv_x0(pc),d4
+    and.w   #31,d4
+    rol.l   d4,d3                   ; dopasowanie fazy tekstury do obiektu 3D!
+    move.l  d3,row_tex
+    move.w  cur_lit(pc),d5
+    btst    #0,d5
+    beq.s   .no_b1
+    move.l  draw_bpl1(pc),a2
+    add.l   row_off(pc),a2
+    bsr.s   span_blit_32
+.no_b1: btst #1,d5
+    beq.s   .no_b2
+    move.l  draw_bpl2(pc),a2
+    add.l   row_off(pc),a2
+    bsr.s   span_blit_32
+.no_b2: btst #2,d5
+    beq.s   .ty_nx
+    move.l  draw_bpl3(pc),a2
+    add.l   row_off(pc),a2
+    bsr.s   span_blit_32
+.ty_nx: add.l #40,row_off
     addq.w  #1,d6
     cmp.w   d7,d6
     ble.w   .ty_lp
 .t_done: movem.l (sp)+,d0-d7/a0-a5
+    rts
+span_blit_32:
+    ; Wypelnia odcinek pikselowy d0..d1 na linii (a2) z tekstura row_tex i maskami brzegowymi!
+    movem.l d0-d4,-(sp)
+    move.l  row_tex(pc),d3
+    move.w  d0,d2
+    lsr.w   #5,d2                   ; longword start (0..9)
+    move.w  d1,d4
+    lsr.w   #5,d4                   ; longword end (0..9)
+    and.w   #31,d0                  ; start bit 0..31
+    and.w   #31,d1                  ; end bit 0..31
+    cmp.w   d2,d4
+    bne.s   .sp_multi
+    ; Pojedyncze slowo 32-bitowe: maska = ($ffffffff >> d0) & ($ffffffff << (31 - d1))
+    moveq   #-1,d4
+    lsr.l   d0,d4
+    moveq   #-1,d0
+    eor.w   #31,d1
+    lsl.l   d1,d0
+    and.l   d0,d4
+    and.l   d3,d4
+    or.l    d4,(a2,d2.w*4)
+    movem.l (sp)+,d0-d4
+    rts
+.sp_multi:
+    ; Lewa krawedz co do 1 piksela
+    move.w  d2,-(sp)
+    moveq   #-1,d2
+    lsr.l   d0,d2
+    and.l   d3,d2
+    move.w  (sp)+,d0
+    or.l    d2,(a2,d0.w*4)
+    addq.w  #1,d0
+.sp_mid: cmp.w d4,d0
+    bge.s   .sp_rt
+    or.l    d3,(a2,d0.w*4)
+    addq.w  #1,d0
+    bra.s   .sp_mid
+.sp_rt: moveq #-1,d2
+    eor.w   #31,d1
+    lsl.l   d1,d2
+    and.l   d3,d2
+    or.l    d2,(a2,d4.w*4)
+    movem.l (sp)+,d0-d4
     rts
 .scan_e: cmp.w d1,d3
     beq.s   .se_ex
@@ -216,11 +290,23 @@ draw_tex_tri:
     cmp.w   d3,d1
     ble.s   .se_lp
 .se_ex: rts
-light_x: dc.w 0
-light_y: dc.w 0
-light_z: dc.w 160
+    even
+cam_ox:  dc.w 0
+cam_oy:  dc.w 0
+cam_oz:  dc.w 0
+cam_sin: dc.w 0
+cam_cos: dc.w 256
+l1_x:    dc.w 0
+l1_y:    dc.w 0
+l1_z:    dc.w 160
+l2_x:    dc.w 0
+l2_y:    dc.w 0
+l2_z:    dc.w 260
 cur_tex: dc.w 0
-cur_lit: dc.w 0
+cur_lit: dc.w 1
+tex_scroll: dc.w 0
+row_off: dc.l 0
+row_tex: dc.l 0
 tv_x0:   dc.w 0
 tv_y0:   dc.w 0
 tv_x1:   dc.w 0
@@ -230,11 +316,20 @@ tv_y2:   dc.w 0
 tri_y0:  dc.w 0
 tri_y1:  dc.w 0
 tex_bank:
-    ; Tex 0: Mokra skala (chropowata tekstura kamienia z refleksami)
-    dc.w $eedb,$b7f6,$dfbe,$7edf,$fb7d,$eedb,$77bd,$dbef,$eedb,$b7f6,$dfbe,$7edf,$fb7d,$eedb,$77bd,$dbef
-    ; Tex 1: Falujaca woda i kaskada wodospadu
-    dc.w $f0f0,$7878,$3c3c,$1e1e,$0f0f,$8787,$c3c3,$e1e1,$f0f0,$7878,$3c3c,$1e1e,$0f0f,$8787,$c3c3,$e1e1
-    ; Tex 2: Liscie i mech na drzewie / wysepce
-    dc.w $aa55,$55aa,$ee77,$77ee,$aa55,$55aa,$ddbb,$bbdd,$aa55,$55aa,$ee77,$77ee,$aa55,$55aa,$ddbb,$bbdd
-    ; Tex 3: Gładki rdzen / biala piana
-    dc.w $ffff,$ffff,$ffff,$ffff,$ffff,$ffff,$ffff,$ffff,$ffff,$ffff,$ffff,$ffff,$ffff,$ffff,$ffff,$ffff
+    ; Tex 0 (128B): Hi-res chropowata skala 32x32 z zylami mineralow
+    dc.l $fff7dfff,$effbffff,$df7feffb,$fffeffff,$bfdff7ff,$fffbfff7,$f7feffdf,$dffffbff
+    dc.l $fffdfffb,$7feffff7,$ffdf7fff,$fbfffefd,$fff7dfff,$effbffff,$df7feffb,$fffeffff
+    dc.l $bfdff7ff,$fffbfff7,$f7feffdf,$dffffbff,$fffdfffb,$7feffff7,$ffdf7fff,$fbfffefd
+    dc.l $fff7dfff,$effbffff,$df7feffb,$fffeffff,$bfdff7ff,$fffbfff7,$f7feffdf,$dffffbff
+    ; Tex 1 (128B): Hi-res falujaca woda i strugi wodospadu 32x32
+    dc.l $ff3cff3c,$7e1e7e1e,$3c0f3c0f,$9e879e87,$cfc3cfc3,$e7e1e7e1,$f3f0f3f0,$f9f8f9f8
+    dc.l $ff3cff3c,$7e1e7e1e,$3c0f3c0f,$9e879e87,$cfc3cfc3,$e7e1e7e1,$f3f0f3f0,$f9f8f9f8
+    dc.l $ff3cff3c,$7e1e7e1e,$3c0f3c0f,$9e879e87,$cfc3cfc3,$e7e1e7e1,$f3f0f3f0,$f9f8f9f8
+    dc.l $ff3cff3c,$7e1e7e1e,$3c0f3c0f,$9e879e87,$cfc3cfc3,$e7e1e7e1,$f3f0f3f0,$f9f8f9f8
+    ; Tex 2 (128B): Hi-res organiczna tekstura lisci i mchu 32x32
+    dc.l $ee77ddbb,$77eebbee,$ddbb77ee,$bbeedd77,$ee77ddbb,$77eebbee,$ddbb77ee,$bbeedd77
+    dc.l $ee77ddbb,$77eebbee,$ddbb77ee,$bbeedd77,$ee77ddbb,$77eebbee,$ddbb77ee,$bbeedd77
+    dc.l $ee77ddbb,$77eebbee,$ddbb77ee,$bbeedd77,$ee77ddbb,$77eebbee,$ddbb77ee,$bbeedd77
+    dc.l $ee77ddbb,$77eebbee,$ddbb77ee,$bbeedd77,$ee77ddbb,$77eebbee,$ddbb77ee,$bbeedd77
+    ; Tex 3 (128B): Gladki blask / rdzen swiatla
+    dcb.l 32,$ffffffff

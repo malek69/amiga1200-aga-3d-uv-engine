@@ -1,173 +1,340 @@
-; [EN/PL] MODULE: realtime_3d.i | 3D Textured Tunnel Flight Behind Firefly -> Wet Grotto with Rusalka
 render_realtime_3d:
     movem.l d0-d7/a0-a5,-(sp)
-    move.l  vbl_tick(pc),d7
-    cmp.l   #450,d7
-    blo.w   act1_tunnel
-    bra.w   act2_grotto
-act1_tunnel:
     move.l  cop_pal_ptr(pc),a1
     move.w  #$0001,2(a1)
-    move.w  #$0124,6(a1)            ; COLOR01: ciemna mokra skala
-    move.w  #$0a72,10(a1)           ; COLOR02: cieple zlote swiatlo od tylka swietlika
-    move.w  #$0fe6,14(a1)           ; COLOR03: jasny rdzen swietlika
-    move.w  #$0113,18(a1)
+    move.w  #$0112,6(a1)
+    move.w  #$0234,10(a1)
+    move.w  #$0356,14(a1)
+    move.w  #$0146,18(a1)
+    move.w  #$04bc,22(a1)
+    move.w  #$0e93,26(a1)
+    move.w  #$0ffd,30(a1)
+    move.l  vbl_tick(pc),d7
+    cmp.l   #450,d7
+    blo.w   act1_full_3d_tunnel
+    bra.w   act2_full_3d_grotto
+act1_full_3d_tunnel:
+    clr.w   cam_ox
+    clr.w   cam_oy
+    clr.w   cam_oz
+    clr.w   cam_sin
+    move.w  #256,cam_cos
+    move.w  d7,tex_scroll
+    bsr.w   set_dark_sky
     lea     sin_tab,a2
     move.w  d7,d0
     add.w   d0,d0
     and.w   #$ff,d0
     move.w  (a2,d0.w*2),d1
     asr.w   #3,d1
-    move.w  d1,light_x
+    move.w  d1,l1_x
     move.w  d7,d0
     mulu.w  #3,d0
     and.w   #$ff,d0
     move.w  (a2,d0.w*2),d2
     asr.w   #4,d2
-    add.w   #24,d2
-    move.w  d2,light_y
-    move.w  #160,light_z
-    bsr.w   update_tunnel_copper
-    ; 10 oteksturowanych segmentow tunelu 3D (lewa i prawa sciana skalna oswietlana przez swietlika)
+    add.w   #22,d2
+    move.w  d2,l1_y
+    move.w  #155,l1_z
+    move.w  #999,l2_z
     move.w  d7,d6
-    mulu.w  #5,d6
-    moveq   #9,d4
-.seg_lp:
-    move.w  d4,d0
-    mulu.w  #48,d0
+    mulu.w  #6,d6
+    moveq   #8,d4
+.t_seg: move.w d4,d0
+    mulu.w  #54,d0
     sub.w   d6,d0
     and.w   #$01ff,d0
-    add.w   #55,d0                  ; Z_front = 55..566
-    move.w  d0,seg_z0
-    add.w   #46,d0
-    move.w  d0,seg_z1
-    ; Zakret tunelu
-    move.w  seg_z0(pc),d1
+    add.w   #48,d0
+    move.w  d0,sz0
+    add.w   #56,d0
+    move.w  d0,sz1
+    move.w  sz0(pc),d1
     lsr.w   #2,d1
     add.w   d7,d1
     and.w   #$ff,d1
     move.w  (a2,d1.w*2),d2
     asr.w   #3,d2
-    sub.w   light_x(pc),d2
-    move.w  d2,seg_x0
-    move.w  seg_z1(pc),d1
+    sub.w   l1_x(pc),d2
+    move.w  d2,sx0
+    move.w  128(a2,d1.w*2),d2
+    asr.w   #4,d2
+    sub.w   l1_y(pc),d2
+    move.w  d2,sy0
+    move.w  sz1(pc),d1
     lsr.w   #2,d1
     add.w   d7,d1
     and.w   #$ff,d1
     move.w  (a2,d1.w*2),d2
     asr.w   #3,d2
-    sub.w   light_x(pc),d2
-    move.w  d2,seg_x1
-    ; Oblicz oswietlenie 3D z odwłoka swietlika dla tego segmentu
-    move.w  seg_x0(pc),d0
-    moveq   #0,d1
-    move.w  seg_z0(pc),d2
-    bsr.w   calc_3d_light
-    move.w  d0,seg_lit
-    bsr.w   draw_textured_tunnel_seg
-    dbf     d4,.seg_lp
-    bsr.w   draw_3d_firefly
+    sub.w   l1_x(pc),d2
+    move.w  d2,sx1
+    move.w  128(a2,d1.w*2),d2
+    asr.w   #4,d2
+    sub.w   l1_y(pc),d2
+    move.w  d2,sy1
+    move.w  sx0(pc),d0
+    move.w  sy0(pc),d1
+    move.w  sz0(pc),d2
+    bsr.w   calc_dual_light
+    move.w  d0,slit
+    bsr.w   emit_full_tunnel_box
+    dbf     d4,.t_seg
+    move.w  l1_x(pc),d0
+    move.w  l1_y(pc),d1
+    move.w  l1_z(pc),d2
+    moveq   #6,d7
+    bsr.w   draw_firefly_3d
     movem.l (sp)+,d0-d7/a0-a5
     rts
-draw_textured_tunnel_seg:
+emit_full_tunnel_box:
     movem.l d4/d6-d7,-(sp)
-    ; Lewa sciana tunelu (2 oteksturowane trojkaty z tekstura mokrej skaly tex_id=0)
-    lea     tmp_tri(pc),a4
-    move.w  seg_x0(pc),d0
-    sub.w   #62,d0
-    move.w  d0,(a4)+
-    move.w  #-75,(a4)+
-    move.w  seg_z0(pc),(a4)+
-    move.w  seg_x1(pc),d0
-    sub.w   #62,d0
-    move.w  d0,(a4)+
-    move.w  #-75,(a4)+
-    move.w  seg_z1(pc),(a4)+
-    move.w  seg_x1(pc),d0
-    sub.w   #62,d0
-    move.w  d0,(a4)+
-    move.w  #85,(a4)+
-    move.w  seg_z1(pc),(a4)+
-    lea     tmp_tri(pc),a4
-    moveq   #0,d6
-    move.w  seg_lit(pc),d7
-    bsr.w   draw_tex_tri
-    ; Prawa sciana tunelu
-    lea     tmp_tri(pc),a4
-    move.w  seg_x0(pc),d0
-    add.w   #62,d0
-    move.w  d0,(a4)+
-    move.w  #-75,(a4)+
-    move.w  seg_z0(pc),(a4)+
-    move.w  seg_x1(pc),d0
-    add.w   #62,d0
-    move.w  d0,(a4)+
-    move.w  #85,(a4)+
-    move.w  seg_z1(pc),(a4)+
-    move.w  seg_x1(pc),d0
-    add.w   #62,d0
-    move.w  d0,(a4)+
-    move.w  #-75,(a4)+
-    move.w  seg_z1(pc),(a4)+
-    lea     tmp_tri(pc),a4
-    moveq   #0,d6
-    move.w  seg_lit(pc),d7
-    bsr.w   draw_tex_tri
+    move.w  sx0(pc),d0
+    move.w  sy0(pc),d1
+    move.w  sz0(pc),d2
+    move.w  sx1(pc),d3
+    move.w  sy1(pc),d4
+    move.w  sz1(pc),d5
+    lea     q_buf(pc),a4
+    move.w  d0,(a4)
+    sub.w   #82,(a4)+
+    move.w  d1,(a4)
+    sub.w   #64,(a4)+
+    move.w  d2,(a4)+
+    move.w  d3,(a4)
+    sub.w   #82,(a4)+
+    move.w  d4,(a4)
+    sub.w   #64,(a4)+
+    move.w  d5,(a4)+
+    move.w  d3,(a4)
+    sub.w   #82,(a4)+
+    move.w  d4,(a4)
+    add.w   #64,(a4)+
+    move.w  d5,(a4)+
+    move.w  d0,(a4)
+    sub.w   #82,(a4)+
+    move.w  d1,(a4)
+    add.w   #64,(a4)+
+    move.w  d2,(a4)+
+    bsr.w   draw_qbuf_tex0
+    lea     q_buf(pc),a4
+    move.w  d0,(a4)
+    add.w   #82,(a4)+
+    move.w  d1,(a4)
+    sub.w   #64,(a4)+
+    move.w  d2,(a4)+
+    move.w  d3,(a4)
+    add.w   #82,(a4)+
+    move.w  d4,(a4)
+    sub.w   #64,(a4)+
+    move.w  d5,(a4)+
+    move.w  d3,(a4)
+    add.w   #82,(a4)+
+    move.w  d4,(a4)
+    add.w   #64,(a4)+
+    move.w  d5,(a4)+
+    move.w  d0,(a4)
+    add.w   #82,(a4)+
+    move.w  d1,(a4)
+    add.w   #64,(a4)+
+    move.w  d2,(a4)+
+    bsr.w   draw_qbuf_tex0
+    lea     q_buf(pc),a4
+    move.w  d0,(a4)
+    sub.w   #82,(a4)+
+    move.w  d1,(a4)
+    sub.w   #64,(a4)+
+    move.w  d2,(a4)+
+    move.w  d0,(a4)
+    add.w   #82,(a4)+
+    move.w  d1,(a4)
+    sub.w   #64,(a4)+
+    move.w  d2,(a4)+
+    move.w  d3,(a4)
+    add.w   #82,(a4)+
+    move.w  d4,(a4)
+    sub.w   #64,(a4)+
+    move.w  d5,(a4)+
+    move.w  d3,(a4)
+    sub.w   #82,(a4)+
+    move.w  d4,(a4)
+    sub.w   #64,(a4)+
+    move.w  d5,(a4)+
+    bsr.w   draw_qbuf_tex0
+    lea     q_buf(pc),a4
+    move.w  d0,(a4)
+    sub.w   #82,(a4)+
+    move.w  d1,(a4)
+    add.w   #64,(a4)+
+    move.w  d2,(a4)+
+    move.w  d0,(a4)
+    add.w   #82,(a4)+
+    move.w  d1,(a4)
+    add.w   #64,(a4)+
+    move.w  d2,(a4)+
+    move.w  d3,(a4)
+    add.w   #82,(a4)+
+    move.w  d4,(a4)
+    add.w   #64,(a4)+
+    move.w  d5,(a4)+
+    move.w  d3,(a4)
+    sub.w   #82,(a4)+
+    move.w  d4,(a4)
+    add.w   #64,(a4)+
+    move.w  d5,(a4)+
+    bsr.w   draw_qbuf_tex0
     movem.l (sp)+,d4/d6-d7
     rts
-draw_3d_firefly:
-    move.w  light_x(pc),d0
-    move.w  light_y(pc),d1
-    move.w  light_z(pc),d2
-    bsr.w   proj_3d
-    move.w  d0,fb_x
-    move.w  d1,fb_y
-    ; Trzepoczace skrzydelka 3D (BPL2)
+draw_qbuf_tex0:
+    movem.l d0-d5,-(sp)
+    lea     tri_tmp(pc),a1
+    lea     q_buf(pc),a0
+    move.l  (a0),(a1)+
+    move.w  4(a0),(a1)+
+    move.l  6(a0),(a1)+
+    move.w  10(a0),(a1)+
+    move.l  12(a0),(a1)+
+    move.w  16(a0),(a1)+
+    lea     tri_tmp(pc),a4
+    moveq   #0,d6
+    move.w  slit(pc),d7
+    bsr.w   draw_hires_tri
+    lea     tri_tmp(pc),a1
+    lea     q_buf(pc),a0
+    move.l  (a0),(a1)+
+    move.w  4(a0),(a1)+
+    move.l  12(a0),(a1)+
+    move.w  16(a0),(a1)+
+    move.l  18(a0),(a1)+
+    move.w  22(a0),(a1)+
+    lea     tri_tmp(pc),a4
+    moveq   #0,d6
+    move.w  slit(pc),d7
+    bsr.w   draw_hires_tri
+    movem.l (sp)+,d0-d5
+    rts
+act2_full_3d_grotto:
     lea     sin_tab,a2
-    move.l  vbl_tick(pc),d7
-    lsl.w   #4,d7
-    and.w   #$ff,d7
-    move.w  (a2,d7.w*2),d5
-    asr.w   #5,d5
-    move.l  draw_bpl2(pc),a3
-    move.w  fb_x(pc),d0
-    sub.w   #11,d0
-    move.w  fb_y(pc),d1
-    add.w   d5,d1
-    subq.w  #4,d1
-    bsr.s   plot_safe
-    move.w  fb_x(pc),d0
-    add.w   #11,d0
-    bsr.s   plot_safe
-    ; Swiecacy odwlok swietlika (poswiata 5x5 na BPL2 + jasny rdzen 3x3 BPL1+BPL2)
-    move.w  fb_y(pc),d1
-    subq.w  #1,d1
+    sub.l   #450,d7
+    move.w  d7,tex_scroll
+    move.w  d7,d0
+    lsr.w   #1,d0
+    and.w   #$ff,d0
+    move.w  (a2,d0.w*2),d1
+    asr.w   #3,d1
+    and.w   #$ff,d1
+    move.w  (a2,d1.w*2),cam_sin
+    move.w  128(a2,d1.w*2),cam_cos
+    move.w  cam_sin(pc),d2
+    neg.w   d2
+    asr.w   #1,d2
+    move.w  d2,cam_ox
+    move.w  #-12,cam_oy
+    clr.w   cam_oz
+    move.w  d7,d0
+    add.w   d0,d0
+    and.w   #$ff,d0
+    move.w  (a2,d0.w*2),d1
+    asr.w   #2,d1
+    move.w  d1,l1_x
+    move.w  128(a2,d0.w*2),d2
+    asr.w   #2,d2
+    add.w   #250,d2
+    move.w  d2,l1_z
+    move.w  d7,d1
+    mulu.w  #3,d1
+    and.w   #$ff,d1
+    move.w  (a2,d1.w*2),d2
+    asr.w   #3,d2
+    sub.w   #12,d2
+    move.w  d2,l1_y
+    add.w   #128,d0
+    and.w   #$ff,d0
+    move.w  (a2,d0.w*2),d1
+    asr.w   #2,d1
+    move.w  d1,l2_x
+    move.w  128(a2,d0.w*2),d2
+    asr.w   #2,d2
+    add.w   #250,d2
+    move.w  d2,l2_z
+    neg.w   d2
+    add.w   #240,d2
+    move.w  d2,l2_y
+    bsr.w   set_grotto_sky
+    lea     grotto_scene_mesh(pc),a4
+    move.w  (a4)+,d4
+.gm_lp: move.w (a4)+,d6
+    move.w  (a4)+,d5
+    bne.s   .has_lit
+    move.w  (a4),d0
+    add.w   6(a4),d0
+    add.w   12(a4),d0
+    divs.w  #3,d0
+    move.w  2(a4),d1
+    add.w   8(a4),d1
+    add.w   14(a4),d1
+    divs.w  #3,d1
+    move.w  4(a4),d2
+    add.w   10(a4),d2
+    add.w   16(a4),d2
+    divs.w  #3,d2
+    bsr.w   calc_dual_light
+    move.w  d0,d5
+.has_lit: move.w d5,d7
+    bsr.w   draw_hires_tri
+    lea     18(a4),a4
+    dbf     d4,.gm_lp
+    bsr.w   draw_rusalka_3d
+    bsr.w   draw_mist_3d
+    move.w  l1_x(pc),d0
+    move.w  l1_y(pc),d1
+    move.w  l1_z(pc),d2
+    moveq   #6,d7
+    bsr.w   draw_firefly_3d
+    move.w  l2_x(pc),d0
+    move.w  l2_y(pc),d1
+    move.w  l2_z(pc),d2
+    moveq   #5,d7
+    bsr.w   draw_firefly_3d
+    movem.l (sp)+,d0-d7/a0-a5
+    rts
+draw_firefly_3d:
+    move.w  d7,ff_col
+    bsr.w   proj_3d_cam
+    cmp.w   #8,d0
+    blo.w   .ff_ex
+    cmp.w   #311,d0
+    bhi.w   .ff_ex
+    cmp.w   #8,d1
+    blo.w   .ff_ex
+    cmp.w   #246,d1
+    bhi.w   .ff_ex
+    move.w  d0,ff_px
+    move.w  d1,ff_py
+    subq.w  #2,d1
     moveq   #4,d5
-.gy: move.w fb_x(pc),d0
+.fy: move.w ff_px(pc),d0
     subq.w  #2,d0
     moveq   #4,d4
-.gx: bsr.s plot_safe
+.fx: move.w ff_col(pc),d7
+    bsr.s   plot_aga_px
     addq.w  #1,d0
-    dbf     d4,.gx
+    dbf     d4,.fx
     addq.w  #1,d1
-    dbf     d5,.gy
-    move.l  draw_bpl1(pc),a3
-    move.w  fb_y(pc),d1
+    dbf     d5,.fy
+    move.w  ff_py(pc),d1
+    subq.w  #1,d1
     moveq   #2,d5
-.cy: move.w fb_x(pc),d0
+.cy: move.w ff_px(pc),d0
     subq.w  #1,d0
     moveq   #2,d4
-.cx: bsr.s plot_safe
+.cx: moveq #7,d7
+    bsr.s   plot_aga_px
     addq.w  #1,d0
     dbf     d4,.cx
     addq.w  #1,d1
     dbf     d5,.cy
-    rts
-plot_safe:
-    cmp.w   #319,d0
-    bhi.s   .ps_no
-    cmp.w   #254,d1
-    bhi.s   .ps_no
+.ff_ex: rts
+plot_aga_px:
     move.w  d1,d2
     mulu.w  #40,d2
     move.w  d0,d3
@@ -176,171 +343,117 @@ plot_safe:
     move.w  d0,d3
     not.w   d3
     and.w   #7,d3
+    btst    #0,d7
+    beq.s   .p1
+    move.l  draw_bpl1(pc),a3
     bset    d3,(a3,d2.l)
-.ps_no: rts
-act2_grotto:
-    lea     sin_tab,a2
-    sub.l   #450,d7
-    move.w  d7,d0
-    add.w   d0,d0
-    and.w   #$ff,d0
-    move.w  (a2,d0.w*2),d1
-    asr.w   #2,d1
-    move.w  d1,ff1_x
-    move.w  128(a2,d0.w*2),d2
-    asr.w   #2,d2
-    add.w   #250,d2
-    move.w  d2,ff1_z
-    move.w  d7,d1
-    mulu.w  #3,d1
-    and.w   #$ff,d1
-    move.w  (a2,d1.w*2),d2
-    asr.w   #3,d2
-    sub.w   #8,d2
-    move.w  d2,ff1_y
-    add.w   #128,d0
-    and.w   #$ff,d0
-    move.w  (a2,d0.w*2),d1
-    asr.w   #2,d1
-    move.w  d1,ff2_x
-    move.w  128(a2,d0.w*2),d2
-    asr.w   #2,d2
-    add.w   #250,d2
-    move.w  d2,ff2_z
-    neg.w   d2
-    add.w   #245,d2
-    move.w  d2,ff2_y
-    move.l  cop_pal_ptr(pc),a1
-    move.w  #$0001,2(a1)
-    move.w  #$0123,6(a1)
-    cmp.w   #250,ff1_z
-    bge.s   .col_c
-    move.w  #$0962,10(a1)
-    move.w  #$0fe5,14(a1)
-    bra.s   .col_o
-.col_c: move.w #$0289,10(a1)
-    move.w  #$06fe,14(a1)
-.col_o: move.w #$0112,18(a1)
-    bsr.w   update_grotto_copper
-    ; 1. Oteksturowane sciany groty (tex 0 = mokra skala)
-    lea     grotto_tris(pc),a4
-    moveq   #5,d4
-.gt_lp: moveq #0,d6
-    moveq   #1,d7
-    bsr.w   draw_tex_tri
-    lea     18(a4),a4
-    dbf     d4,.gt_lp
-    ; 2. Oteksturowana tafla jeziorka (tex 1 = falujaca woda) + cienki wodospad z mgielka
-    lea     lake_tris(pc),a4
-    moveq   #1,d4
-.lk_lp: moveq #1,d6
-    moveq   #2,d7
-    bsr.w   draw_tex_tri
-    lea     18(a4),a4
-    dbf     d4,.lk_lp
-    lea     wf_tris(pc),a4
-    moveq   #1,d4
-.wf_lp: moveq #1,d6
-    moveq   #2,d7
-    bsr.w   draw_tex_tri
-    lea     18(a4),a4
-    dbf     d4,.wf_lp
-    bsr.w   render_mist_particles
-    ; 3. Wysepka i drzewo (tex 2 = liscie i mech) + Rusalka + 2 kolorowe swietliki
-    lea     tree_tris(pc),a4
-    moveq   #3,d4
-.tr_lp: moveq #2,d6
-    moveq   #1,d7
-    bsr.w   draw_tex_tri
-    lea     18(a4),a4
-    dbf     d4,.tr_lp
-    bsr.w   draw_rusalka
-    move.w  ff1_x(pc),light_x
-    move.w  ff1_y(pc),light_y
-    move.w  ff1_z(pc),light_z
-    bsr.w   draw_3d_firefly
-    move.w  ff2_x(pc),light_x
-    move.w  ff2_y(pc),light_y
-    move.w  ff2_z(pc),light_z
-    bsr.w   draw_3d_firefly
-    movem.l (sp)+,d0-d7/a0-a5
-    rts
-draw_rusalka:
-    move.l  draw_bpl1(pc),a2
+.p1: btst #1,d7
+    beq.s   .p2
     move.l  draw_bpl2(pc),a3
+    bset    d3,(a3,d2.l)
+.p2: btst #2,d7
+    beq.s   .p3
+    move.l  draw_bpl3(pc),a3
+    bset    d3,(a3,d2.l)
+.p3: rts
+draw_rusalka_3d:
+    move.w  #-14,d0
+    move.w  #26,d1
+    move.w  #246,d2
+    bsr.w   proj_3d_cam
+    move.w  d0,rs_x
+    move.w  d1,rs_y
     lea     rusalka_bmp(pc),a0
-    add.l   #144*40+17,a2
-    add.l   #144*40+17,a3
-    moveq   #21,d7
-.rs_l: move.w (a0)+,d0
-    or.w    d0,(a2)
-    or.w    d0,(a3)
-    lea     40(a2),a2
-    lea     40(a3),a3
-    dbf     d7,.rs_l
+    moveq   #21,d5
+.ry: move.w (a0)+,d4
+    move.w  rs_x(pc),d0
+    moveq   #15,d6
+.rx: btst d6,d4
+    beq.s   .rn
+    move.w  rs_y(pc),d1
+    moveq   #7,d7
+    bsr.s   plot_aga_px
+.rn: addq.w #1,d0
+    dbf     d6,.rx
+    addq.w  #1,rs_y
+    dbf     d5,.ry
     rts
-render_mist_particles:
-    move.l  draw_bpl2(pc),a3
-    move.l  vbl_tick(pc),d7
+draw_mist_3d:
+    move.l  vbl_tick(pc),d6
     lea     mist_pts(pc),a4
-    moveq   #31,d6
-.ms_l: move.w (a4)+,d0
+    moveq   #15,d5
+.ms: move.w (a4)+,d0
     move.w  (a4)+,d1
-    add.w   d7,d1
+    add.w   d6,d1
     and.w   #$1f,d1
     neg.w   d1
-    add.w   #172,d1
-    bsr.w   plot_safe
-    dbf     d6,.ms_l
+    add.w   #46,d1
+    move.w  #268,d2
+    bsr.w   proj_3d_cam
+    cmp.w   #318,d0
+    bhi.s   .mn
+    cmp.w   #252,d1
+    bhi.s   .mn
+    moveq   #5,d7
+    bsr.w   plot_aga_px
+.mn: dbf d5,.ms
     rts
-update_tunnel_copper:
+set_dark_sky:
     move.l  cop_sky_ptr(pc),a2
     moveq   #31,d4
-.tc_l: move.w #$0001,6(a2)
+.sd: move.w #$0001,6(a2)
     move.w  #$0001,14(a2)
     lea     20(a2),a2
-    dbf     d4,.tc_l
+    dbf     d4,.sd
     rts
-update_grotto_copper:
+set_grotto_sky:
     move.l  cop_sky_ptr(pc),a2
     lea     grotto_grad(pc),a0
     moveq   #31,d4
-.gc_l: move.w (a0)+,d1
+.sg: move.w (a0)+,d1
     move.w  d1,6(a2)
     move.w  d1,14(a2)
     lea     20(a2),a2
-    dbf     d4,.gc_l
+    dbf     d4,.sg
     rts
     even
-seg_z0: dc.w 60
-seg_z1: dc.w 100
-seg_x0: dc.w 0
-seg_x1: dc.w 0
-seg_lit: dc.w 0
-fb_x: dc.w 160
-fb_y: dc.w 140
-ff1_x: dc.w 0
-ff1_y: dc.w 0
-ff1_z: dc.w 220
-ff2_x: dc.w 0
-ff2_y: dc.w 0
-ff2_z: dc.w 280
-tmp_tri: ds.w 9
-grotto_grad: dc.w $0001,$0001,$0011,$0012,$0112,$0123,$0123,$0124,$0124,$0123,$0123,$0112,$0012,$0011,$0001,$0001,$0011,$0123,$0134,$0145,$0256,$0267,$0256,$0145,$0134,$0023,$0012,$0011,$0001,$0001,$0000,$0000
+sz0: dc.w 60
+sz1: dc.w 110
+sx0: dc.w 0
+sy0: dc.w 0
+sx1: dc.w 0
+sy1: dc.w 0
+slit: dc.w 1
+ff_col: dc.w 6
+ff_px: dc.w 160
+ff_py: dc.w 124
+rs_x: dc.w 150
+rs_y: dc.w 140
+q_buf: ds.w 12
+tri_tmp: ds.w 9
+grotto_grad: dc.w $0001,$0001,$0012,$0013,$0113,$0124,$0124,$0135,$0135,$0124,$0124,$0113,$0013,$0012,$0002,$0002,$0012,$0124,$0135,$0146,$0146,$0135,$0124,$0023,$0012,$0012,$0001,$0001,$0001,$0000,$0000,$0000
 rusalka_bmp: dc.w $0380,$07c0,$0fe0,$0ee0,$1ef0,$1c70,$07c0,$0380,$0fe0,$1ff0,$1bb0,$07c0,$07c0,$0fe0,$0fe0,$1ff0,$1ff0,$3ff8,$3ff8,$1ef0,$0c60,$0c60
-grotto_tris:
-    dc.w -170,-115,260, -85,-115,260, -110,50,260, -170,-115,260, -110,50,260, -170,50,260
-    dc.w 95,-115,260, 170,-115,260, 115,50,260, 170,-115,260, 170,50,260, 115,50,260
-    dc.w -95,-115,260, -55,-115,260, -75,-65,260, 45,-115,260, 88,-115,260, 66,-70,260
-lake_tris:
-    dc.w -155,48,220, 155,48,220, 165,86,330, -155,48,220, 165,86,330, -165,86,330
-wf_tris:
-    dc.w 78,-55,275, 86,-55,275, 88,48,275, 78,-55,275, 88,48,275, 76,48,275
-tree_tris:
-    dc.w -52,48,250, 52,48,250, 38,38,250, -52,48,250, 38,38,250, -38,38,250
-    dc.w -48,-12,250, 48,-12,250, 0,-56,250, -36,-28,250, 36,-28,250, 0,-68,250
-mist_pts: dc.w 220,0,224,7,228,14,232,21,236,3,240,10,244,18,248,25,222,12,226,19,230,27,234,4,238,11,242,20,246,28,250,6,221,15,225,22,229,29,233,8,237,16,241,24,245,2,249,9,223,17,227,26,231,5,235,13,239,23,243,30,247,1,251,14
+grotto_scene_mesh:
+    dc.w 17
+    dc.w 0,0, -190,-125,270, -80,-125,270, -120,50,250
+    dc.w 0,0, -190,-125,270, -120,50,250, -190,50,250
+    dc.w 0,0, 90,-125,270, 190,-125,270, 125,50,250
+    dc.w 0,0, 190,-125,270, 190,50,250, 125,50,250
+    dc.w 0,0, -100,-125,270, -50,-125,270, -75,-60,260
+    dc.w 0,0, 45,-125,270, 95,-125,270, 70,-65,260
+    dc.w 1,4, -175,48,200, 175,48,200, 195,92,340
+    dc.w 1,4, -175,48,200, 195,92,340, -195,92,340
+    dc.w 1,5, 82,-62,275, 91,-62,275, 94,48,270
+    dc.w 1,5, 82,-62,275, 94,48,270, 80,48,270
+    dc.w 0,0, -58,48,255, 58,48,255, 42,36,245
+    dc.w 0,0, -58,48,255, 42,36,245, -42,36,245
+    dc.w 0,2, -5,38,250, 6,38,250, 4,-18,250
+    dc.w 0,2, -5,38,250, 4,-18,250, -4,-18,250
+    dc.w 2,0, -54,-10,250, 54,-10,250, 0,-54,245
+    dc.w 2,0, -42,-28,252, 42,-28,252, 0,-68,248
+    dc.w 2,0, -28,-44,254, 28,-44,254, 0,-82,250
+    dc.w 0,1, -180,50,245, -120,50,245, -150,36,240
+mist_pts: dc.w 74,0,78,7,82,14,86,21,90,3,94,10,98,18,76,25,80,12,84,19,88,27,92,4,96,11,75,20,83,28,91,6
 vec_frame_count: dc.w 1
     even
 vec_frame_table: dc.l 0
-
