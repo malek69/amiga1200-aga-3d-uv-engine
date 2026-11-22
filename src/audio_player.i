@@ -1,110 +1,75 @@
+; [EN/PL] AUTHORS / AUTORZY: malek69 & Gemini AI (Vibe Coding Edition, 2026)
+; [EN] MODULE: audio_player.i | 4-Channel Paula DMA Driver (Level 4 IRQ, LED Filter OFF)
+; [PL] MODUL: audio_player.i | 4-kanalowy sterownik DMA Paula (IRQ4, filtr LED wylaczony)
 AUDIO_BUF_SIZE equ 2048
-
 setup_paula:
-    bset    #1,$bfe001              ; wylacz tlumik wysokich tonow Amiga LED filter
-    lea     CUSTOM,a5
+    movem.l d0-d1/a0-a1/a5,-(sp)
+    bset    #1,$bfe001
     move.l  #pcm_start,pcm_pos
-    move.l  #0,pcm_played
+    clr.l   pcm_played
     move.l  #dma_buf_a,pcm_cur_buf
     move.l  #dma_buf_b,pcm_nxt_buf
-
-    move.l  pcm_cur_buf(pc),a1
+    move.l  dma_buf_a(pc),a0
     bsr.w   fill_pcm_chunk
-    move.l  pcm_nxt_buf(pc),a1
+    move.l  dma_buf_b(pc),a0
     bsr.w   fill_pcm_chunk
-
-    move.l  vbr_base(pc),a0
+    lea     $dff000,a5
+    move.w  #$000f,$96(a5)
+    move.l  dma_buf_a(pc),d0
+    move.l  d0,$a0(a5)
+    move.l  d0,$b0(a5)
+    move.l  d0,$c0(a5)
+    move.l  d0,$d0(a5)
+    move.w  #(AUDIO_BUF_SIZE/2),$a4(a5)
+    move.w  #(AUDIO_BUF_SIZE/2),$b4(a5)
+    move.w  #(AUDIO_BUF_SIZE/2),$c4(a5)
+    move.w  #(AUDIO_BUF_SIZE/2),$d4(a5)
+    move.w  #322,$a6(a5)
+    move.w  #322,$b6(a5)
+    move.w  #322,$c6(a5)
+    move.w  #322,$d6(a5)
+    move.w  #22,$a8(a5)
+    move.w  #22,$b8(a5)
+    move.w  #22,$c8(a5)
+    move.w  #22,$d8(a5)
+    movec   vbr,a0
     move.l  $70(a0),old_aud_vec
     move.l  #aud0_irq_handler,$70(a0)
-
-    move.l  pcm_cur_buf(pc),d0
-    move.l  d0,AUD0LCH(a5)
-    move.l  d0,AUD1LCH(a5)
-    move.l  d0,AUD2LCH(a5)
-    move.l  d0,AUD3LCH(a5)
-
-    move.w  #AUDIO_BUF_SIZE/2,AUD0LEN(a5)
-    move.w  #AUDIO_BUF_SIZE/2,AUD1LEN(a5)
-    move.w  #AUDIO_BUF_SIZE/2,AUD2LEN(a5)
-    move.w  #AUDIO_BUF_SIZE/2,AUD3LEN(a5)
-
-    move.w  #215,AUD0PER(a5)        ; 3546895 / 215 = 16497 Hz
-    move.w  #215,AUD1PER(a5)
-    move.w  #215,AUD2PER(a5)
-    move.w  #215,AUD3PER(a5)
-
-    move.w  #26,AUD0VOL(a5)
-    move.w  #26,AUD1VOL(a5)
-    move.w  #26,AUD2VOL(a5)
-    move.w  #26,AUD3VOL(a5)
-
-    move.w  #$0080,INTREQ(a5)
-    move.w  #$c080,INTENA(a5)
+    move.w  #$0080,$9c(a5)
+    move.w  #$8080,$9a(a5)
+    move.w  #$820f,$96(a5)
+    movem.l (sp)+,d0-d1/a0-a1/a5
     rts
-
-fill_pcm_chunk:
-    move.l  pcm_pos(pc),a0
-    lea     pcm_end,a2
-    move.w  #AUDIO_BUF_SIZE-1,d0
-.cp:
-    cmp.l   a2,a0
-    blo.s   .ok
-    lea     pcm_start,a0
-.ok:
-    move.b  (a0)+,(a1)+
-    dbf     d0,.cp
-    move.l  a0,pcm_pos
-    rts
-
 aud0_irq_handler:
-    movem.l d0-d2/a0-a2/a5,-(sp)
-    lea     CUSTOM,a5
-    move.w  INTREQR(a5),d0
-    btst    #7,d0
-    beq.s   .aexit
-
-    move.w  #$0080,INTREQ(a5)
-
-    move.l  pcm_played(pc),d0
-    add.l   #AUDIO_BUF_SIZE,d0
-    move.l  #pcm_end-pcm_start,d1
-    cmp.l   d1,d0
-    blo.s   .p_ok
-    sub.l   d1,d0
-.p_ok:
-    move.l  d0,pcm_played
-
-    move.l  pcm_cur_buf(pc),d0
-    move.l  pcm_nxt_buf(pc),d1
-    move.l  d1,pcm_cur_buf
-    move.l  d0,pcm_nxt_buf
-
-    move.l  d1,AUD0LCH(a5)
-    move.l  d1,AUD1LCH(a5)
-    move.l  d1,AUD2LCH(a5)
-    move.l  d1,AUD3LCH(a5)
-
-    move.l  d0,a1
-    bsr.w   fill_pcm_chunk
-
-.aexit:
-    movem.l (sp)+,d0-d2/a0-a2/a5
+    movem.l d0-d1/a0-a1/a5,-(sp)
+    lea     $dff000,a5
+    move.w  #$0080,$9c(a5)
+    move.l  pcm_nxt_buf(pc),d0
+    move.l  pcm_cur_buf(pc),pcm_nxt_buf
+    move.l  d0,pcm_cur_buf
+    move.l  d0,$a0(a5)
+    move.l  d0,$b0(a5)
+    move.l  d0,$c0(a5)
+    move.l  d0,$d0(a5)
+    move.l  pcm_nxt_buf(pc),a0
+    bsr.s   fill_pcm_chunk
+    movem.l (sp)+,d0-d1/a0-a1/a5
     rte
-
+fill_pcm_chunk:
+    move.l  pcm_pos(pc),a1
+    lea     pcm_end,a2
+    move.w  #(AUDIO_BUF_SIZE/4)-1,d0
+.cp_pcm:
+    cmp.l   a2,a1
+    blo.s   .ok_pcm
+    lea     pcm_start,a1
+.ok_pcm:
+    move.l  (a1)+,(a0)+
+    dbf     d0,.cp_pcm
+    move.l  a1,pcm_pos
+    add.l   #AUDIO_BUF_SIZE,pcm_played
+    rts
 vbl_irq_handler:
-    movem.l d0-d7/a0-a6,-(sp)
-    lea     CUSTOM,a5
-    move.w  INTREQR(a5),d0
-    btst    #5,d0
-    beq.s   .exit
-
     addq.l  #1,vbl_tick
-    tst.b   swap_ready
-    beq.s   .ack
-    bsr.w   swap_buffers
-    clr.b   swap_ready
-.ack:
-    move.w  #$0020,INTREQ(a5)
-.exit:
-    movem.l (sp)+,d0-d7/a0-a6
+    move.w  #$0020,$dff09c
     rte
