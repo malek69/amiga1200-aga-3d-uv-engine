@@ -329,7 +329,7 @@ build_copper:
     move.l  a0,cop_pal_ptr
     move.l  #(COLOR00<<16)|$0eee,(a0)+
     move.l  #(COLOR01<<16)|$0254,(a0)+
-    move.l  #(COLOR02<<16)|$05df,(a0)+
+    move.l  #(COLOR02<<16)|$06ef,(a0)+
     move.l  #(COLOR03<<16)|$0fff,(a0)+
     move.l  #(COLOR04<<16)|$0888,(a0)+
     move.l  #(COLOR05<<16)|$0111,(a0)+
