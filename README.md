@@ -20,3 +20,24 @@
 ```fish
 python3 tools/cluster_obj.py && python3 tools/pack_scenes.py && python3 tools/build_grotto3d.py
 ```
+
+## Narzędzia, konwertery i pakowanie / Converters & Asset Packing
+
+### 1. Konwertery modeli 3D (`.obj` -> Amiga UV Mesh)
+* **`tools/cluster_obj.py` (High-Poly -> ~850 trójkątów):** Konwertuje gęste siatki z internetu (np. `30 000+` wierzchołków w `assets_raw/hero_scene.obj`) metodą **Vertex Grid Clustering**, łącząc sąsiednie wierzchołki w zwartą bryłę bez dziur, dodając cokół oraz mapując wysokość/promień na banki 256-kolorowej palety AGA.
+* **`tools/obj2amiga.py` (Low-Poly + materiały `usemtl`):** Konwertuje lekkie modele `.obj` (do `260` trójkątów) i automatycznie przypisuje nazwy materiałów (`gold`, `green`, `sand`, `water`, `wood`, `cyan`, `white`) do odpowiednich tekstur i banków kolorów.
+* **Pliki wyjściowe:** Oba konwertery generują jednocześnie plik binarny `src/imported_mesh.bin` (do paczki `PAK0`) oraz źródło asemblerowe `src/imported_mesh.i`.
+
+### 2. Tworzenie paczki zasobów `PAK0` (`tools/pack_scenes.py`)
+Skrypt `tools/pack_scenes.py` łączy wszystkie dane binarne silnika w jeden demoscenowy kontener **`src/grotto_assets.pak`**:
+* **Nagłówek (8 B):** sygnatura ASCII `PAK0` + 32-bitowa liczba sekcji (`big-endian`).
+* **Tablica offsetów TOC (`N * 16 B`):** dla każdej sekcji 8-bajtowa nazwa (`PAL256`, `UVTEX64`, `TUNLUT`, `MESH3D`), 32-bitowy offset i 32-bitowy rozmiar.
+* **Dane surowe:** paleta 24-bit RGB (`1 024 B`), 4 tekstury `64x64` (`16 384 B`), tablica tunelu (`86 016 B`) oraz siatka 3D (`MESH3D`).
+
+### 3. Jak wrzucić własną scenę `.obj` i zbudować paczkę krok po kroku
+1. Zapisz swój model jako `assets_raw/hero_scene.obj` (lub podaj ścieżkę do `tools/obj2amiga.py`).
+2. Uruchom konwersję, pakowanie `PAK0` i kompilację WHDLoad (`.lha`):
+```fish
+python3 tools/cluster_obj.py && python3 tools/pack_scenes.py && python3 tools/build_grotto3d.py
+```
+3. Gotowy plik wykonywalny oraz archiwum WHDLoad trafiają do katalogu `releases/` (`GROTTO3D` oraz `grotto3d.lha`).
