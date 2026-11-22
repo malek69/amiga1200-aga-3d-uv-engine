@@ -37,6 +37,7 @@ proj_3d_cam:
     rts
 
 calc_dual_light:
+    movem.l d1-d5,-(sp)
     ; Input: d0=px, d1=py, d2=pz -> Output: d0 = kolor 1..7 wg odleglosci od zlotego (light1) i turkusowego (light2) swietlika
     move.w  d0,d3
     move.w  d1,d4
@@ -66,10 +67,12 @@ calc_dual_light:
     cmp.w   #145,d0
     bhi.s   .chk_l2
     moveq   #6,d0                   ; blisko zlotego swietlika -> cieple zlote swiatlo (COLOR06)
+    movem.l (sp)+,d1-d5
     rts
 .chk_l2: cmp.w #95,d3
     bhi.s   .chk_md
     moveq   #5,d0                   ; blisko turkusowego swietlika -> jasny turkus (COLOR05)
+    movem.l (sp)+,d1-d5
     rts
 .chk_md: cmp.w d3,d0
     ble.s   .min_d
@@ -77,12 +80,15 @@ calc_dual_light:
 .min_d: cmp.w #155,d0
     bhi.s   .chk_dk
     moveq   #3,d0                   ; sredni dystans -> oswietlona skala/mech (COLOR03)
+    movem.l (sp)+,d1-d5
     rts
 .chk_dk: cmp.w #225,d0
     bhi.s   .is_dk
     moveq   #2,d0                   ; polcien (COLOR02)
+    movem.l (sp)+,d1-d5
     rts
 .is_dk: moveq #2,d0                  ; gleboki cien groty/tunelu (COLOR01)
+    movem.l (sp)+,d1-d5
     rts
 
 draw_hires_tri:
