@@ -76,19 +76,15 @@ act1_round_tunnel:
     bpl.s   .ax
     neg.w   d1
 .ax: add.w cur_ay(pc),d1
-    cmp.w   #26,d1
+    cmp.w   #34,d1
     bhi.s   .chk_m
     addq.b  #6,d0                   ; blisko swietlika -> cieple zlote swiatlo (8..11)!
     cmp.b   #11,d0
     ble.s   .wr_p
     moveq   #11,d0
     bra.s   .wr_p
-.chk_m: cmp.w #52,d1
-    bhi.s   .is_dk
-    lsr.b   #1,d0
-    addq.b  #1,d0                   ; strefa posrednia (2..4)
-    bra.s   .wr_p
-.is_dk: moveq #1,d0                 ; gleboki cien tunelu (1)
+.chk_m: lsr.b #1,d0
+    addq.b  #1,d0
 .wr_p: move.b d0,(a1)+
     addq.w  #1,d2
     cmp.w   #160,d2
@@ -129,9 +125,11 @@ proj_uv_160:
     asr.l   #8,d2                   ; rz
     sub.w   cam_oz(pc),d2           ; odsun kamera o 185 jednostek od srodka wyspy!
     move.w  d3,d0
-    cmp.w   #38,d2
+    cmp.w   #25,d2
     bge.s   .zo
-    move.w  #38,d2
+    move.w  #-999,d0
+    move.w  #-999,d1
+    rts
 .zo: ext.l d0
     ext.l   d1
     ext.l   d2
@@ -253,8 +251,15 @@ render_uv_mesh_list:
     move.w  #63,(a1)+
     move.l  a4,-(sp)
     lea     uv_tri(pc),a4
+    cmp.w   #-500,uv_tri
+    blt.s   .skip_t
+    cmp.w   #-500,uv_tri+8
+    blt.s   .skip_t
+    cmp.w   #-500,uv_tri+16
+    blt.s   .skip_t
     move.w  d5,d7
     bsr.w   draw_uv_tri
+.skip_t:
     move.l  (sp)+,a4
     dbf     d4,.um_lp
     rts
