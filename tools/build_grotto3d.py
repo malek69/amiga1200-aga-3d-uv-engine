@@ -1,18 +1,25 @@
-import os, random, shutil, subprocess, sys
+import glob, os, shutil, subprocess, sys
 sys.path.insert(0, "tools")
 import build_demo as bd
 rt = open("src/realtime_3d.i").read()
-cut = rt.find("    even\nlead_x:")
-if cut == -1: cut = rt.find("lead_x:")
-if cut != -1: rt = rt[:cut]
-grotto_grad = [0x0001,0x0001,0x0011,0x0012,0x0112,0x0123,0x0123,0x0124,0x0124,0x0123,0x0123,0x0112,0x0012,0x0011,0x0001,0x0001,0x0011,0x0123,0x0134,0x0145,0x0256,0x0267,0x0256,0x0145,0x0134,0x0023,0x0012,0x0011,0x0001,0x0001,0x0000,0x0000]
-rng = random.Random(7788)
-mist_s = [f"    dc.w {rng.randint(-120,120)},{rng.randint(0,63)}" for _ in range(60)]
-vars_blk = ["    even","lead_x: dc.w 0","lead_y: dc.w 16","ff_scr_y: dc.w 140","cam_x: dc.w 0","ff1_x: dc.w 0","ff1_y: dc.w 0","ff1_z: dc.w 220","ff2_x: dc.w 0","ff2_y: dc.w 0","ff2_z: dc.w 280","cur_px: dc.w 0","cur_pz: dc.w 100","cur_cx: dc.w 0","cur_cy: dc.w 0","cur_ldist: dc.w 0","rc_x: dc.w 160","rc_y: dc.w 124","rc_r: dc.w 40","rc_rd: dc.w 28","fb_x: dc.w 160","fb_y: dc.w 140","ring_pts: ds.l 8","poly_tmp: ds.w 20"]
-geo = "\n" + "\n".join(vars_blk) + "\ngrotto_grad:\n    dc.w " + ",".join(f"${c:04x}" for c in grotto_grad) + "\n"
-geo += """rusalka_bitmap:\n    dc.w $0380,$07c0,$0fe0,$0ee0,$1ef0,$1c70,$07c0,$0380,$0fe0,$1ff0,$1bb0,$07c0,$07c0,$0fe0,$0fe0,$1ff0,$1ff0,$3ff8,$3ff8,$1ef0,$0c60,$0c60\ngrotto_walls:\n    dc.w -170,-115,260, -85,-115,260, -110,50,260\n    dc.w -170,-115,260, -110,50,260, -170,50,260\n    dc.w 95,-115,260, 170,-115,260, 115,50,260\n    dc.w 170,-115,260, 170,50,260, 115,50,260\n    dc.w -95,-115,260, -55,-115,260, -75,-65,260\n    dc.w 45,-115,260, 88,-115,260, 66,-70,260\nthin_waterfall:\n    dc.w 78,-55,275, 85,-55,275, 87,48,275\n    dc.w 78,-55,275, 87,48,275, 76,48,275\nisland_and_tree_b1:\n    dc.w -52,48,250, 52,48,250, 38,38,250\n    dc.w -52,48,250, 38,38,250, -38,38,250\n    dc.w -4,40,250, 5,40,250, 3,-18,250\n    dc.w -4,40,250, 3,-18,250, -3,-18,250\ntree_crown_glow:\n    dc.w -48,-12,250, 48,-12,250, 0,-56,250\n    dc.w -36,-28,250, 36,-28,250, 0,-68,250\n"""
-geo += "mist_seeds:\n" + "\n".join(mist_s) + "\nvec_frame_count: dc.w 1\n    even\nvec_frame_table: dc.l 0\n"
-open("src/realtime_3d.i", "w").write(rt + geo)
+first = rt.find("seg_z0:")
+second = rt.find("seg_z0:", first + 1) if first != -1 else -1
+if second != -1:
+    cut = rt.rfind("    even", 0, second)
+    open("src/realtime_3d.i", "w").write(rt[:cut if cut != -1 else second])
+for p in glob.glob("releases/*"):
+    shutil.rmtree(p) if os.path.isdir(p) else os.remove(p)
+keep_tools = {"build_demo.py", "build_grotto3d.py", "fetch_mod.py"}
+for p in glob.glob("tools/*"):
+    bn = os.path.basename(p)
+    if bn == "__pycache__": shutil.rmtree(p)
+    elif os.path.isfile(p) and bn not in keep_tools: os.remove(p)
+main_txt = open("src/main.s").read()
+keep_src = {"main.s", "whdload_slave.s", "mod_credits.txt"}
+for p in glob.glob("src/*"):
+    bn = os.path.basename(p)
+    if os.path.isfile(p) and bn not in keep_src and bn not in main_txt:
+        os.remove(p)
 mod_info = open("src/mod_credits.txt").read().strip() if os.path.exists("src/mod_credits.txt") else "1991-NOT A NUMBER (Aminet)"
 sd, od = "src", "releases"
 exe = os.path.abspath(f"{od}/GROTTO3D")
@@ -31,7 +38,6 @@ subprocess.run(["vasmm68k_mot", "-m68020", "-Fhunkexe", "-nosym", f"{pr}/slave.s
 os.remove(f"{pr}/slave.s")
 open(f"{pr}/Grotto3D.info", "wb").write(bd.mk_ico(2))
 open(f"{pr}/Grotto3D/Grotto3D.info", "wb").write(bd.mk_ico(4, "WHDLoad", ["SLAVE=Grotto3D.slave", "NoMMU"]))
-if os.path.exists(f"{od}/grotto3d.lha"): os.remove(f"{od}/grotto3d.lha")
 bd.mk_lha(f"{od}/grotto3d.lha", pr)
 shutil.rmtree(pr)
-print(f"SUKCES: {exe} ({sz/1024:.1f} KB) | Paczka: releases/grotto3d.lha ({mod_info})!", flush=True)
+print(f"SUKCES: {exe} ({sz/1024:.1f} KB) | Czyste repo + releases/grotto3d.lha ({mod_info})!", flush=True)
