@@ -319,6 +319,31 @@ set_px_a3:
     rts
 draw_line_clipped:
     movem.l d0-d7/a0,-(sp)
+    cmp.w   #-160,d0
+    bge.s   .c0a
+    move.w  #-160,d0
+.c0a: cmp.w #480,d0
+    ble.s   .c0b
+    move.w  #480,d0
+.c0b: cmp.w #-160,d2
+    bge.s   .c2a
+    move.w  #-160,d2
+.c2a: cmp.w #480,d2
+    ble.s   .c2b
+    move.w  #480,d2
+.c2b: cmp.w #-160,d1
+    bge.s   .c1a
+    move.w  #-160,d1
+.c1a: cmp.w #420,d1
+    ble.s   .c1b
+    move.w  #420,d1
+.c1b: cmp.w #-160,d3
+    bge.s   .c3a
+    move.w  #-160,d3
+.c3a: cmp.w #420,d3
+    ble.s   .c3b
+    move.w  #420,d3
+.c3b:
     sub.w   d0,d2
     sub.w   d1,d3
     moveq   #1,d4
@@ -626,6 +651,7 @@ update_grotto_copper:
     even
 has_prev_ring: dc.b 0,0
 prev_ring_pts: ds.l 8
+
 
     even
 lead_x: dc.w 0
