@@ -1,13 +1,7 @@
 ; ============================================================================
-;  PLIK: gfx_engine.i
-;  OPIS MODULU:
-;    - Przejecie kontroli nad chipsetem AGA (sys_takeover) i powrot do systemu
-;      (sys_restore) wraz z zachowaniem VBR, DMACON, INTENA oraz Copperlisty.
-;    - Konfiguracja ekranu 320x256 PAL w 3 bitplanach (8 kolorow, $3200)
-;      z podwojnym buforowaniem (bpl1/2/3_a <-> bpl1/2/3_b).
-;    - Sprzetowy Anti-Aliasing na Blitterze (apply_blitter_aa): przesuniecie
-;      o 1 piksel na 3. bitplanie (BPL3) dla wygladzenia skosnych krawedzi.
-;    - Dynamiczna zmiana odcieni szarosci w Copperze (set_col01_shade).
+;  PLIK / FILE: gfx_engine.i
+;  OPIS: Sterowanie ukladem AGA (Copperlista 3 bitplany, podwojne buforowanie
+;        ekranu swap_buffers, czyszczenie bitplanow Blitterem blit_clear_full).
 ; ============================================================================
 
 CUSTOM      equ $dff000
@@ -112,12 +106,13 @@ sys_takeover:
     move.w  #$7fff,INTREQ(a5)
     move.w  #$7fff,DMACON(a5)
 
-    move.l  #bpl1_a,disp_bpl1
-    move.l  #bpl1_b,draw_bpl1
-    move.l  #bpl2_a,disp_bpl2
-    move.l  #bpl2_b,draw_bpl2
-    move.l  #bpl3_a,disp_bpl3
-    move.l  #bpl3_b,draw_bpl3
+    ; Bezposrednie, gwarantowane adresy w dolnym Chip RAM ($010000-$01F000)
+    move.l  #$00010000,disp_bpl1
+    move.l  #$00012800,draw_bpl1
+    move.l  #$00015000,disp_bpl2
+    move.l  #$00017800,draw_bpl2
+    move.l  #$0001a000,disp_bpl3
+    move.l  #$0001c800,draw_bpl3
     move.w  #$8240,DMACON(a5)
 
     bsr.w   build_copper
@@ -136,7 +131,7 @@ sys_takeover:
     move.l  $6c(a0),old_vbl_vec
     move.l  #vbl_irq_handler,$6c(a0)
 
-    move.l  #copperlist,COP1LC(a5)
+    move.l  #$0001f000,COP1LC(a5)
     move.w  d0,COPJMP1(a5)
     move.w  #$83cf,DMACON(a5)
     move.w  #$c020,INTENA(a5)
@@ -289,7 +284,7 @@ set_col01_shade:
     rts
 
 build_copper:
-    lea     copperlist,a0
+    move.l  #$0001f000,a0
     move.l  #(FMODE<<16)|$0000,(a0)+
     move.l  #(DIWSTRT<<16)|$2c81,(a0)+
     move.l  #(DIWSTOP<<16)|$2cc1,(a0)+

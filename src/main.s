@@ -1,15 +1,13 @@
 ; ============================================================================
-;  PLIK: main.s
-;  PROJEKT: Median - Amiga 1200 / THEA1200 AGA Vector Port [RETAIL VERSION]
-;  ORYGINAL: "Median" by Umlaut Design (PC / MS-DOS, 2016)
-;  PORT A1200: malek69 & Gemini AI (Vibe Coding Edition, 2026)
+;  PLIK / FILE: main.s
+;  PROJEKT: Grotto 3D v2.0 - Amiga 1200 AGA / M68020 Demo
+;  AUTORZY: malek69 & Gemini AI (2026)
 ; ----------------------------------------------------------------------------
 ;  OPIS MODULU:
-;    - Glowny punkt wejscia programu (start) oraz przejecie systemu AmigaOS.
-;    - Petla glowna zsynchronizowana z przerwaniem VBL 50 Hz PAL:
-;      przelicza zegar VBL na dokladne 30 FPS (cur_frame = vbl_tick * 3 / 5).
-;    - Obsluga wyjscia: lewy przycisk myszy (CIAAPRA bit 6) lub klawisz ESC.
-;    - Tablica odwrotnosci inv_tab (1/dy) dla interpolacji krawedzi wielokatow.
+;    - Glowny punkt wejscia programu (start) i przejecie systemu AmigaOS.
+;    - Petla glowna zsynchronizowana z przerwaniem VBL 50 Hz PAL (wait_vbl).
+;    - Czyszczenie 3 bitplanow Blitterem oraz wywolanie silnika 3D (render_realtime_3d).
+;    - Wyjscie z dema: lewy przycisk myszy (CIAAPRA bit 6) lub klawisz ESC.
 ; ============================================================================
 
 BPL_SIZE equ 40*256

@@ -1,4 +1,11 @@
-; [EN/PL] MODULE: engine3d_core.i | Pixel-Accurate 32x32 Textured 3D Engine & 8-Shade AGA Point-Lighting
+; ============================================================================
+;  PLIK / FILE: engine3d_core.i
+;  OPIS: Silnik 3D M68020:
+;        - proj_3d_cam: obrot kamery 3D (sin/cos) i rzutowanie perspektywiczne.
+;        - calc_dual_light: dynamiczne oswietlenie punktowe z 2 swietlikow (8 odcieni).
+;        - draw_hires_tri / span_blit_32: pikselowo gladki rasteryzator trojkatow 3D
+;          z teksturami wysokiej rozdzielczosci 32x32 px.
+; ============================================================================
 proj_3d_cam:
     ; Input: d0=X, d1=Y, d2=Z -> stosuje obrot kamery Y (cam_sin, cam_cos) i rzutuje na 320x256
     sub.w   cam_ox(pc),d0
