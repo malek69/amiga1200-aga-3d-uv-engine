@@ -35,7 +35,7 @@ act1_round_tunnel:
     add.w   d0,d0
     and.w   #$ff,d0
     move.w  (a2,d0.w*2),d1
-    asr.w   #3,d1                   ; ff_sx = -32..+32 -> +80 = 48..112
+    asr.w   #3,d1
     add.w   #80,d1
     move.w  d1,ff_sx
     move.w  d7,d0
@@ -43,49 +43,63 @@ act1_round_tunnel:
     and.w   #$ff,d0
     move.w  (a2,d0.w*2),d2
     asr.w   #4,d2
-    add.w   #70,d2                  ; ff_sy = 54..86
+    add.w   #70,d2
     move.w  d2,ff_sy
-    ; Renderuj 160x128 okragly tunel 3D z oswietleniem wokol swietlika (ff_sx, ff_sy)
+    ; Sprawdz czy jestesmy w fazie wylotu z tunelu (tick 275..320 -> rozswietlenie wylotu!)
+    clr.w   exit_boost
+    cmp.w   #275,d7
+    blo.s   .no_ex
+    move.w  d7,d0
+    sub.w   #275,d0
+    lsr.w   #2,d0
+    move.w  d0,exit_boost
+.no_ex:
     lea     tunnel_lut,a0
     lea     chunky_buf,a1
     lea     uv_tex_bank,a2
     move.w  d7,d5
-    lsr.w   #1,d5                   ; obrot kamery w tunelu
+    lsr.w   #1,d5
     move.w  d7,d6
-    add.w   d6,d6                   ; predkosc lotu w glab tunelu
-    moveq   #0,d3                   ; Y = 0..127
+    add.w   d6,d6
+    moveq   #0,d3
 .ty: move.w d3,d4
     sub.w   ff_sy(pc),d4
-    bpl.s   .ay
-    neg.w   d4
-.ay: move.w d4,cur_ay
-    moveq   #0,d2                   ; X = 0..159
-.tx: move.b (a0)+,d0               ; U (kat)
+    muls.w  d4,d4
+    move.l  d4,cur_dy2              ; dy^2 dla idealnie okraglego swiatla!
+    moveq   #0,d2
+.tx: move.b (a0)+,d0
     add.b   d5,d0
     and.w   #63,d0
-    move.b  (a0)+,d1               ; V (glebia 1/Z)
+    move.b  (a0)+,d1
     beq.s   .is_hole
     add.b   d6,d1
     and.w   #63,d1
     lsl.w   #6,d1
     or.w    d0,d1
-    move.b  (a2,d1.w),d0           ; teksel skaly (1..7)
-    ; Oswietlenie punktowe od swiecacego swietlika na scianach okraglego tunelu!
+    move.b  (a2,d1.w),d0
+    ; Okragle oswietlenie punktowe od swietlika: dist^2 = dx^2 + dy^2
     move.w  d2,d1
     sub.w   ff_sx(pc),d1
-    bpl.s   .ax
-    neg.w   d1
-.ax: add.w cur_ay(pc),d1
-    cmp.w   #34,d1
+    muls.w  d1,d1
+    add.l   cur_dy2(pc),d1
+    cmp.l   #680,d1                 ; promien okraglego swiatla ~26 px
     bhi.s   .chk_m
-    addq.b  #6,d0                   ; blisko swietlika -> cieple zlote swiatlo (8..11)!
+    addq.b  #6,d0
     cmp.b   #11,d0
     ble.s   .wr_p
     moveq   #11,d0
     bra.s   .wr_p
-.chk_m: lsr.b #1,d0
+.chk_m: cmp.l #2200,d1              ; druga strefa polcienia ~47 px
+    bhi.s   .far_w
+    lsr.b   #1,d0
     addq.b  #1,d0
-.wr_p: move.b d0,(a1)+
+    bra.s   .wr_p
+.far_w: moveq #1,d0
+.wr_p: add.b exit_boost+1(pc),d0    ; przejscie: rozswietlenie tunelu przy wylocie do groty!
+    cmp.b   #15,d0
+    ble.s   .p_ok
+    moveq   #15,d0
+.p_ok: move.b d0,(a1)+
     addq.w  #1,d2
     cmp.w   #160,d2
     blo.s   .tx
@@ -93,7 +107,12 @@ act1_round_tunnel:
     cmp.w   #128,d3
     blo.s   .ty
     bra.s   .dn_tun
-.is_hole: clr.b (a1)+
+.is_hole: move.b #6,d0              ; turkusowa poswiata wylotu groty na koncu tunelu!
+    add.b   exit_boost+1(pc),d0
+    cmp.b   #15,d0
+    ble.s   .h_ok
+    moveq   #15,d0
+.h_ok: move.b d0,(a1)+
     addq.w  #1,d2
     cmp.w   #160,d2
     blo.s   .tx
@@ -101,7 +120,6 @@ act1_round_tunnel:
     cmp.w   #128,d3
     blo.s   .ty
 .dn_tun:
-    ; Rysuj swietlika z osobnej swietlistej tekstury (zloto-bialy rdzen + skrzydelka)
     move.w  ff_sx(pc),d0
     move.w  ff_sy(pc),d1
     moveq   #11,d7
@@ -125,7 +143,7 @@ proj_uv_160:
     asr.l   #8,d2                   ; rz
     sub.w   cam_oz(pc),d2           ; odsun kamera o 185 jednostek od srodka wyspy!
     move.w  d3,d0
-    cmp.w   #25,d2
+    cmp.w   #65,d2
     bge.s   .zo
     move.w  #-999,d0
     move.w  #-999,d1
@@ -152,7 +170,7 @@ act2_360_cavern:
     move.w  128(a2,d0.w*2),cam_cos
     clr.w   cam_ox
     move.w  #-14,cam_oy
-    move.w  #-185,cam_oz
+    move.w  #-210,cam_oz
     ; Swietlik #1 (zloty z tunelu) i Swietlik #2 (turkusowy) kraza wokol drzewa
     move.w  d7,d0
     add.w   d0,d0
@@ -379,6 +397,8 @@ draw_chunky_rusalka:
     dbf     d5,.ry
 .re: rts
     even
+exit_boost: dc.w 0
+cur_dy2: dc.l 0
 ff_sx: dc.w 80
 ff_sy: dc.w 64
 cur_ay: dc.w 0

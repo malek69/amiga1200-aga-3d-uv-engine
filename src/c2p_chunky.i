@@ -147,14 +147,15 @@ draw_uv_tri:
     ble.w   .ry_nx
     move.w  d1,d4
     sub.w   d0,d4                   ; span_w = xr - xl
+    ext.l   d4
     move.w  6(a1),d2
     sub.w   4(a1),d2
     ext.l   d2
-    divs.w  d4,d2                   ; du
+    divs.l  d4,d2                   ; 32-bit du (zero overflow!)
     move.w  10(a1),d3
     sub.w   8(a1),d3
     ext.l   d3
-    divs.w  d4,d3                   ; dv
+    divs.l  d4,d3                   ; 32-bit dv (zero overflow!)
     move.w  4(a1),d4                ; cur_u (8.8)
     move.w  8(a1),d5                ; cur_v (8.8)
     tst.w   d0
