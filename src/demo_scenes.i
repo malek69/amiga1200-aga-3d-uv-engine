@@ -290,7 +290,7 @@ render_256_mesh:
     add.w   10(a4),d2
     add.w   16(a4),d2
     divs.w  #3,d2
-    bsr.w   calc_4lights_cave
+    moveq   #0,d0
     move.w  d0,d5
 .has_bk:
     clr.w   uv_anim_v
