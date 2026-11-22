@@ -77,13 +77,15 @@ draw_tunnel_arch:
     ; Lewa sciana tunelu: od X-135 do X-44
     move.w  cur_px(pc),d0
     sub.w   #135,d0
-    muls.w  #250,d0
+    ext.l   d0
+    muls.l  #250,d0
     divs.l  d2,d0
     add.w   #160,d0
     move.w  d0,p_sx1
     move.w  cur_px(pc),d0
     sub.w   #44,d0
-    muls.w  #250,d0
+    ext.l   d0
+    muls.l  #250,d0
     divs.l  d2,d0
     add.w   #160,d0
     move.w  d0,p_sx2
@@ -109,13 +111,15 @@ draw_tunnel_arch:
     ext.l   d2
     move.w  cur_px(pc),d0
     add.w   #44,d0
-    muls.w  #250,d0
+    ext.l   d0
+    muls.l  #250,d0
     divs.l  d2,d0
     add.w   #160,d0
     move.w  d0,p_sx1
     move.w  cur_px(pc),d0
     add.w   #135,d0
-    muls.w  #250,d0
+    ext.l   d0
+    muls.l  #250,d0
     divs.l  d2,d0
     add.w   #160,d0
     move.w  d0,p_sx2
@@ -254,8 +258,10 @@ draw_mesh_poly:
 
 proj_grotto_pt:
     sub.w   cam_x(pc),d0
-    muls.w  #260,d0
-    muls.w  #260,d1
+    ext.l   d0
+    ext.l   d1
+    muls.l  #260,d0
+    muls.l  #260,d1
     ext.l   d2
     divs.l  d2,d0
     divs.l  d2,d1

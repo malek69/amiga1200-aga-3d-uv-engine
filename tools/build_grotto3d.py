@@ -1,18 +1,13 @@
-import glob, os, re, shutil, subprocess, sys
+import os, shutil, subprocess, sys
 sys.path.insert(0, "tools")
 import build_demo as bd
-ms = open("src/main.s").read()
-mod_blk = """    section chip_mod,data_c\n    even\nmod_data:\n    incbin  "demo_tune.mod"\n    dcb.b   256,0\n    even\n"""
-if mod_blk in ms:
-    ms = ms.replace(mod_blk, "").replace("    section fastram_bss,bss", mod_blk + "\n    section fastram_bss,bss")
-open("src/main.s", "w").write(ms)
+rt = open("src/realtime_3d.i").read()
+rt = rt.replace("    cmp.w   #32,d1\n    ble.s   .bf_last", "    cmp.w   #32,d1\n    blt.s   .bf_last")
+rt = rt.replace("    muls.w  #250,d0\n    divs.l  d2,d0", "    ext.l   d0\n    muls.l  #250,d0\n    divs.l  d2,d0")
+rt = rt.replace("    muls.w  #260,d0\n    muls.w  #260,d1\n    ext.l   d2", "    ext.l   d0\n    ext.l   d1\n    muls.l  #260,d0\n    muls.l  #260,d1\n    ext.l   d2")
+open("src/realtime_3d.i", "w").write(rt)
 mod_info = open("src/mod_credits.txt").read().strip() if os.path.exists("src/mod_credits.txt") else "1991-NOT A NUMBER (Aminet)"
-dg = open("src/demo_gfx.i").read()
-sc = f"   *** GROTTO 3D V2.0 *** FOLLOW THE FIREFLY THROUGH THE DARK TUNNEL INTO THE MOONLIT WET GROTTO WITH LAKE, ISLAND TREE, RUSALKA, WATERFALL MIST AND 2 COLORFUL FIREFLIES *** MUSIC: {mod_info.upper()} VIA AMINET *** CODE: MALEK69 & GEMINI AI ***   "
-dg = re.sub(r"scroll_text: dc\.b \"[^\"]+\"", f"scroll_text: dc.b \"{sc}\"", dg)
-open("src/demo_gfx.i", "w").write(dg)
 sd, od = "src", "releases"
-for old in glob.glob(f"{od}/*"): shutil.rmtree(old) if os.path.isdir(old) else os.remove(old)
 exe = os.path.abspath(f"{od}/GROTTO3D")
 subprocess.run(["vasmm68k_mot", "-m68020", "-Fhunkexe", "-kick1hunks", "-nosym", "-I.", "main.s", "-o", exe], cwd=sd, check=True)
 os.chmod(exe, 0o755)
@@ -29,7 +24,7 @@ subprocess.run(["vasmm68k_mot", "-m68020", "-Fhunkexe", "-nosym", f"{pr}/slave.s
 os.remove(f"{pr}/slave.s")
 open(f"{pr}/Grotto3D.info", "wb").write(bd.mk_ico(2))
 open(f"{pr}/Grotto3D/Grotto3D.info", "wb").write(bd.mk_ico(4, "WHDLoad", ["SLAVE=Grotto3D.slave", "NoMMU"]))
+if os.path.exists(f"{od}/grotto3d.lha"): os.remove(f"{od}/grotto3d.lha")
 bd.mk_lha(f"{od}/grotto3d.lha", pr)
 shutil.rmtree(pr)
-if os.path.exists("tools/build_grota.py"): os.remove("tools/build_grota.py")
 print(f"SUKCES: {exe} ({sz/1024:.1f} KB) | Paczka: releases/grotto3d.lha ({mod_info})!", flush=True)
