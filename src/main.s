@@ -91,7 +91,7 @@ bbox_y1:        dc.w 0
 bbox_y2:        dc.w 0
 swap_ready:     dc.b 0
                 even
-pcm_pos:        dc.l pcm_start
+pcm_pos:        dc.l mod_data
 pcm_played:     dc.l 0
 pcm_cur_buf:    dc.l dma_buf_a
 pcm_nxt_buf:    dc.l dma_buf_b
