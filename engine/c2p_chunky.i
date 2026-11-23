@@ -65,14 +65,12 @@ c2p_160x128_to_aga:
     move.w  d1,d2
     lsl.w   #8,d2
     move.b  d3,d2
-    move.w  d2,40(a1,d5.l)
     move.w  d2,(a1,d5.l)
 
     move.w  d1,d2
     move.w  d3,d0
     lsr.w   #8,d0
     move.b  d0,d2
-    move.w  d2,40(a2,d5.l)
     move.w  d2,(a2,d5.l)
 
     swap    d1
@@ -81,14 +79,12 @@ c2p_160x128_to_aga:
     move.w  d1,d2
     lsl.w   #8,d2
     move.b  d3,d2
-    move.w  d2,40(a3,d5.l)
     move.w  d2,(a3,d5.l)
 
     move.w  d1,d2
     move.w  d3,d0
     lsr.w   #8,d0
     move.b  d0,d2
-    move.w  d2,40(a4,d5.l)
     move.w  d2,(a4,d5.l)
 
     ; --- High nibbles (BPL5..BPL8) dla 8 pikseli ---
@@ -133,7 +129,6 @@ c2p_160x128_to_aga:
     move.w  d1,d2
     lsl.w   #8,d2
     move.b  d3,d2
-    move.w  d2,40(a6,d5.l)
     move.w  d2,(a6,d5.l)
 
     move.l  draw_bpl6(pc),a6
@@ -141,7 +136,6 @@ c2p_160x128_to_aga:
     move.w  d3,d0
     lsr.w   #8,d0
     move.b  d0,d2
-    move.w  d2,40(a6,d5.l)
     move.w  d2,(a6,d5.l)
 
     swap    d1
@@ -151,7 +145,6 @@ c2p_160x128_to_aga:
     move.w  d1,d2
     lsl.w   #8,d2
     move.b  d3,d2
-    move.w  d2,40(a6,d5.l)
     move.w  d2,(a6,d5.l)
 
     move.l  draw_bpl8(pc),a6
@@ -159,14 +152,13 @@ c2p_160x128_to_aga:
     move.w  d3,d0
     lsr.w   #8,d0
     move.b  d0,d2
-    move.w  d2,40(a6,d5.l)
     move.w  d2,(a6,d5.l)
 
     addq.l  #2,d7
     cmp.w   #40,d7
     blo.w   .col_lp
-    add.l   #80,d6
-    cmp.l   #128*80,d6
+    add.l   #40,d6
+    cmp.l   #128*40,d6
     blo.w   .row_lp
     movem.l (sp)+,d0-d7/a0-a6
     rts
