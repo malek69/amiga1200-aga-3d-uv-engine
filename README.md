@@ -8,7 +8,7 @@
 
 | 3D Vertex Morphing (1008 Tris) | Space Shuttle + Particle Trail | High-Poly Torus + 3D Floor | 3D Hero Mesh + Copper Sky |
 | :---: | :---: | :---: | :---: |
-| ![3D Morph](docs/shot_morph.png?v=137) | ![Space Shuttle](docs/shot_shuttle.png?v=137) | ![Z-Buffer Torus](docs/shot_torus.png?v=137) | ![3D Hero](docs/shot_hero.png?v=137) |
+| ![Shot 1](docs/shot_v13_1.png) | ![Shot 2](docs/shot_v13_2.png) | ![Shot 3](docs/shot_v13_3.png) | ![Shot 4](docs/shot_v13_4.png) |
 
 ## Download Latest Release (v1.3) / Pobierz najnowszą wersję (v1.3)
 
