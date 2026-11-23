@@ -1540,7 +1540,7 @@ orb_halo_col: dc.b 0
 ;  MODUL PELNEJ KAMERY 3D 6DOF (Yaw / Pitch / Roll) - Krok 2
 ; ============================================================================
 ;     even
-build_cam_matrix_3d: wylicza macierz obrotu kamery cam_m00..cam_m22
+; build_cam_matrix_3d: wylicza macierz obrotu kamery cam_m00..cam_m22
 ; Input: d0.b = cam_yaw, d1.b = cam_pitch, d2.b = cam_roll
     even
 build_cam_matrix_3d:
