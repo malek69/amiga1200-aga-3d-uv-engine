@@ -479,3 +479,74 @@ demo_act0e_v2_shuttle:
     rts
 
     include "shuttle_mesh.i"
+
+demo_act0f_v2_morph:
+    jsr     clear_chunky
+    jsr     clear_zbuffer_v2
+    jsr     draw_256_starfield
+
+    clr.w   cam_ox
+    clr.w   cam_oy
+    move.w  #-150,cam_oz
+    move.w  #0,cam_sin
+    move.w  #256,cam_cos
+
+    ; Oblicz wage morphingu alpha = (sin(2*t) + 256) >> 1 (0..256)
+    lea     sin_tab,a2
+    move.w  d7,d0
+    add.w   d0,d0
+    and.w   #$ff,d0
+    move.w  (a2,d0.w*2),d1
+    add.w   #256,d1
+    lsr.w   #1,d1
+    move.w  d1,d0
+
+    lea     torus3d_verts,a0
+    lea     torus3d_morph_target,a1
+    lea     v2_morph_buf,a2
+    move.w  #torus3d_vert_count,d7
+    jsr     morph_verts_3d
+
+    ; Orbitujace swiatlo 3D
+    move.l  vbl_tick(pc),d7
+    lea     sin_tab,a2
+    move.w  d7,d0
+    add.w   d0,d0
+    and.w   #$ff,d0
+    move.w  (a2,d0.w*2),d1
+    asr.w   #1,d1
+    move.w  d1,light_vx
+    move.w  128(a2,d0.w*2),d1
+    asr.w   #1,d1
+    neg.w   d1
+    move.w  d1,light_vz
+    move.w  #-120,light_vy
+
+    move.w  d7,d0
+    move.w  d7,d1
+    lsr.w   #1,d1
+    move.w  d7,d2
+    lsr.w   #2,d2
+    jsr     build_rot_matrix_3d
+
+    lea     v2_morph_buf,a0
+    lea     v2_proj_buf,a1
+    move.w  #torus3d_vert_count,d7
+    moveq   #0,d4
+    moveq   #0,d5
+    moveq   #0,d6
+    jsr     transform_and_project_verts
+
+    lea     torus3d_norms,a0
+    lea     v2_env_buf,a1
+    move.w  #torus3d_vert_count,d7
+    jsr     transform_normals_envmap
+
+    lea     torus3d_env_mesh,a0
+    lea     v2_proj_buf,a1
+    lea     v2_chrome_bank,a2
+    lea     v2_env_buf,a3
+    jsr     draw_gouraud_env_mesh_v2
+    rts
+
+    include "morph_target.i"

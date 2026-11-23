@@ -1573,3 +1573,51 @@ cam_m20: dc.w 0
 cam_m21: dc.w 0
 cam_m22: dc.w 256
 cam_3d_active: dc.b 0,0
+
+; ============================================================================
+;  MODUL 3D VERTEX MORPHING (Krok 4 - Interpolacja siatek 3D na M68020)
+;  Input: a0 -> mesh_A [x.w, y.w, z.w] * N
+;         a1 -> mesh_B [x.w, y.w, z.w] * N
+;         a2 -> out_verts [x.w, y.w, z.w] * N (w Fast RAM)
+;         d0.w -> waga alpha (0 = 100% mesh_A, 256 = 100% mesh_B)
+;         d7.w -> liczba wierzcholkow N
+; ============================================================================
+morph_verts_3d:
+    movem.l d0-d7/a0-a2,-(sp)
+    subq.w  #1,d7
+    bmi.s   .mv_done
+    move.w  #256,d6
+    sub.w   d0,d6                   ; d6 = 256 - alpha (waga A), d0 = alpha (waga B)
+.mv_lp:
+    ; X
+    move.w  (a0)+,d1
+    muls.w  d6,d1
+    move.w  (a1)+,d2
+    muls.w  d0,d2
+    add.l   d2,d1
+    asr.l   #8,d1
+    move.w  d1,(a2)+
+    ; Y
+    move.w  (a0)+,d1
+    muls.w  d6,d1
+    move.w  (a1)+,d2
+    muls.w  d0,d2
+    add.l   d2,d1
+    asr.l   #8,d1
+    move.w  d1,(a2)+
+    ; Z
+    move.w  (a0)+,d1
+    muls.w  d6,d1
+    move.w  (a1)+,d2
+    muls.w  d0,d2
+    add.l   d2,d1
+    asr.l   #8,d1
+    move.w  d1,(a2)+
+    dbf     d7,.mv_lp
+.mv_done:
+    movem.l (sp)+,d0-d7/a0-a2
+    rts
+
+    section fastram_bss,bss_p
+v2_morph_buf: ds.w 512*3
+    section code,code
