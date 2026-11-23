@@ -19,6 +19,9 @@ start:
     bsr.w   sys_takeover
     tst.l   d0
     beq.w   exit_program
+    movec   cacr,d0
+    or.w    #$0909,d0
+    movec   d0,cacr
 
     move.l  #0,vbl_tick
     jsr     hud_fps_init
@@ -30,10 +33,6 @@ start:
 ; ----------------------------------------------------------------------------
 mainloop:
     bsr.w   wait_vbl
-    bsr.w   clear_draw_bpl
-    move.l  draw_bpl3(pc),a0
-    bsr.w   blit_clear_full
-    bsr.w   wait_blitter
 
     ; Synchronizacja klatki z audio 16497 Hz: frame = (pcm_played * 10) / 5499
     move.l  vbl_tick(pc),d0

@@ -51,6 +51,21 @@ render_3d_terrain_flyover:
     move.b  #1,ter_inited
     bsr.w   terrain_3d_init
 .ter_ready:
+    ; Oblicz pozycje dynamicznego swiatla punktowego nad terenem (X, Z)
+    lea     sin_tab,a1
+    move.l  vbl_tick(pc),d0
+    lsl.w   #1,d0
+    and.w   #$ff,d0
+    move.w  (a1,d0.w*2),d1
+    asr.w   #1,d1                   ; light_x w zakresie -64..+64
+    move.w  d1,ter_light_x
+
+    add.w   #64,d0
+    and.w   #$ff,d0
+    move.w  (a1,d0.w*2),d1
+    asr.w   #2,d1
+    add.w   #120,d1                 ; light_z w zakresie 88..152
+    move.w  d1,ter_light_z
 
     move.l  vbl_tick(pc),d0
     move.l  d0,d1
@@ -136,6 +151,23 @@ render_3d_terrain_flyover:
     move.w  ter_slope_dh(pc),d2
     asr.w   #2,d2
     add.w   d2,d3
+
+    ; Dodaj jasnosc od dynamicznego swiatla punktowego (promien ~72 jednostki)
+    move.w  d4,d2
+    sub.w   ter_light_x(pc),d2
+    muls.w  d2,d2                   ; dx^2
+    move.w  d0,d6
+    sub.w   ter_light_z(pc),d6
+    muls.w  d6,d6                   ; dz^2
+    add.l   d6,d2                   ; dist^2
+    cmp.l   #5184,d2                ; 72^2
+    bge.s   .no_pt_light
+    lsr.l   #8,d2
+    lsr.l   #1,d2                   ; 0..10
+    moveq   #10,d6
+    sub.w   d2,d6                   ; bonus jasnosci 1..10
+    add.w   d6,d3
+.no_pt_light:
     cmp.w   #192,d3
     bge.s   .tc_f
     cmp.w   #104,d3
@@ -229,6 +261,8 @@ render_3d_terrain_flyover:
     rts
 
     even
+ter_light_x:    dc.w 0
+ter_light_z:    dc.w 120
 ter_inited:     dc.b 0,0
 ter_scroll_z:   dc.w 0
 ter_sub_z:      dc.w 0

@@ -13,6 +13,8 @@ def write_whdload_info(path, tooltypes=("SLAVE=Aura3DDemo_AGA.slave",)):
         f.write(hdr + gad + body + img + dt_blk + tt_blk)
 
 root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+subprocess.run(("python3", os.path.join(root, "tools", "gen_recip_table.py")), cwd=root, check=True)
+subprocess.run(("python3", os.path.join(root, "tools", "gen_phong_lut.py")), cwd=root, check=True)
 dd, ed, rd = os.path.join(root, "demo_v1"), os.path.join(root, "engine"), os.path.join(root, "releases")
 os.makedirs(rd, exist_ok=True)
 
@@ -36,7 +38,7 @@ write_whdload_info(inner_inf, ("SLAVE=Aura3DDemo_AGA.slave",))
 write_whdload_info(top_inf, ("SLAVE=Aura3DDemo_AGA.slave",))
 
 with open(txt, "w") as f:
-    f.write("AURA-3D AGA ENGINE v2.0 (2026)\nEngine & Code: malek69 & Gemini AI\nMusic (.MOD): 1991-Not A Number\nExit: LMB or ESC\n")
+    f.write("AURA-3D AGA ENGINE v1.14.1 (2026)\nEngine & Code: malek69 & Gemini AI\nMusic (.MOD): 1991-Not A Number\nExit: LMB or ESC\n")
 
 lha_bin = shutil.which("lha") or "/usr/bin/lha"
 lha_path = os.path.join(rd, "aura3d_demo_v2_AGA.lha")

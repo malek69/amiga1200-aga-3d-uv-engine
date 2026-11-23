@@ -265,25 +265,7 @@ transform_and_project_verts:
 ; clear_zbuffer_v2
 ; Czysci 16-bitowy Z-Buffer (160*128*2 = 40960 bajtow) wartoscia $7fff
 ; ----------------------------------------------------------------------------
-clear_zbuffer_v2:
-    movem.l d0-d7/a0-a1,-(sp)
-    lea     zbuf_3d+40960,a0
-    move.l  #$7fff7fff,d0
-    move.l  d0,d1
-    move.l  d0,d2
-    move.l  d0,d3
-    move.l  d0,d4
-    move.l  d0,d5
-    move.l  d0,d6
-    move.l  d0,d7
-    move.w  #1280-1,a1              ; 1280 * 32 bajty = 40960 B
-.cz_lp:
-    movem.l d0-d7,-(a0)
-    subq.w  #1,a1
-    cmp.w   #-1,a1
-    bne.s   .cz_lp
-    movem.l (sp)+,d0-d7/a0-a1
-    rts
+; clear_zbuffer_v2 -> fast_clear.i (14-reg movem.l)
 
 ; ----------------------------------------------------------------------------
 ; draw_mesh_v2
@@ -397,6 +379,11 @@ draw_mesh_v2:
 ; ----------------------------------------------------------------------------
 draw_uv_z_tri:
     movem.l d0-d7/a0-a6,-(sp)
+    move.l  vbl_tick(pc),d0
+    lsr.l   #1,d0
+    move.w  d0,v2_uv_anim_u
+    lsr.w   #1,d0
+    move.w  d0,v2_uv_anim_v
     move.l  a5,v2_tex_ptr
     and.w   #$0f,d7
     lsl.w   #8,d7
@@ -495,28 +482,37 @@ draw_uv_z_tri:
 
     move.w  d1,d2
     sub.w   d0,d2                   ; dx > 0
-    ext.l   d2
+    cmp.w   #512,d2
+    ble.s   .dx_ok
+    move.w  #512,d2
+.dx_ok:
+    lea     recip_table_32(pc),a6
+    move.l  (a6,d2.w*4),d2          ; d2 = 1/dx w formacie 16.16 (zero divs.l!)
 
     move.l  4(a0),d3                ; zl
     move.l  20(a0),d4               ; zr
     sub.l   d3,d4
-    divs.l  d2,d4
+    muls.l  d2,d6:d4
+    move.w  d6,d4
+    swap    d4
     move.l  d4,v2_dz
 
     move.l  8(a0),d4                ; ul
     move.l  24(a0),d5               ; ur
     sub.l   d4,d5
-    divs.l  d2,d5
+    muls.l  d2,d6:d5
+    move.w  d6,d5
+    swap    d5
     move.l  d5,v2_du
 
     move.l  12(a0),d5               ; vl
     move.l  28(a0),a6               ; vr
     sub.l   d5,a6
-    move.l  a6,d2
-    move.w  d1,a6
-    sub.w   d0,a6
     move.l  a6,d4
-    divs.l  d4,d2                   ; dv_dx -> d2
+    muls.l  d2,d6:d4
+    move.w  d6,d4
+    swap    d4
+    move.l  d4,d2                   ; dv_dx -> d2
 
     tst.w   d0
     bpl.s   .xl_clip_ok
@@ -559,10 +555,12 @@ draw_uv_z_tri:
 
     move.l  d5,d0
     swap    d0
+    add.w   v2_uv_anim_v(pc),d0
     and.w   #63,d0
     lsl.w   #6,d0
     move.l  d4,d6
     swap    d6
+    add.w   v2_uv_anim_u(pc),d6
     and.w   #63,d6
     or.w    d6,d0
 
@@ -608,31 +606,32 @@ scan_uvz_edge:
 .se_ord:
     move.w  d3,d6
     sub.w   d1,d6
-    ext.l   d6
+    cmp.w   #512,d6
+    ble.s   .edy_ok
+    move.w  #512,d6
+.edy_ok:
+    lea     recip_table_32(pc),a2
+    move.l  (a2,d6.w*4),d6          ; d6 = 1/dy w 16.16 (zero divs.l!)
 
     move.w  (a1),d7
     sub.w   (a0),d7
     ext.l   d7
-    swap    d7
-    divs.l  d6,d7
+    muls.l  d6,d7                   ; dx * (1/dy) -> wynik juz w 16.16!
 
     move.w  4(a1),d5
     sub.w   4(a0),d5
     ext.l   d5
-    swap    d5
-    divs.l  d6,d5
+    muls.l  d6,d5                   ; dz * (1/dy) -> wynik juz w 16.16!
 
     move.w  6(a1),d4
     sub.w   6(a0),d4
     ext.l   d4
-    swap    d4
-    divs.l  d6,d4
+    muls.l  d6,d4                   ; du * (1/dy) -> wynik juz w 16.16!
 
     move.w  8(a1),d2
     sub.w   8(a0),d2
     ext.l   d2
-    swap    d2
-    divs.l  d6,d2
+    muls.l  d6,d2                   ; dv * (1/dy) -> wynik juz w 16.16!
 
     move.w  (a0),d0
     swap    d0
@@ -934,6 +933,14 @@ light_vx:     dc.w 110
 light_vy:     dc.w -140
 light_vz:     dc.w -180
 
+
+v2_uv_anim_u:   dc.w 0
+v2_uv_anim_v:   dc.w 0
+phong_norm_lut:
+    incbin  "phong_norm_lut.bin"
+
+recip_table_32:
+    incbin  "recip_table_32.bin"
 
 shade_lut_v2:
     incbin  "shade_lut_v2.bin"

@@ -3,62 +3,163 @@
 ;  OPIS: Silnik Chunky 160x128 -> 4 Bitplany AGA (16 kolorow) + Rasteryzator
 ;        trojkatow 3D z prawdziwym mapowaniem tekstur UV 64x64 i cieniowaniem.
 ; ============================================================================
-clear_chunky:
-    lea     chunky_buf,a0
-    move.w  #(160*128/16)-1,d0
-    moveq   #0,d1
-.cc: move.l d1,(a0)+
-    move.l  d1,(a0)+
-    move.l  d1,(a0)+
-    move.l  d1,(a0)+
-    dbf     d0,.cc
-    rts
+    include "fast_clear.i"
 
+; ============================================================================
+; c2p_160x128_to_aga (v1.15 - 32-bit move.l Chip RAM burst, 16 pikseli/krok)
+; ============================================================================
 c2p_160x128_to_aga:
     movem.l d0-d7/a0-a6,-(sp)
     lea     chunky_buf,a0
     lea     c2p_exp(pc),a5
-    moveq   #0,d6                   ; offset linii * 80
+    moveq   #0,d6                   ; offset linii * 80 (40B parzysta + 40B nieparzysta)
 .row_lp:
-    moveq   #0,d7                   ; kolumna 0..39
+    moveq   #0,d7                   ; offset X w bajtach: 0, 4, 8 .. 36 (10 krokow po 32 bity)
 .col_lp:
     move.l  d6,d5
-    add.l   d7,d5
-    ; Low nibbles -> BPL1..BPL4
+    add.l   d7,d5                   ; d5 = aktualny offset w bitplanie
+    movea.l a0,a4                   ; zachowaj wskaznik na poczatek 16 pikseli
+
+    ; --- LOW NIBBLES (16 pikseli -> 32 bity na BPL1..BPL4) ---
+    ; Grupa 0 (piksele 0..3) -> d1
     moveq   #0,d0
-    move.b  (a0),d0
+    move.b  (a0)+,d0
     and.w   #15,d0
     move.l  (a5,d0.w*4),d1
     lsl.l   #6,d1
-    move.b  1(a0),d0
+    move.b  (a0)+,d0
     and.w   #15,d0
     move.l  (a5,d0.w*4),d2
     lsl.l   #4,d2
     or.l    d2,d1
-    move.b  2(a0),d0
+    move.b  (a0)+,d0
     and.w   #15,d0
     move.l  (a5,d0.w*4),d2
     lsl.l   #2,d2
     or.l    d2,d1
-    move.b  3(a0),d0
+    move.b  (a0)+,d0
     and.w   #15,d0
     or.l    (a5,d0.w*4),d1
+
+    ; Grupa 1 (piksele 4..7) -> d3
+    move.b  (a0)+,d0
+    and.w   #15,d0
+    move.l  (a5,d0.w*4),d3
+    lsl.l   #6,d3
+    move.b  (a0)+,d0
+    and.w   #15,d0
+    move.l  (a5,d0.w*4),d2
+    lsl.l   #4,d2
+    or.l    d2,d3
+    move.b  (a0)+,d0
+    and.w   #15,d0
+    move.l  (a5,d0.w*4),d2
+    lsl.l   #2,d2
+    or.l    d2,d3
+    move.b  (a0)+,d0
+    and.w   #15,d0
+    or.l    (a5,d0.w*4),d3
+
+    ; Grupa 2 (piksele 8..11) -> d4, zapisz w a6
+    move.b  (a0)+,d0
+    and.w   #15,d0
+    move.l  (a5,d0.w*4),d4
+    lsl.l   #6,d4
+    move.b  (a0)+,d0
+    and.w   #15,d0
+    move.l  (a5,d0.w*4),d2
+    lsl.l   #4,d2
+    or.l    d2,d4
+    move.b  (a0)+,d0
+    and.w   #15,d0
+    move.l  (a5,d0.w*4),d2
+    lsl.l   #2,d2
+    or.l    d2,d4
+    move.b  (a0)+,d0
+    and.w   #15,d0
+    or.l    (a5,d0.w*4),d4
+    movea.l d4,a6
+
+    ; Grupa 3 (piksele 12..15) -> d2
+    move.b  (a0)+,d0
+    and.w   #15,d0
+    move.l  (a5,d0.w*4),d2
+    lsl.l   #6,d2
+    move.b  (a0)+,d0
+    and.w   #15,d0
+    move.l  (a5,d0.w*4),d4
+    lsl.l   #4,d4
+    or.l    d4,d2
+    move.b  (a0)+,d0
+    and.w   #15,d0
+    move.l  (a5,d0.w*4),d4
+    lsl.l   #2,d4
+    or.l    d4,d2
+    move.b  (a0)+,d0
+    and.w   #15,d0
+    or.l    (a5,d0.w*4),d2
+
+    move.l  a6,d4                   ; przywroc Grupe 2 do d4
+
+    ; Zloz 32-bitowe slowa dla BPL4, BPL3, BPL2, BPL1 i zapisz move.l!
+    move.b  d1,d0
+    lsl.w   #8,d0
+    move.b  d3,d0
+    swap    d0
+    move.b  d4,d0
+    lsl.w   #8,d0
+    move.b  d2,d0
     move.l  draw_bpl4(pc),a1
-    move.b  d1,40(a1,d5.l)
-    move.b  d1,(a1,d5.l)
+    move.l  d0,40(a1,d5.l)
+    move.l  d0,(a1,d5.l)
+
     lsr.l   #8,d1
+    lsr.l   #8,d3
+    lsr.l   #8,d4
+    lsr.l   #8,d2
+    move.b  d1,d0
+    lsl.w   #8,d0
+    move.b  d3,d0
+    swap    d0
+    move.b  d4,d0
+    lsl.w   #8,d0
+    move.b  d2,d0
     move.l  draw_bpl3(pc),a1
-    move.b  d1,40(a1,d5.l)
-    move.b  d1,(a1,d5.l)
+    move.l  d0,40(a1,d5.l)
+    move.l  d0,(a1,d5.l)
+
     lsr.l   #8,d1
+    lsr.l   #8,d3
+    lsr.l   #8,d4
+    lsr.l   #8,d2
+    move.b  d1,d0
+    lsl.w   #8,d0
+    move.b  d3,d0
+    swap    d0
+    move.b  d4,d0
+    lsl.w   #8,d0
+    move.b  d2,d0
     move.l  draw_bpl2(pc),a1
-    move.b  d1,40(a1,d5.l)
-    move.b  d1,(a1,d5.l)
+    move.l  d0,40(a1,d5.l)
+    move.l  d0,(a1,d5.l)
+
     lsr.l   #8,d1
+    lsr.l   #8,d3
+    lsr.l   #8,d4
+    lsr.l   #8,d2
+    move.b  d1,d0
+    lsl.w   #8,d0
+    move.b  d3,d0
+    swap    d0
+    move.b  d4,d0
+    lsl.w   #8,d0
+    move.b  d2,d0
     move.l  draw_bpl1(pc),a1
-    move.b  d1,40(a1,d5.l)
-    move.b  d1,(a1,d5.l)
-    ; High nibbles -> BPL5..BPL8
+    move.l  d0,40(a1,d5.l)
+    move.l  d0,(a1,d5.l)
+
+    ; --- HIGH NIBBLES (16 pikseli -> 32 bity na BPL5..BPL8) ---
+    movea.l a4,a0
     moveq   #0,d0
     move.b  (a0)+,d0
     lsr.b   #4,d0
@@ -77,22 +178,125 @@ c2p_160x128_to_aga:
     move.b  (a0)+,d0
     lsr.b   #4,d0
     or.l    (a5,d0.w*4),d1
+
+    move.b  (a0)+,d0
+    lsr.b   #4,d0
+    move.l  (a5,d0.w*4),d3
+    lsl.l   #6,d3
+    move.b  (a0)+,d0
+    lsr.b   #4,d0
+    move.l  (a5,d0.w*4),d2
+    lsl.l   #4,d2
+    or.l    d2,d3
+    move.b  (a0)+,d0
+    lsr.b   #4,d0
+    move.l  (a5,d0.w*4),d2
+    lsl.l   #2,d2
+    or.l    d2,d3
+    move.b  (a0)+,d0
+    lsr.b   #4,d0
+    or.l    (a5,d0.w*4),d3
+
+    move.b  (a0)+,d0
+    lsr.b   #4,d0
+    move.l  (a5,d0.w*4),d4
+    lsl.l   #6,d4
+    move.b  (a0)+,d0
+    lsr.b   #4,d0
+    move.l  (a5,d0.w*4),d2
+    lsl.l   #4,d2
+    or.l    d2,d4
+    move.b  (a0)+,d0
+    lsr.b   #4,d0
+    move.l  (a5,d0.w*4),d2
+    lsl.l   #2,d2
+    or.l    d2,d4
+    move.b  (a0)+,d0
+    lsr.b   #4,d0
+    or.l    (a5,d0.w*4),d4
+    movea.l d4,a6
+
+    move.b  (a0)+,d0
+    lsr.b   #4,d0
+    move.l  (a5,d0.w*4),d2
+    lsl.l   #6,d2
+    move.b  (a0)+,d0
+    lsr.b   #4,d0
+    move.l  (a5,d0.w*4),d4
+    lsl.l   #4,d4
+    or.l    d4,d2
+    move.b  (a0)+,d0
+    lsr.b   #4,d0
+    move.l  (a5,d0.w*4),d4
+    lsl.l   #2,d4
+    or.l    d4,d2
+    move.b  (a0)+,d0
+    lsr.b   #4,d0
+    or.l    (a5,d0.w*4),d2
+
+    move.l  a6,d4
+
+    ; BPL8
+    move.b  d1,d0
+    lsl.w   #8,d0
+    move.b  d3,d0
+    swap    d0
+    move.b  d4,d0
+    lsl.w   #8,d0
+    move.b  d2,d0
     move.l  draw_bpl8(pc),a1
-    move.b  d1,40(a1,d5.l)
-    move.b  d1,(a1,d5.l)
+    move.l  d0,40(a1,d5.l)
+    move.l  d0,(a1,d5.l)
+
+    ; BPL7
     lsr.l   #8,d1
+    lsr.l   #8,d3
+    lsr.l   #8,d4
+    lsr.l   #8,d2
+    move.b  d1,d0
+    lsl.w   #8,d0
+    move.b  d3,d0
+    swap    d0
+    move.b  d4,d0
+    lsl.w   #8,d0
+    move.b  d2,d0
     move.l  draw_bpl7(pc),a1
-    move.b  d1,40(a1,d5.l)
-    move.b  d1,(a1,d5.l)
+    move.l  d0,40(a1,d5.l)
+    move.l  d0,(a1,d5.l)
+
+    ; BPL6
     lsr.l   #8,d1
+    lsr.l   #8,d3
+    lsr.l   #8,d4
+    lsr.l   #8,d2
+    move.b  d1,d0
+    lsl.w   #8,d0
+    move.b  d3,d0
+    swap    d0
+    move.b  d4,d0
+    lsl.w   #8,d0
+    move.b  d2,d0
     move.l  draw_bpl6(pc),a1
-    move.b  d1,40(a1,d5.l)
-    move.b  d1,(a1,d5.l)
+    move.l  d0,40(a1,d5.l)
+    move.l  d0,(a1,d5.l)
+
+    ; BPL5
     lsr.l   #8,d1
+    lsr.l   #8,d3
+    lsr.l   #8,d4
+    lsr.l   #8,d2
+    move.b  d1,d0
+    lsl.w   #8,d0
+    move.b  d3,d0
+    swap    d0
+    move.b  d4,d0
+    lsl.w   #8,d0
+    move.b  d2,d0
     move.l  draw_bpl5(pc),a1
-    move.b  d1,40(a1,d5.l)
-    move.b  d1,(a1,d5.l)
-    addq.w  #1,d7
+    move.l  d0,40(a1,d5.l)
+    move.l  d0,(a1,d5.l)
+
+    addq.w  #4,d7
     cmp.w   #40,d7
     blo.w   .col_lp
     add.l   #80,d6
@@ -100,6 +304,7 @@ c2p_160x128_to_aga:
     blo.w   .row_lp
     movem.l (sp)+,d0-d7/a0-a6
     rts
+
 draw_uv_tri:
     ; Trojkat 3D z prawdziwa tekstura UV 64x64: a4 -> 3x(sx,sy,u,v), d6=tex_id (0..3), d7=light (0..7)
     movem.l d0-d7/a0-a5,-(sp)
