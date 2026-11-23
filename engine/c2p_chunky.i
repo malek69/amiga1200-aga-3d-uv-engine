@@ -9,300 +9,333 @@
 ; c2p_160x128_to_aga (v1.15 - 32-bit move.l Chip RAM burst, 16 pikseli/krok)
 ; ============================================================================
 c2p_160x128_to_aga:
-    movem.l d0-d7/a0-a6,-(sp)
-    lea     chunky_buf,a0
+    movem.l d0-d7/a0-a5,-(sp)
     lea     c2p_exp(pc),a5
-    moveq   #0,d6                   ; offset linii * 80 (40B parzysta + 40B nieparzysta)
-.row_lp:
-    moveq   #0,d7                   ; offset X w bajtach: 0, 4, 8 .. 36 (10 krokow po 32 bity)
-.col_lp:
-    move.l  d6,d5
-    add.l   d7,d5                   ; d5 = aktualny offset w bitplanie
-    movea.l a0,a4                   ; zachowaj wskaznik na poczatek 16 pikseli
 
-    ; --- LOW NIBBLES (16 pikseli -> 32 bity na BPL1..BPL4) ---
+    ; ========================================================================
+    ; PRZEBIEG 1: Low nibbles (bity 0..3) -> BPL1..BPL4 w rejestrach a1..a4
+    ; ========================================================================
+    lea     chunky_buf,a0
+    move.l  draw_bpl1(pc),a1
+    move.l  draw_bpl2(pc),a2
+    move.l  draw_bpl3(pc),a3
+    move.l  draw_bpl4(pc),a4
+    move.w  #127,d7                 ; 128 wierszy
+.p1_row:
+    moveq   #9,d6                   ; 10 blokow po 16 pikseli = 160 px
+.p1_col:
     ; Grupa 0 (piksele 0..3) -> d1
-    moveq   #0,d0
-    move.b  (a0)+,d0
-    and.w   #15,d0
-    move.l  (a5,d0.w*4),d1
-    lsl.l   #6,d1
-    move.b  (a0)+,d0
-    and.w   #15,d0
-    move.l  (a5,d0.w*4),d2
-    lsl.l   #4,d2
-    or.l    d2,d1
-    move.b  (a0)+,d0
+    move.l  (a0)+,d0
+    move.w  d0,d2
+    and.w   #15,d2
+    move.l  (a5,d2.w*4),d1
+    lsr.w   #8,d0
     and.w   #15,d0
     move.l  (a5,d0.w*4),d2
     lsl.l   #2,d2
     or.l    d2,d1
-    move.b  (a0)+,d0
+    swap    d0
+    move.w  d0,d2
+    and.w   #15,d2
+    move.l  (a5,d2.w*4),d2
+    lsl.l   #4,d2
+    or.l    d2,d1
+    lsr.w   #8,d0
     and.w   #15,d0
-    or.l    (a5,d0.w*4),d1
+    move.l  (a5,d0.w*4),d2
+    lsl.l   #6,d2
+    or.l    d2,d1
 
     ; Grupa 1 (piksele 4..7) -> d3
-    move.b  (a0)+,d0
-    and.w   #15,d0
-    move.l  (a5,d0.w*4),d3
-    lsl.l   #6,d3
-    move.b  (a0)+,d0
-    and.w   #15,d0
-    move.l  (a5,d0.w*4),d2
-    lsl.l   #4,d2
-    or.l    d2,d3
-    move.b  (a0)+,d0
+    move.l  (a0)+,d0
+    move.w  d0,d2
+    and.w   #15,d2
+    move.l  (a5,d2.w*4),d3
+    lsr.w   #8,d0
     and.w   #15,d0
     move.l  (a5,d0.w*4),d2
     lsl.l   #2,d2
     or.l    d2,d3
-    move.b  (a0)+,d0
-    and.w   #15,d0
-    or.l    (a5,d0.w*4),d3
-
-    ; Grupa 2 (piksele 8..11) -> d4, zapisz w a6
-    move.b  (a0)+,d0
-    and.w   #15,d0
-    move.l  (a5,d0.w*4),d4
-    lsl.l   #6,d4
-    move.b  (a0)+,d0
-    and.w   #15,d0
-    move.l  (a5,d0.w*4),d2
+    swap    d0
+    move.w  d0,d2
+    and.w   #15,d2
+    move.l  (a5,d2.w*4),d2
     lsl.l   #4,d2
-    or.l    d2,d4
-    move.b  (a0)+,d0
-    and.w   #15,d0
-    move.l  (a5,d0.w*4),d2
-    lsl.l   #2,d2
-    or.l    d2,d4
-    move.b  (a0)+,d0
-    and.w   #15,d0
-    or.l    (a5,d0.w*4),d4
-    movea.l d4,a6
-
-    ; Grupa 3 (piksele 12..15) -> d2
-    move.b  (a0)+,d0
+    or.l    d2,d3
+    lsr.w   #8,d0
     and.w   #15,d0
     move.l  (a5,d0.w*4),d2
     lsl.l   #6,d2
-    move.b  (a0)+,d0
-    and.w   #15,d0
-    move.l  (a5,d0.w*4),d4
-    lsl.l   #4,d4
-    or.l    d4,d2
-    move.b  (a0)+,d0
-    and.w   #15,d0
-    move.l  (a5,d0.w*4),d4
-    lsl.l   #2,d4
-    or.l    d4,d2
-    move.b  (a0)+,d0
-    and.w   #15,d0
-    or.l    (a5,d0.w*4),d2
-
-    move.l  a6,d4                   ; przywroc Grupe 2 do d4
-
-    ; Zloz 32-bitowe slowa dla BPL4, BPL3, BPL2, BPL1 i zapisz move.l!
-    move.b  d1,d0
-    lsl.w   #8,d0
-    move.b  d3,d0
-    swap    d0
-    move.b  d4,d0
-    lsl.w   #8,d0
-    move.b  d2,d0
-    move.l  draw_bpl4(pc),a1
-    move.l  d0,40(a1,d5.l)
-    move.l  d0,(a1,d5.l)
-
-    lsr.l   #8,d1
-    lsr.l   #8,d3
-    lsr.l   #8,d4
-    lsr.l   #8,d2
-    move.b  d1,d0
-    lsl.w   #8,d0
-    move.b  d3,d0
-    swap    d0
-    move.b  d4,d0
-    lsl.w   #8,d0
-    move.b  d2,d0
-    move.l  draw_bpl3(pc),a1
-    move.l  d0,40(a1,d5.l)
-    move.l  d0,(a1,d5.l)
-
-    lsr.l   #8,d1
-    lsr.l   #8,d3
-    lsr.l   #8,d4
-    lsr.l   #8,d2
-    move.b  d1,d0
-    lsl.w   #8,d0
-    move.b  d3,d0
-    swap    d0
-    move.b  d4,d0
-    lsl.w   #8,d0
-    move.b  d2,d0
-    move.l  draw_bpl2(pc),a1
-    move.l  d0,40(a1,d5.l)
-    move.l  d0,(a1,d5.l)
-
-    lsr.l   #8,d1
-    lsr.l   #8,d3
-    lsr.l   #8,d4
-    lsr.l   #8,d2
-    move.b  d1,d0
-    lsl.w   #8,d0
-    move.b  d3,d0
-    swap    d0
-    move.b  d4,d0
-    lsl.w   #8,d0
-    move.b  d2,d0
-    move.l  draw_bpl1(pc),a1
-    move.l  d0,40(a1,d5.l)
-    move.l  d0,(a1,d5.l)
-
-    ; --- HIGH NIBBLES (16 pikseli -> 32 bity na BPL5..BPL8) ---
-    movea.l a4,a0
-    moveq   #0,d0
-    move.b  (a0)+,d0
-    lsr.b   #4,d0
-    move.l  (a5,d0.w*4),d1
-    lsl.l   #6,d1
-    move.b  (a0)+,d0
-    lsr.b   #4,d0
-    move.l  (a5,d0.w*4),d2
-    lsl.l   #4,d2
-    or.l    d2,d1
-    move.b  (a0)+,d0
-    lsr.b   #4,d0
-    move.l  (a5,d0.w*4),d2
-    lsl.l   #2,d2
-    or.l    d2,d1
-    move.b  (a0)+,d0
-    lsr.b   #4,d0
-    or.l    (a5,d0.w*4),d1
-
-    move.b  (a0)+,d0
-    lsr.b   #4,d0
-    move.l  (a5,d0.w*4),d3
-    lsl.l   #6,d3
-    move.b  (a0)+,d0
-    lsr.b   #4,d0
-    move.l  (a5,d0.w*4),d2
-    lsl.l   #4,d2
     or.l    d2,d3
-    move.b  (a0)+,d0
-    lsr.b   #4,d0
-    move.l  (a5,d0.w*4),d2
-    lsl.l   #2,d2
-    or.l    d2,d3
-    move.b  (a0)+,d0
-    lsr.b   #4,d0
-    or.l    (a5,d0.w*4),d3
 
-    move.b  (a0)+,d0
-    lsr.b   #4,d0
-    move.l  (a5,d0.w*4),d4
-    lsl.l   #6,d4
-    move.b  (a0)+,d0
-    lsr.b   #4,d0
-    move.l  (a5,d0.w*4),d2
-    lsl.l   #4,d2
-    or.l    d2,d4
-    move.b  (a0)+,d0
-    lsr.b   #4,d0
+    ; Grupa 2 (piksele 8..11) -> d4
+    move.l  (a0)+,d0
+    move.w  d0,d2
+    and.w   #15,d2
+    move.l  (a5,d2.w*4),d4
+    lsr.w   #8,d0
+    and.w   #15,d0
     move.l  (a5,d0.w*4),d2
     lsl.l   #2,d2
     or.l    d2,d4
-    move.b  (a0)+,d0
-    lsr.b   #4,d0
-    or.l    (a5,d0.w*4),d4
-    movea.l d4,a6
-
-    move.b  (a0)+,d0
-    lsr.b   #4,d0
+    swap    d0
+    move.w  d0,d2
+    and.w   #15,d2
+    move.l  (a5,d2.w*4),d2
+    lsl.l   #4,d2
+    or.l    d2,d4
+    lsr.w   #8,d0
+    and.w   #15,d0
     move.l  (a5,d0.w*4),d2
     lsl.l   #6,d2
-    move.b  (a0)+,d0
-    lsr.b   #4,d0
-    move.l  (a5,d0.w*4),d4
-    lsl.l   #4,d4
-    or.l    d4,d2
-    move.b  (a0)+,d0
-    lsr.b   #4,d0
-    move.l  (a5,d0.w*4),d4
-    lsl.l   #2,d4
-    or.l    d4,d2
-    move.b  (a0)+,d0
-    lsr.b   #4,d0
-    or.l    (a5,d0.w*4),d2
+    or.l    d2,d4
 
-    move.l  a6,d4
+    ; Grupa 3 (piksele 12..15) -> d5
+    move.l  (a0)+,d0
+    move.w  d0,d2
+    and.w   #15,d2
+    move.l  (a5,d2.w*4),d5
+    lsr.w   #8,d0
+    and.w   #15,d0
+    move.l  (a5,d0.w*4),d2
+    lsl.l   #2,d2
+    or.l    d2,d5
+    swap    d0
+    move.w  d0,d2
+    and.w   #15,d2
+    move.l  (a5,d2.w*4),d2
+    lsl.l   #4,d2
+    or.l    d2,d5
+    lsr.w   #8,d0
+    and.w   #15,d0
+    move.l  (a5,d0.w*4),d2
+    lsl.l   #6,d2
+    or.l    d2,d5
 
-    ; BPL8
+    ; Zapis 32-bitowy do BPL4..BPL1 (podwojenie linii: +40 i (aX)+)
     move.b  d1,d0
     lsl.w   #8,d0
     move.b  d3,d0
     swap    d0
     move.b  d4,d0
     lsl.w   #8,d0
-    move.b  d2,d0
-    move.l  draw_bpl8(pc),a1
-    move.l  d0,40(a1,d5.l)
-    move.l  d0,(a1,d5.l)
+    move.b  d5,d0
+    move.l  d0,40(a4)
+    move.l  d0,(a4)+
 
-    ; BPL7
     lsr.l   #8,d1
     lsr.l   #8,d3
     lsr.l   #8,d4
-    lsr.l   #8,d2
+    lsr.l   #8,d5
     move.b  d1,d0
     lsl.w   #8,d0
     move.b  d3,d0
     swap    d0
     move.b  d4,d0
     lsl.w   #8,d0
-    move.b  d2,d0
-    move.l  draw_bpl7(pc),a1
-    move.l  d0,40(a1,d5.l)
-    move.l  d0,(a1,d5.l)
+    move.b  d5,d0
+    move.l  d0,40(a3)
+    move.l  d0,(a3)+
 
-    ; BPL6
     lsr.l   #8,d1
     lsr.l   #8,d3
     lsr.l   #8,d4
-    lsr.l   #8,d2
+    lsr.l   #8,d5
     move.b  d1,d0
     lsl.w   #8,d0
     move.b  d3,d0
     swap    d0
     move.b  d4,d0
     lsl.w   #8,d0
-    move.b  d2,d0
-    move.l  draw_bpl6(pc),a1
-    move.l  d0,40(a1,d5.l)
-    move.l  d0,(a1,d5.l)
+    move.b  d5,d0
+    move.l  d0,40(a2)
+    move.l  d0,(a2)+
 
-    ; BPL5
     lsr.l   #8,d1
     lsr.l   #8,d3
     lsr.l   #8,d4
-    lsr.l   #8,d2
+    lsr.l   #8,d5
     move.b  d1,d0
     lsl.w   #8,d0
     move.b  d3,d0
     swap    d0
     move.b  d4,d0
     lsl.w   #8,d0
-    move.b  d2,d0
+    move.b  d5,d0
+    move.l  d0,40(a1)
+    move.l  d0,(a1)+
+
+    dbf     d6,.p1_col
+    lea     40(a1),a1
+    lea     40(a2),a2
+    lea     40(a3),a3
+    lea     40(a4),a4
+    dbf     d7,.p1_row
+
+    ; ========================================================================
+    ; PRZEBIEG 2: High nibbles (bity 4..7) -> BPL5..BPL8 w rejestrach a1..a4
+    ; ========================================================================
+    lea     chunky_buf,a0
     move.l  draw_bpl5(pc),a1
-    move.l  d0,40(a1,d5.l)
-    move.l  d0,(a1,d5.l)
+    move.l  draw_bpl6(pc),a2
+    move.l  draw_bpl7(pc),a3
+    move.l  draw_bpl8(pc),a4
+    move.w  #127,d7
+.p2_row:
+    moveq   #9,d6
+.p2_col:
+    ; Grupa 0 -> d1 (lsr.l #4 przesuwa wszystkie 4 gorne polbajty naraz!)
+    move.l  (a0)+,d0
+    lsr.l   #4,d0
+    move.w  d0,d2
+    and.w   #15,d2
+    move.l  (a5,d2.w*4),d1
+    lsr.w   #8,d0
+    and.w   #15,d0
+    move.l  (a5,d0.w*4),d2
+    lsl.l   #2,d2
+    or.l    d2,d1
+    swap    d0
+    move.w  d0,d2
+    and.w   #15,d2
+    move.l  (a5,d2.w*4),d2
+    lsl.l   #4,d2
+    or.l    d2,d1
+    lsr.w   #8,d0
+    and.w   #15,d0
+    move.l  (a5,d0.w*4),d2
+    lsl.l   #6,d2
+    or.l    d2,d1
 
-    addq.w  #4,d7
-    cmp.w   #40,d7
-    blo.w   .col_lp
-    add.l   #80,d6
-    cmp.l   #128*80,d6
-    blo.w   .row_lp
-    movem.l (sp)+,d0-d7/a0-a6
+    ; Grupa 1 -> d3
+    move.l  (a0)+,d0
+    lsr.l   #4,d0
+    move.w  d0,d2
+    and.w   #15,d2
+    move.l  (a5,d2.w*4),d3
+    lsr.w   #8,d0
+    and.w   #15,d0
+    move.l  (a5,d0.w*4),d2
+    lsl.l   #2,d2
+    or.l    d2,d3
+    swap    d0
+    move.w  d0,d2
+    and.w   #15,d2
+    move.l  (a5,d2.w*4),d2
+    lsl.l   #4,d2
+    or.l    d2,d3
+    lsr.w   #8,d0
+    and.w   #15,d0
+    move.l  (a5,d0.w*4),d2
+    lsl.l   #6,d2
+    or.l    d2,d3
+
+    ; Grupa 2 -> d4
+    move.l  (a0)+,d0
+    lsr.l   #4,d0
+    move.w  d0,d2
+    and.w   #15,d2
+    move.l  (a5,d2.w*4),d4
+    lsr.w   #8,d0
+    and.w   #15,d0
+    move.l  (a5,d0.w*4),d2
+    lsl.l   #2,d2
+    or.l    d2,d4
+    swap    d0
+    move.w  d0,d2
+    and.w   #15,d2
+    move.l  (a5,d2.w*4),d2
+    lsl.l   #4,d2
+    or.l    d2,d4
+    lsr.w   #8,d0
+    and.w   #15,d0
+    move.l  (a5,d0.w*4),d2
+    lsl.l   #6,d2
+    or.l    d2,d4
+
+    ; Grupa 3 -> d5
+    move.l  (a0)+,d0
+    lsr.l   #4,d0
+    move.w  d0,d2
+    and.w   #15,d2
+    move.l  (a5,d2.w*4),d5
+    lsr.w   #8,d0
+    and.w   #15,d0
+    move.l  (a5,d0.w*4),d2
+    lsl.l   #2,d2
+    or.l    d2,d5
+    swap    d0
+    move.w  d0,d2
+    and.w   #15,d2
+    move.l  (a5,d2.w*4),d2
+    lsl.l   #4,d2
+    or.l    d2,d5
+    lsr.w   #8,d0
+    and.w   #15,d0
+    move.l  (a5,d0.w*4),d2
+    lsl.l   #6,d2
+    or.l    d2,d5
+
+    move.b  d1,d0
+    lsl.w   #8,d0
+    move.b  d3,d0
+    swap    d0
+    move.b  d4,d0
+    lsl.w   #8,d0
+    move.b  d5,d0
+    move.l  d0,40(a4)
+    move.l  d0,(a4)+
+
+    lsr.l   #8,d1
+    lsr.l   #8,d3
+    lsr.l   #8,d4
+    lsr.l   #8,d5
+    move.b  d1,d0
+    lsl.w   #8,d0
+    move.b  d3,d0
+    swap    d0
+    move.b  d4,d0
+    lsl.w   #8,d0
+    move.b  d5,d0
+    move.l  d0,40(a3)
+    move.l  d0,(a3)+
+
+    lsr.l   #8,d1
+    lsr.l   #8,d3
+    lsr.l   #8,d4
+    lsr.l   #8,d5
+    move.b  d1,d0
+    lsl.w   #8,d0
+    move.b  d3,d0
+    swap    d0
+    move.b  d4,d0
+    lsl.w   #8,d0
+    move.b  d5,d0
+    move.l  d0,40(a2)
+    move.l  d0,(a2)+
+
+    lsr.l   #8,d1
+    lsr.l   #8,d3
+    lsr.l   #8,d4
+    lsr.l   #8,d5
+    move.b  d1,d0
+    lsl.w   #8,d0
+    move.b  d3,d0
+    swap    d0
+    move.b  d4,d0
+    lsl.w   #8,d0
+    move.b  d5,d0
+    move.l  d0,40(a1)
+    move.l  d0,(a1)+
+
+    dbf     d6,.p2_col
+    lea     40(a1),a1
+    lea     40(a2),a2
+    lea     40(a3),a3
+    lea     40(a4),a4
+    dbf     d7,.p2_row
+
+    movem.l (sp)+,d0-d7/a0-a5
     rts
 
 draw_uv_tri:

@@ -68,31 +68,42 @@ input_update_controls:
     move.b  d0,kbd_held_raw
 
     ; Obsluga klawiszy jednorazowych (wyzwolenie przy kazdym wcisnieciu!):
-    cmp.b   #$27,d0                     ; K = pokaz / ukryj panel klawiszy
-    bne.s   .n_k
+    cmp.b   #$25,d0                     ; H = pokaz / ukryj panel pomocy (HELP)
+    bne.s   .n_h
     eor.b   #1,keymap_visible
     bra.w   .held_keys
-.n_k:
-    cmp.b   #$25,d0                     ; H = pokaz / ukryj licznik FPS
-    bne.s   .n_h
-    eor.b   #1,hud_enabled
-    bra.w   .held_keys
 .n_h:
+    cmp.b   #$28,d0                     ; L = przelacznik jezyka PL <-> ENG (Help + Info)
+    bne.s   .n_l
+    eor.b   #1,hud_lang
+    bra.w   .held_keys
+.n_l:
+    cmp.b   #$27,d0                     ; K = wlacz / wylacz flary soczewkowe 3D
+    bne.s   .n_k
+    eor.b   #1,flare_enabled
+    bra.w   .held_keys
+.n_k:
+    cmp.b   #$17,d0                     ; I = pokaz / ukryj HUD (FPS + Info)
+    bne.s   .n_i
+    eor.b   #1,hud_enabled
+    move.b  hud_enabled(pc),info_visible
+    bra.w   .held_keys
+.n_i:
+    cmp.b   #$19,d0                     ; P = wlacz / wylacz cieniowanie Phonga
+    bne.s   .n_p
+    eor.b   #1,phong_enabled
+    bra.w   .held_keys
+.n_p:
     cmp.b   #$24,d0                     ; G = wlacz / wylacz podloge 3D
     bne.s   .n_g
     eor.b   #1,grid_enabled
     bra.w   .held_keys
 .n_g:
-    cmp.b   #$37,d0
+    cmp.b   #$37,d0                     ; M = wlacz / wylacz lustro 3D
     bne.s   .n_m
     eor.b   #1,mirror_enabled
     bra.w   .held_keys
 .n_m:
-    cmp.b   #$28,d0
-    bne.s   .n_l
-    eor.b   #1,flare_enabled
-    bra.w   .held_keys
-.n_l:
     cmp.b   #$33,d0                     ; C = wlacz / wylacz cienie 3D
     bne.s   .n_c
     eor.b   #1,shadows_enabled

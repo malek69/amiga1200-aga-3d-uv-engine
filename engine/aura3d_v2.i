@@ -243,13 +243,22 @@ transform_and_project_verts:
     move.w  #24,d2
 .z_clip_ok:
     move.w  d2,-(sp)                ; zapisz sz (glebokosc Z do Z-Buffera)
+    cmp.w   #2048,d2
+    ble.s   .pz_ok
+    move.w  #2048,d2
+.pz_ok:
+    move.l  a0,-(sp)
+    lea     recip_table_32(pc),a0
+    move.l  (a0,d2.w*4),d2          ; d2 = 1/Z w formacie 16.16 (zero divs.l!)
+    move.l  (sp)+,a0
     ext.l   d3
     ext.l   d1
-    ext.l   d2
-    muls.l  #128,d3
-    muls.l  #128,d1
-    divs.l  d2,d3
-    divs.l  d2,d1
+    muls.l  d2,d3
+    muls.l  d2,d1
+    asr.l   #8,d3
+    asr.l   #1,d3
+    asr.l   #8,d1
+    asr.l   #1,d1
     add.w   #80,d3                  ; srodek X = 80 (ekran 160x128)
     add.w   #64,d1                  ; srodek Y = 64
     move.w  d3,(a1)+                ; sx
@@ -379,12 +388,6 @@ draw_mesh_v2:
 ; ----------------------------------------------------------------------------
 draw_uv_z_tri:
     movem.l d0-d7/a0-a6,-(sp)
-    move.l  vbl_tick(pc),d0
-    lsr.l   #2,d0
-    and.w   #63,d0
-    add.w   d0,8(a4)
-    add.w   d0,18(a4)
-    add.w   d0,28(a4)
     move.l  a5,v2_tex_ptr
     and.w   #$0f,d7
     lsl.w   #8,d7
@@ -399,6 +402,12 @@ draw_uv_z_tri:
     dbf     d0,.cp_v
 
     lea     v2_verts(pc),a0
+    move.l  vbl_tick(pc),d0
+    lsr.l   #2,d0
+    and.w   #63,d0
+    add.w   d0,6(a0)
+    add.w   d0,16(a0)
+    add.w   d0,26(a0)
     move.w  2(a0),d6
     move.w  d6,d7
     move.w  12(a0),d0
@@ -483,6 +492,7 @@ draw_uv_z_tri:
 
     move.w  d1,d2
     sub.w   d0,d2                   ; dx > 0
+    ble.w   .next_y
     cmp.w   #2048,d2
     ble.s   .dx_ok
     move.w  #2048,d2
@@ -605,6 +615,7 @@ scan_uvz_edge:
 .se_ord:
     move.w  d3,d6
     sub.w   d1,d6
+    ble.w   .se_done
     cmp.w   #2048,d6
     ble.s   .edy_ok
     move.w  #2048,d6
@@ -905,7 +916,28 @@ draw_env_mesh_v2:
     move.b  2(a3,d6.w*4),d0
     add.w   d0,d3
 
-    divs.w  #3,d3                   ; sredni poziom swiatla 0..15
+    mulu.w  #21846,d3
+    swap    d3                      ; szybkie d3 / 3 bez divs.w!
+    tst.b   phong_enabled(pc)
+    beq.s   .no_phong
+    move.w  v2_tri_pkt+6(pc),d0
+    add.w   v2_tri_pkt+16(pc),d0
+    add.w   v2_tri_pkt+26(pc),d0
+    mulu.w  #21846,d0
+    swap    d0
+    and.w   #63,d0                  ; srednie u normalnej (0..63)
+
+    move.w  v2_tri_pkt+8(pc),d2
+    add.w   v2_tri_pkt+18(pc),d2
+    add.w   v2_tri_pkt+28(pc),d2
+    mulu.w  #21846,d2
+    swap    d2
+    and.w   #63,d2
+    lsl.w   #6,d2
+    or.w    d2,d0                   ; indeks 0..4095 w phong_norm_lut
+    lea     phong_norm_lut(pc),a6
+    move.b  (a6,d0.w),d3            ; jasnosc Phonga + Normal Map (0..15)
+.no_phong:
     move.w  (a0)+,d1                ; tex_id
     lsl.w   #8,d1
     lsl.w   #4,d1
@@ -933,6 +965,7 @@ light_vy:     dc.w -140
 light_vz:     dc.w -180
 
 
+phong_enabled:  dc.b 1,0
 v2_uv_anim_u:   dc.w 0
 v2_uv_anim_v:   dc.w 0
 phong_norm_lut:
@@ -1185,30 +1218,43 @@ draw_uv_gouraud_z_tri:
 
     move.w  d1,d2
     sub.w   d0,d2                   ; dx > 0
-    ext.l   d2
+    cmp.w   #2048,d2
+    ble.s   .gdx_ok
+    move.w  #2048,d2
+.gdx_ok:
+    lea     recip_table_32(pc),a6
+    move.l  (a6,d2.w*4),d2          ; d2 = 1/dx w 16.16 (zero divs.l!)
 
     move.l  4(a0),d3                ; zl
     move.l  24(a0),d4               ; zr
     sub.l   d3,d4
-    divs.l  d2,d4
+    muls.l  d2,d6:d4
+    move.w  d6,d4
+    swap    d4
     move.l  d4,g_dz
 
     move.l  8(a0),d4                ; ul
     move.l  28(a0),d5               ; ur
     sub.l   d4,d5
-    divs.l  d2,d5
+    muls.l  d2,d6:d5
+    move.w  d6,d5
+    swap    d5
     move.l  d5,g_du
 
     move.l  12(a0),d5               ; vl
     move.l  32(a0),d6               ; vr
     sub.l   d5,d6
-    divs.l  d2,d6
+    muls.l  d2,d4:d6
+    move.w  d4,d6
+    swap    d6
     move.l  d6,g_dv
 
     move.l  16(a0),d6               ; sl
     move.l  36(a0),d7               ; sr
     sub.l   d6,d7
-    divs.l  d2,d7
+    muls.l  d2,d4:d7
+    move.w  d4,d7
+    swap    d7
     move.l  d7,g_ds
 
     move.l  16(a0),d2               ; cur_s (16.16)
@@ -1308,41 +1354,42 @@ scan_gouraud_edge:
 .gse_ord:
     move.w  d3,d6
     sub.w   d1,d6                   ; dy > 0
-    ext.l   d6
+    ble.w   .gse_done
+    cmp.w   #2048,d6
+    ble.s   .gdy_ok
+    move.w  #2048,d6
+.gdy_ok:
+    lea     recip_table_32(pc),a2
+    move.l  (a2,d6.w*4),d6          ; d6 = 1/dy w 16.16 (zero divs.l!)
 
     move.w  (a1),d0
     sub.w   (a0),d0
     ext.l   d0
-    swap    d0
-    divs.l  d6,d0
+    muls.l  d6,d0
     move.l  d0,ge_dx
 
     move.w  4(a1),d0
     sub.w   4(a0),d0
     ext.l   d0
-    swap    d0
-    divs.l  d6,d0
+    muls.l  d6,d0
     move.l  d0,ge_dz
 
     move.w  6(a1),d0
     sub.w   6(a0),d0
     ext.l   d0
-    swap    d0
-    divs.l  d6,d0
+    muls.l  d6,d0
     move.l  d0,ge_du
 
     move.w  8(a1),d0
     sub.w   8(a0),d0
     ext.l   d0
-    swap    d0
-    divs.l  d6,d0
+    muls.l  d6,d0
     move.l  d0,ge_dv
 
     move.w  10(a1),d0
     sub.w   10(a0),d0
     ext.l   d0
-    swap    d0
-    divs.l  d6,d0
+    muls.l  d6,d0
     move.l  d0,ge_ds
 
     move.w  (a0),d4

@@ -337,12 +337,20 @@ draw_shadow_z_tri:
 
     move.w  d1,d2
     sub.w   d0,d2
-    ext.l   d2
+    ble.w   .snext_y
+    cmp.w   #2048,d2
+    ble.s   .sdx_ok
+    move.w  #2048,d2
+.sdx_ok:
+    lea     recip_table_32(pc),a6
+    move.l  (a6,d2.w*4),d2          ; 1/dx w 16.16 (zero divs.l!)
 
     move.l  4(a0),d3
     move.l  12(a0),d4
     sub.l   d3,d4
-    divs.l  d2,d4
+    muls.l  d2,d6:d4
+    move.w  d6,d4
+    swap    d4
 
     tst.w   d0
     bpl.s   .sxl_ok
@@ -401,20 +409,24 @@ draw_shadow_z_tri:
 .sse_ord:
     move.w  d3,d6
     sub.w   d1,d6
-    ext.l   d6
+    ble.w   .sse_done
+    cmp.w   #2048,d6
+    ble.s   .sdy_ok
+    move.w  #2048,d6
+.sdy_ok:
+    lea     recip_table_32(pc),a2
+    move.l  (a2,d6.w*4),d6          ; 1/dy w 16.16 (zero divs.l!)
 
     move.w  (a1),d0
     sub.w   (a0),d0
     ext.l   d0
-    swap    d0
-    divs.l  d6,d0
+    muls.l  d6,d0
     move.l  d0,a2
 
     move.w  4(a1),d0
     sub.w   4(a0),d0
     ext.l   d0
-    swap    d0
-    divs.l  d6,d0
+    muls.l  d6,d0
     move.l  d0,a3
 
     move.w  (a0),d4

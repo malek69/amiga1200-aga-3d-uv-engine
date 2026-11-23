@@ -121,15 +121,25 @@ render_3d_terrain_flyover:
     move.w  #24,d0
 .tz_ok:
 
-    movem.l d3/d5,-(sp)
+    movem.l d3/d5-d6,-(sp)
+    move.w  d0,d6
+    cmp.w   #2048,d6
+    ble.s   .trz_ok
+    move.w  #2048,d6
+.trz_ok:
+    move.l  a0,-(sp)
+    lea     recip_table_32(pc),a0
+    move.l  (a0,d6.w*4),d6          ; d6 = 1/Z w 16.16 (zero divs.l!)
+    move.l  (sp)+,a0
     move.w  d4,d3
     ext.l   d3
     ext.l   d2
-    ext.l   d0
-    muls.l  #128,d3
-    muls.l  #128,d2
-    divs.l  d0,d3
-    divs.l  d0,d2
+    muls.l  d6,d3
+    muls.l  d6,d2
+    asr.l   #8,d3
+    asr.l   #1,d3
+    asr.l   #8,d2
+    asr.l   #1,d2
     add.w   #80,d3
     add.w   #64,d2
     move.w  d3,(a1)+
@@ -181,7 +191,7 @@ render_3d_terrain_flyover:
     subq.w  #4,d3
 .tc_st:
     move.w  d3,(a1)+
-    movem.l (sp)+,d3/d5
+    movem.l (sp)+,d3/d5-d6
 
     addq.w  #1,d6
     cmp.w   #TER_COLS,d6

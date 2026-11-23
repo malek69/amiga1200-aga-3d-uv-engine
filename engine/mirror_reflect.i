@@ -136,13 +136,22 @@ project_mirror_verts_3d:
     addq.w  #4,d0
     move.w  d0,-(sp)
 
+    cmp.w   #2048,d2
+    ble.s   .mrz_ok
+    move.w  #2048,d2
+.mrz_ok:
+    move.l  a0,-(sp)
+    lea     recip_table_32(pc),a0
+    move.l  (a0,d2.w*4),d2          ; d2 = 1/Z w 16.16 (zero divs.l!)
+    move.l  (sp)+,a0
     ext.l   d3
     ext.l   d1
-    ext.l   d2
-    muls.l  #128,d3
-    muls.l  #128,d1
-    divs.l  d2,d3
-    divs.l  d2,d1
+    muls.l  d2,d3
+    muls.l  d2,d1
+    asr.l   #8,d3
+    asr.l   #1,d3
+    asr.l   #8,d1
+    asr.l   #1,d1
     add.w   #80,d3
     add.w   #64,d1
     move.w  d3,(a1)+

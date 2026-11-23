@@ -6,6 +6,7 @@ render_realtime_3d:
     lea     splash_pal_data,a0
     bsr.w   load_aga_256_palette
     bsr.w   decode_splash_to_draw_bpl
+    jsr     hud_draw_scene_info
     clr.b   pal_loaded
     movem.l (sp)+,d0-d7/a0-a5
     rts

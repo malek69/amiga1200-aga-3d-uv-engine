@@ -8,7 +8,8 @@
 
 hud_fps_init:
     move.b  #1,hud_enabled
-    clr.b   keymap_visible
+    move.b  #1,info_visible
+    move.w  #-2,hud_last_scene
     bsr.w   hud_bake_keymap
     move.w  #50,hud_fps_val
     move.l  vbl_tick(pc),hud_last_vbl
@@ -199,7 +200,7 @@ hud_draw_overlay:
     addq.l  #8,a0
     lea     17*40+32(a1),a1
     lea     hud_k_badge(pc),a2
-    moveq   #6,d7
+    moveq   #13,d7
 .hb_y:
     move.l  (a2)+,d0
     or.l    d0,(a1)
@@ -210,6 +211,12 @@ hud_draw_overlay:
 .chk_km:
     tst.b   keymap_visible(pc)
     beq.s   .hdo_done
+    move.b  hud_lang(pc),d0
+    cmp.b   hud_last_km_lang(pc),d0
+    beq.s   .km_blit
+    move.b  d0,hud_last_km_lang
+    bsr.w   hud_bake_keymap
+.km_blit:
     lea     draw_bpl1(pc),a0
     moveq   #7,d6
 .km_bpl:
@@ -231,6 +238,7 @@ hud_draw_overlay:
     dbf     d7,.km_y
     dbf     d6,.km_bpl
 .hdo_done:
+    bsr.w   hud_draw_scene_info
     movem.l (sp)+,d0-d7/a0-a4
 .hdo_ret:
     rts
@@ -243,6 +251,10 @@ hud_bake_keymap:
     clr.l   (a1)+
     dbf     d0,.km_clr
     lea     keymap_lines(pc),a0
+    tst.b   hud_last_km_lang(pc)
+    beq.s   .km_src_ok
+    lea     keymap_lines_eng(pc),a0
+.km_src_ok:
     lea     hud_ascii_5x7(pc),a2
     moveq   #0,d7
 .km_ln:
@@ -293,21 +305,36 @@ hud_bake_keymap:
     rts
 
 hud_k_badge:
-    dc.l $90979070
-    dc.l $a0941048
-    dc.l $c0f71070
-    dc.l $a0941040
-    dc.l $90979e40
+    dc.l $9025e870
+    dc.l $90250848
+    dc.l $f03dc870
+    dc.l $90250840
+    dc.l $9025ef40
+    dc.l $00000000
+    dc.l $00000000
+    dc.l $8020c938
+    dc.l $80212d40
+    dc.l $8021ef58
+    dc.l $80212b48
+    dc.l $f03d2938
     dc.l $00000000
     dc.l $00000000
 
 keymap_lines:
-    dc.b "  AURA-3D AGA ENGINE V1.14 - KLAWISZE   "
+    dc.b "  AURA-3D AGA ENGINE V1.14.1 - KLAWISZE "
     dc.b " F1-F8: SCENY   TAB: NASTEPNA SCENA     "
     dc.b " STRZALKI / JOY2: OBROT   W/S: ZOOM     "
     dc.b " 1-4: NIEBO COPPER   M: LUSTRO  G: PODL "
-    dc.b " C: CIENIE  F: MGLA  L: FLARA  H: FPS    "
-    dc.b " SPACJA/R: RESET   K: ZAMKNIJ PANEL     "
+    dc.b " C: CIENIE  F: MGLA  K: FLARA  P: PHONG "
+    dc.b " L: LANG (PL/EN)  I: HUD  H: ZAMKNIJ    "
+hud_last_km_lang: dc.b 0,0
+keymap_lines_eng:
+    dc.b "  AURA-3D AGA ENGINE V1.14.1 - CONTROLS "
+    dc.b " F1-F8: SCENES   TAB: NEXT SCENE        "
+    dc.b " ARROWS / JOY2: ROTATE   W/S: ZOOM      "
+    dc.b " 1-4: COPPER SKY   M: MIRROR  G: FLOOR  "
+    dc.b " C: SHADOWS  F: FOG  K: FLARE  P: PHONG "
+    dc.b " L: LANG (PL/EN)  I: HUD  H: CLOSE      "
 
 hud_ascii_5x7:
     dc.b $00,$00,$00,$00,$00,$00,$00,0, $04,$04,$04,$04,$00,$00,$04,0
@@ -372,3 +399,166 @@ hud_font_5x7:
     dc.b $1e,$11,$11,$1e,$10,$10,$10,0  ; 11: P
     dc.b $0f,$10,$10,$0e,$01,$01,$1e,0  ; 12: S
     dc.b $00,$04,$04,$00,$04,$04,$00,0  ; 13: :
+
+; ----------------------------------------------------------------------------
+; hud_draw_scene_info - Pasek opisu sceny i efektow na dole ekranu (Y=246..254)
+; ----------------------------------------------------------------------------
+hud_draw_scene_info:
+    movem.l d0-d7/a0-a4,-(sp)
+    tst.b   info_visible(pc)
+    beq.w   .si_exit
+
+    ; Wyznacz numer aktualnej sceny (0 = F1 Splash, 1..7 = F2..F8)
+    move.l  vbl_tick(pc),d7
+    cmp.l   #150,d7
+    bhs.s   .si_sc
+    moveq   #0,d2
+    bra.s   .si_chk
+.si_sc:
+    sub.l   #150,d7
+    lea     scene_timeline_table,a0
+    moveq   #1,d2
+.si_tl:
+    move.l  (a0)+,d0
+    move.l  (a0)+,d1
+    addq.l  #4,a0
+    cmp.l   d1,d7
+    blo.s   .si_chk
+    addq.w  #1,d2
+    cmp.w   #7,d2
+    blo.s   .si_tl
+
+.si_chk:
+    lsl.w   #8,d2
+    move.b  hud_lang(pc),d2
+    cmp.w   hud_last_scene(pc),d2
+    beq.s   .si_blit
+    move.w  d2,hud_last_scene
+    bsr.w   hud_bake_scene_info
+
+.si_blit:
+    lea     draw_bpl1(pc),a0
+    moveq   #7,d6
+.si_bpl:
+    move.l  (a0),a1
+    addq.l  #8,a0
+    lea     216*40(a1),a1
+
+    ; Gorny czarny margines 1 px (Y=246)
+    moveq   #0,d0
+    REPT 10
+    move.l  d0,(a1)+
+    ENDR
+
+    ; 7 wierszy tekstu (Y=247..253)
+    lea     scene_info_bmp,a2
+    moveq   #6,d7
+.si_y:
+    REPT 10
+    move.l  (a2)+,(a1)+
+    ENDR
+    dbf     d7,.si_y
+
+    ; Dolny czarny margines 1 px (Y=254)
+    REPT 10
+    move.l  d0,(a1)+
+    ENDR
+
+    dbf     d6,.si_bpl
+
+.si_exit:
+    movem.l (sp)+,d0-d7/a0-a4
+    rts
+
+hud_bake_scene_info:
+    movem.l d0-d7/a0-a3,-(sp)
+    lea     scene_info_bmp,a1
+    moveq   #69,d0
+.sib_clr:
+    clr.l   (a1)+
+    dbf     d0,.sib_clr
+
+    move.w  hud_last_scene(pc),d0
+    move.b  d0,d1
+    lsr.w   #8,d0
+    cmp.w   #7,d0
+    bls.s   .sib_sc
+    moveq   #7,d0
+.sib_sc:
+    cmp.b   #1,d1
+    bne.s   .sib_idx
+    addq.w  #8,d0
+.sib_idx:
+    mulu.w  #52,d0
+    lea     scene_info_strings(pc),a0
+    adda.l  d0,a0
+    lea     hud_ascii_5x7(pc),a2
+
+    moveq   #0,d5                       ; znak 0..51
+.sib_ch:
+    moveq   #0,d0
+    move.b  (a0)+,d0
+    sub.w   #32,d0
+    bpl.s   .sib_ok
+    moveq   #0,d0
+.sib_ok:
+    lsl.w   #3,d0
+    lea     (a2,d0.w),a3
+
+    move.w  d5,d1
+    mulu.w  #6,d1
+    addq.w  #4,d1                       ; lewy margines 4 px
+    move.w  d1,d2
+    lsr.w   #3,d2                       ; bajt X (0..39)
+    and.w   #7,d1                       ; przesuniecie bitowe
+
+    lea     scene_info_bmp,a1
+    moveq   #0,d4                       ; wiersz glifu 0..6
+.sib_gy:
+    moveq   #0,d0
+    move.b  (a3,d4.w),d0
+    lsl.w   #8,d0
+    lsl.w   #3,d0
+    lsr.w   d1,d0
+    move.w  d4,d3
+    mulu.w  #40,d3
+    add.w   d2,d3
+    or.b    d0,1(a1,d3.w)
+    lsr.w   #8,d0
+    or.b    d0,(a1,d3.w)
+    addq.w  #1,d4
+    cmp.w   #7,d4
+    blo.s   .sib_gy
+
+    addq.w  #1,d5
+    cmp.w   #52,d5
+    blo.s   .sib_ch
+
+    movem.l (sp)+,d0-d7/a0-a3
+    rts
+
+    section fastram_bss,bss_p
+scene_info_bmp: ds.b 7*40
+    section code,code
+
+    even
+info_visible:   dc.b 1,0
+hud_lang:       dc.b 0,0
+hud_last_scene: dc.w -2
+scene_info_strings:
+    dc.b "F1: TYTUL AGA 256 KOLOROW / DEKOMPRESJA RLE 320X256 "
+    dc.b "F2: MORPHING 3D (1008 TRIS) / WODA + CIENIE + Z-BUF "
+    dc.b "F3: WAHADLOWIEC 3D / LENS FLARE + SMUGA + LUSTRO UV "
+    dc.b "F4: SYSTEM PLANETARNY / CHROM ENV-MAP + ORBITA + UV "
+    dc.b "F5: PRZELOT PRZEZ TORUS / KAMERA 6DOF + SPECULAR 3D "
+    dc.b "F6: MODEL .OBJ 3D / SATYNOWY CHROM + ODBICIE WODNE  "
+    dc.b "F7: TEREN 3D HEIGHTMAP / SWIATLO PUNKTOWE + Z-FOG   "
+    dc.b "F8: FINAL 3D & ORBITA / GWIAZDY + AUDIO PAULA .MOD  "
+    dc.b "F1: AGA TITLE 256 COLORS / RLE DECOMPRESSION 320X256"
+    dc.b "F2: 3D MORPHING (1008 TRIS) / WATER + SHADOWS + ZBUF"
+    dc.b "F3: 3D SHUTTLE / LENS FLARE + TRAIL + UV REFLECTION "
+    dc.b "F4: PLANETARY SYSTEM / CHROME ENV-MAP + ORBIT + UV  "
+    dc.b "F5: TORUS FLYTHROUGH / 6DOF CAMERA + 3D SPECULAR    "
+    dc.b "F6: .OBJ 3D MODEL / SATIN CHROME + WATER REFLECTION "
+    dc.b "F7: 3D HEIGHTMAP TERRAIN / POINT LIGHT + Z-FOG      "
+    dc.b "F8: 3D FINALE & ORBIT / STARFIELD + PAULA .MOD AUDIO"
