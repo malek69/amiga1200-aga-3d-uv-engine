@@ -413,3 +413,69 @@ demo_act0d_v2_cam_flythrough:
     ; Wylacz tryb 3D kamery dla starszych scen v1.0
     clr.b   cam_3d_active
     rts
+
+demo_act0e_v2_shuttle:
+    jsr     clear_chunky
+    jsr     clear_zbuffer_v2
+    jsr     draw_256_starfield
+
+    clr.w   cam_ox
+    clr.w   cam_oy
+    move.w  #-155,cam_oz
+    move.w  #0,cam_sin
+    move.w  #256,cam_cos
+
+    lea     sin_tab,a2
+    move.w  d7,d0
+    add.w   d0,d0
+    and.w   #$ff,d0
+    move.w  (a2,d0.w*2),d1
+    asr.w   #1,d1
+    move.w  d1,light_vx
+    move.w  128(a2,d0.w*2),d1
+    asr.w   #1,d1
+    neg.w   d1
+    move.w  d1,light_vz
+    move.w  #-120,light_vy
+
+    ; Dynamiczny lot wahadlowca 3D (Yaw + Pitch + delikatny Roll)
+    move.w  d7,d0
+    add.w   #40,d0
+    move.w  d7,d1
+    lsr.w   #1,d1
+    add.w   #24,d1
+    move.w  d7,d2
+    lsr.w   #2,d2
+    jsr     build_rot_matrix_3d
+
+    lea     shuttle3d_verts,a0
+    lea     v2_proj_buf,a1
+    move.w  #shuttle3d_vert_count,d7
+    moveq   #0,d4
+    moveq   #0,d5
+    moveq   #0,d6
+    jsr     transform_and_project_verts
+
+    lea     shuttle3d_norms,a0
+    lea     v2_env_buf,a1
+    move.w  #shuttle3d_vert_count,d7
+    jsr     transform_normals_envmap
+
+    lea     shuttle3d_env_mesh,a0
+    lea     v2_proj_buf,a1
+    lea     v2_chrome_bank,a2
+    lea     v2_env_buf,a3
+    jsr     draw_gouraud_env_mesh_v2
+
+    ; Orbitujacy swietlik eskortujacy wahadlowiec
+    move.w  light_vx(pc),d0
+    asr.w   #1,d0
+    move.w  #-22,d1
+    move.w  light_vz(pc),d2
+    asr.w   #1,d2
+    move.w  #1200,d3
+    moveq   #62,d4
+    jsr     draw_z_orb_v2
+    rts
+
+    include "shuttle_mesh.i"
