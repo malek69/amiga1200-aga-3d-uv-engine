@@ -56,6 +56,28 @@ demo_act0_v2_zbuffer:
     lea     v2_proj_buf,a1
     lea     v2_tex_bank,a2
     jsr     draw_mesh_v2
+
+    ; 4. Swietlik 3D A (zloty) - dokladnie w pozycji zrodla swiatla Torusa!
+    move.w  light_vx(pc),d0
+    asr.w   #1,d0
+    move.w  #-26,d1
+    move.w  light_vz(pc),d2
+    asr.w   #1,d2
+    move.w  #1150,d3
+    moveq   #62,d4
+    jsr     draw_z_orb_v2
+
+    ; 5. Swietlik 3D B (turkusowy) - po przeciwnej stronie orbity
+    move.w  light_vx(pc),d0
+    asr.w   #1,d0
+    neg.w   d0
+    move.w  #26,d1
+    move.w  light_vz(pc),d2
+    asr.w   #1,d2
+    neg.w   d2
+    move.w  #1150,d3
+    move.w  #220,d4
+    jsr     draw_z_orb_v2
     rts
 
     even

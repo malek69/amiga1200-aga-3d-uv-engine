@@ -1348,3 +1348,149 @@ v2_g_pkt:   ds.w 18
 v2_g_edge_buf: ds.b 128*40
 
     section code,code
+
+; ============================================================================
+;  MODUL Z-BUFFERED 3D LIGHT ORBS (draw_z_orb_v2)
+; ============================================================================
+; Input: d0.w = world X, d1.w = world Y, d2.w = world Z
+;        d3.w = bazowy promien (np. 1100 -> ~8 px przy Z=140)
+;        d4.b = indeks koloru w pal256 (np. 62 = zloty, 220 = turkusowy)
+draw_z_orb_v2:
+    movem.l d0-d7/a0-a4,-(sp)
+    move.b  d4,orb_base_col
+
+    ; Transformacja kamery (cam_ox, cam_oy, cam_oz, cam_sin, cam_cos)
+    sub.w   cam_ox(pc),d0
+    sub.w   cam_oy(pc),d1
+    sub.w   cam_oz(pc),d2
+
+    move.w  d0,d4
+    muls.w  cam_cos(pc),d4
+    move.w  d2,d5
+    muls.w  cam_sin(pc),d5
+    sub.l   d5,d4
+    asr.l   #8,d4                   ; rx
+
+    muls.w  cam_sin(pc),d0
+    muls.w  cam_cos(pc),d2
+    add.l   d0,d2
+    asr.l   #8,d2                   ; rz
+
+    cmp.w   #24,d2
+    blt.w   .orb_done               ; za kamera -> pomin
+    move.w  d2,orb_z                ; zachowaj Z do Z-Buffera
+
+    ; Rzutowanie perspektywiczne na 160x128
+    ext.l   d4
+    ext.l   d1
+    ext.l   d2
+    muls.l  #128,d4
+    muls.l  #128,d1
+    divs.l  d2,d4
+    divs.l  d2,d1
+    add.w   #80,d4                  ; cx
+    add.w   #64,d1                  ; cy
+    move.w  d4,orb_cx
+    move.w  d1,orb_cy
+
+    ; Perspektywiczny promien ekranowy r = d3 / rz (clamp 2..14)
+    ext.l   d3
+    divs.w  orb_z(pc),d3
+    cmp.w   #2,d3
+    bge.s   .r_min
+    moveq   #2,d3
+.r_min:
+    cmp.w   #14,d3
+    ble.s   .r_max
+    moveq   #14,d3
+.r_max:
+    move.w  d3,orb_r
+    move.w  d3,d0
+    muls.w  d0,d0
+    move.w  d0,orb_r2               ; r^2 (granica poswiaty)
+    lsr.w   #2,d0
+    move.w  d0,orb_core_r2          ; (r/2)^2 (granica jasnego rdzenia)
+
+    ; Przygotuj kolory: rdzen (jasnosc 15) i poswiata (jasnosc 8)
+    lea     shade_lut_v2,a0
+    moveq   #0,d0
+    move.b  orb_base_col(pc),d0
+    move.b  15*256(a0,d0.w),orb_core_col
+    move.b  8*256(a0,d0.w),orb_halo_col
+
+    ; Petla dy = -r .. +r
+    move.w  orb_r(pc),d7
+    neg.w   d7                      ; dy = -r
+.oy_lp:
+    move.w  orb_cy(pc),d5
+    add.w   d7,d5                   ; py = cy + dy
+    bmi.s   .oy_next
+    cmp.w   #127,d5
+    bgt.w   .orb_done
+
+    move.w  d7,d4
+    muls.w  d4,d4                   ; dy^2
+
+    lea     chunky_buf,a1
+    lea     zbuf_3d,a2
+    move.w  d5,d0
+    mulu.w  #160,d0
+    add.l   d0,a1
+    add.l   d0,d0
+    add.l   d0,a2
+
+    move.w  orb_r(pc),d6
+    neg.w   d6                      ; dx = -r
+    move.w  orb_z(pc),d3
+    move.w  orb_r2(pc),d2
+    move.w  orb_core_r2(pc),a3
+
+.ox_lp:
+    move.w  orb_cx(pc),d5
+    add.w   d6,d5                   ; px = cx + dx
+    bmi.s   .ox_next
+    cmp.w   #159,d5
+    bgt.s   .oy_next
+
+    move.w  d6,d0
+    muls.w  d0,d0
+    add.w   d4,d0                   ; dist2 = dx^2 + dy^2
+    cmp.w   d2,d0
+    bgt.s   .ox_next
+
+    ; Test 16-bitowego Z-Buffera!
+    cmp.w   (a2,d5.w*2),d3
+    bge.s   .ox_next
+    move.w  d3,(a2,d5.w*2)
+
+    cmp.w   a3,d0
+    ble.s   .is_core
+    move.b  orb_halo_col(pc),(a1,d5.w)
+    bra.s   .ox_next
+.is_core:
+    move.b  orb_core_col(pc),(a1,d5.w)
+
+.ox_next:
+    addq.w  #1,d6
+    cmp.w   orb_r(pc),d6
+    ble.s   .ox_lp
+
+.oy_next:
+    addq.w  #1,d7
+    cmp.w   orb_r(pc),d7
+    ble.s   .oy_lp
+
+.orb_done:
+    movem.l (sp)+,d0-d7/a0-a4
+    rts
+
+    even
+orb_z:        dc.w 0
+orb_cx:       dc.w 0
+orb_cy:       dc.w 0
+orb_r:        dc.w 0
+orb_r2:       dc.w 0
+orb_core_r2:  dc.w 0
+orb_base_col: dc.b 0
+orb_core_col: dc.b 0
+orb_halo_col: dc.b 0
