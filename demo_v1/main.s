@@ -61,6 +61,7 @@ exit_program:
     include "demo_gfx.i"
     include "engine3d_core.i"
     include "c2p_chunky.i"
+    include "aura3d_v2.i"
     include "realtime_3d.i"
     include "demo_scenes.i"
 
