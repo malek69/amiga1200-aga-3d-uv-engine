@@ -11,7 +11,6 @@
 </div>
 
 ---
-
-## Pobieranie / Downloads (v1.14.1 Latest)
-
-Pelna specyfikacja pakietów oraz instrukcja obsługi klawiszologii (`H`, `L`, `P`, `K`, `M`, `G`, `C`, `F`, `I`) dostępna jest w pliku źródłowym README.md oraz pliku [CHANGELOG.md](CHANGELOG.md).
+## Pobieranie / Downloads (v1.14.1 Latest) oraz Galeria 8 Etapów
+(Pełna tabela pakietów `v1.14.1`, galeria wizualizacji etapów AGA, zestawienie funkcji silnika, klawiszologia `F1–F8`, architektura modułów `engine/` oraz zestaw narzędzi `tools/` są generowane bezpośrednio przez skrypt w repozytorium).
+---
