@@ -934,8 +934,8 @@ shade_lut_v2:
     section fastram_bss,bss_p
 zbuf_3d:      ds.w 160*128
 v2_edge_buf:  ds.b 128*32
-v2_proj_buf:  ds.w 512*3
-v2_env_buf:   ds.l 512
+v2_proj_buf:  ds.w 2048*3
+v2_env_buf:   ds.l 2048
 
     section code,code
 
@@ -1647,5 +1647,5 @@ morph_verts_3d:
     rts
 
     section fastram_bss,bss_p
-v2_morph_buf: ds.w 512*3
+v2_morph_buf: ds.w 2048*3
     section code,code

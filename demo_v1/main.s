@@ -73,6 +73,7 @@ exit_program:
     include "input_ctrl.i"
     include "hud_fps.i"
     include "planar_shadow.i"
+    include "ground_grid.i"
 
 
     even

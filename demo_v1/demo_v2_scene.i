@@ -2,6 +2,7 @@ demo_act0_v2_zbuffer:
     jsr     clear_chunky
     jsr     clear_zbuffer_v2
     jsr     draw_256_starfield
+    jsr     draw_3d_ground_grid
 
     clr.w   cam_ox
     clr.w   cam_oy
@@ -172,6 +173,7 @@ demo_act0b_v2_gouraud_torus:
     jsr     clear_chunky
     jsr     clear_zbuffer_v2
     jsr     draw_256_starfield
+    jsr     draw_3d_ground_grid
 
     clr.w   cam_ox
     clr.w   cam_oy
@@ -243,6 +245,7 @@ demo_act0c_v2_planetary:
     jsr     clear_chunky
     jsr     clear_zbuffer_v2
     jsr     draw_256_starfield
+    jsr     draw_3d_ground_grid
 
     clr.w   cam_ox
     clr.w   cam_oy
@@ -328,7 +331,7 @@ demo_act0c_v2_planetary:
 
     lea     v2_cube_mesh(pc),a0
     lea     v2_proj_buf,a1
-    lea     v2_tex_bank,a2
+    lea     v2_png_tex_bank,a2
     jsr     draw_mesh_v2
 
     ; Cien Satelity A
@@ -395,6 +398,7 @@ demo_act0d_v2_cam_flythrough:
     jsr     clear_chunky
     jsr     clear_zbuffer_v2
     jsr     draw_256_starfield
+    jsr     draw_3d_ground_grid
 
     ; Dynamiczny lot kamery 6DOF z przechylem (Roll) i pochyleniem (Pitch)
     lea     sin_tab,a2
@@ -464,6 +468,7 @@ demo_act0e_v2_shuttle:
     jsr     clear_chunky
     jsr     clear_zbuffer_v2
     jsr     draw_256_starfield
+    jsr     draw_3d_ground_grid
 
     clr.w   cam_ox
     clr.w   cam_oy
@@ -549,6 +554,7 @@ demo_act0f_v2_morph:
     jsr     clear_chunky
     jsr     clear_zbuffer_v2
     jsr     draw_256_starfield
+    jsr     draw_3d_ground_grid
 
     clr.w   cam_ox
     clr.w   cam_oy
@@ -627,3 +633,7 @@ demo_act0f_v2_morph:
     rts
 
     include "morph_target.i"
+
+    even
+v2_png_tex_bank:
+    incbin  "custom_png_tex.bin"

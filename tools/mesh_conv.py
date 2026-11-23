@@ -9,7 +9,7 @@ def normalize(vx, vy, vz):
         return (0.0, 0.0, -1.0)
     return (vx / l, vy / l, vz / l)
 
-def generate_torus(major_r=36.0, minor_r=15.0, major_seg=16, minor_seg=12, tex_id=0):
+def generate_torus(major_r=36.0, minor_r=15.0, major_seg=28, minor_seg=18, tex_id=0):
     verts = []
     norms = []
     tris = []
@@ -121,8 +121,8 @@ def main():
     else:
         verts, norms, tris = generate_torus(tex_id=args.tex)
 
-    if len(verts) > 512:
-        raise ValueError(f"Za duzo wierzcholkow ({len(verts)} > 512 limit bufora v2_proj_buf).")
+    if len(verts) > 2048:
+        raise ValueError(f"Za duzo wierzcholkow ({len(verts)} > 2048 limit bufora v2_proj_buf).")
 
     os.makedirs(os.path.dirname(os.path.abspath(args.out)), exist_ok=True)
     write_asm_include(args.out, args.prefix, verts, norms, tris)

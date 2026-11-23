@@ -8,8 +8,8 @@ scene_timeline_table:
     dc.l    1630,$ffffffff,demo_act3_hero_closeup
 
 demo_act1_flyin:
-    bsr.w   clear_chunky
-    bsr.w   draw_256_starfield
+    jsr     clear_chunky
+    jsr     draw_256_starfield
     lea     sin_tab,a2
     move.w  d7,d0
     lsr.w   #1,d0
@@ -24,12 +24,12 @@ demo_act1_flyin:
     add.w   #185,d1
     neg.w   d1
     move.w  d1,cam_oz
-    bsr.w   render_zsorted_hero
+    jsr     render_zsorted_hero
     rts
 
 demo_act2_orbit_zsort:
-    bsr.w   clear_chunky
-    bsr.w   draw_256_starfield
+    jsr     clear_chunky
+    jsr     draw_256_starfield
     lea     sin_tab,a2
     move.w  d7,d0
     lsr.w   #1,d0
@@ -39,13 +39,13 @@ demo_act2_orbit_zsort:
     clr.w   cam_ox
     move.w  #-14,cam_oy
     move.w  #-185,cam_oz
-    bsr.w   render_zsorted_hero
-    bsr.w   draw_orbiting_lights
+    jsr     render_zsorted_hero
+    jsr     draw_orbiting_lights
     rts
 
 demo_act3_hero_closeup:
-    bsr.w   clear_chunky
-    bsr.w   draw_256_starfield
+    jsr     clear_chunky
+    jsr     draw_256_starfield
     lea     sin_tab,a2
     move.w  d7,d0
     and.w   #$ff,d0
@@ -54,8 +54,8 @@ demo_act3_hero_closeup:
     clr.w   cam_ox
     move.w  #12,cam_oy
     move.w  #-142,cam_oz
-    bsr.w   render_zsorted_hero
-    bsr.w   draw_orbiting_lights
+    jsr     render_zsorted_hero
+    jsr     draw_orbiting_lights
     rts
 
 draw_256_starfield:
@@ -86,9 +86,9 @@ draw_orbiting_lights:
     asr.w   #1,d2
     move.w  d1,d0
     move.w  #-26,d1
-    bsr.w   proj_uv_160
+    jsr     proj_uv_160
     moveq   #62,d7
-    bsr.w   draw_256_firefly
+    jsr     draw_256_firefly
     move.l  vbl_tick(pc),d7
     move.w  d7,d0
     add.w   d0,d0
@@ -100,9 +100,9 @@ draw_orbiting_lights:
     asr.w   #1,d2
     move.w  d1,d0
     move.w  #8,d1
-    bsr.w   proj_uv_160
+    jsr     proj_uv_160
     move.w  #220,d7
-    bsr.w   draw_256_firefly
+    jsr     draw_256_firefly
     rts
 render_zsorted_hero:
     lea     imported_mesh(pc),a4
@@ -190,7 +190,7 @@ render_zsorted_hero:
     move.w  (a4)+,d1
     move.w  (a4)+,d2
     move.w  d1,v_tmp
-    bsr.w   proj_uv_160
+    jsr     proj_uv_160
     move.w  d0,(a1)+
     move.w  d1,(a1)+
     move.w  u_tmp(pc),(a1)+
@@ -202,7 +202,7 @@ render_zsorted_hero:
     move.w  (a4)+,d1
     move.w  (a4)+,d2
     move.w  d1,v_tmp
-    bsr.w   proj_uv_160
+    jsr     proj_uv_160
     move.w  d0,(a1)+
     move.w  d1,(a1)+
     move.w  u_tmp(pc),(a1)+
@@ -214,7 +214,7 @@ render_zsorted_hero:
     move.w  (a4)+,d1
     move.w  (a4)+,d2
     move.w  d1,v_tmp
-    bsr.w   proj_uv_160
+    jsr     proj_uv_160
     move.w  d0,(a1)+
     move.w  d1,(a1)+
     move.w  u_tmp(pc),(a1)+
@@ -230,7 +230,7 @@ render_zsorted_hero:
     blt.s   .zs_sk
     lea     uv_tri(pc),a4
     move.w  d5,d7
-    bsr.w   draw_uv_tri
+    jsr     draw_uv_tri
 .zs_sk: move.l (sp)+,a3
     move.w  (sp)+,d4
     dbf     d4,.zs_dlp
