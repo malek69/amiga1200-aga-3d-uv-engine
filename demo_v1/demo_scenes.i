@@ -1,7 +1,8 @@
 scene_timeline_table:
-    dc.l    0,350,demo_act0_v2_zbuffer
-    dc.l    350,850,demo_act0b_v2_gouraud_torus
-    dc.l    850,1230,demo_act1_flyin
+    dc.l    0,450,demo_act0c_v2_planetary
+    dc.l    450,800,demo_act0b_v2_gouraud_torus
+    dc.l    800,1150,demo_act0_v2_zbuffer
+    dc.l    1150,1530,demo_act1_flyin
     dc.l    830,1630,demo_act2_orbit_zsort
     dc.l    1630,$ffffffff,demo_act3_hero_closeup
 

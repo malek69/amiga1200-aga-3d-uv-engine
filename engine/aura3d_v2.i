@@ -499,9 +499,12 @@ draw_uv_z_tri:
     sub.w   d0,d1
     bmi.w   .next_y
 
+    movem.l a0-a1,-(sp)
     lea     (a1,d0.w),a3
     lea     (a2,d0.w*2),a6
     move.l  v2_du(pc),d7
+    move.l  v2_dz(pc),a0
+    move.l  d2,a1
 
 .px_lp:
     move.l  d3,d0
@@ -525,10 +528,11 @@ draw_uv_z_tri:
 .px_skip:
     addq.l  #1,a3
     addq.l  #2,a6
-    add.l   v2_dz(pc),d3
+    add.l   a0,d3
     add.l   d7,d4
-    add.l   d2,d5
+    add.l   a1,d5
     dbf     d1,.px_lp
+    movem.l (sp)+,a0-a1
 
     move.w  v2_ymax(pc),d7
     move.w  v2_cur_y(pc),d6
@@ -1152,8 +1156,13 @@ draw_uv_gouraud_z_tri:
     sub.w   d0,d1
     bmi.w   .gnext_y
 
+    movem.l a0-a2,-(sp)
     lea     (a1,d0.w),a3
     lea     (a2,d0.w*2),a6
+    move.l  g_dz(pc),d7
+    move.l  g_du(pc),a0
+    move.l  g_dv(pc),a1
+    move.l  g_ds(pc),a2
 
 .gpx_lp:
     move.l  d3,d0
@@ -1171,20 +1180,21 @@ draw_uv_gouraud_z_tri:
     and.w   #63,d6
     or.w    d6,d0
 
-    move.l  d2,d7
-    swap    d7
-    and.w   #$0f,d7
-    lsl.w   #8,d7
-    move.b  (a4,d0.w),d7
-    move.b  (a5,d7.w),(a3)
+    move.l  d2,d6
+    swap    d6
+    and.w   #$0f,d6
+    lsl.w   #8,d6
+    move.b  (a4,d0.w),d6
+    move.b  (a5,d6.w),(a3)
 .gpx_skip:
     addq.l  #1,a3
     addq.l  #2,a6
-    add.l   g_dz(pc),d3
-    add.l   g_du(pc),d4
-    add.l   g_dv(pc),d5
-    add.l   g_ds(pc),d2
+    add.l   d7,d3
+    add.l   a0,d4
+    add.l   a1,d5
+    add.l   a2,d2
     dbf     d1,.gpx_lp
+    movem.l (sp)+,a0-a2
 
     move.w  g_ymax(pc),d7
     move.w  g_cur_y(pc),d6

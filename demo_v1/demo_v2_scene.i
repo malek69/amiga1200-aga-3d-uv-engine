@@ -204,3 +204,125 @@ demo_act0b_v2_gouraud_torus:
     even
 v2_chrome_bank:
     incbin  "chrome_tex.bin"
+
+demo_act0c_v2_planetary:
+    jsr     clear_chunky
+    jsr     clear_zbuffer_v2
+    jsr     draw_256_starfield
+
+    clr.w   cam_ox
+    clr.w   cam_oy
+    move.w  #-165,cam_oz
+    move.w  #0,cam_sin
+    move.w  #256,cam_cos
+
+    ; Orbitujace swiatlo 3D
+    lea     sin_tab,a2
+    move.w  d7,d0
+    add.w   d0,d0
+    and.w   #$ff,d0
+    move.w  (a2,d0.w*2),d1
+    asr.w   #1,d1
+    move.w  d1,light_vx
+    move.w  128(a2,d0.w*2),d1
+    asr.w   #1,d1
+    neg.w   d1
+    move.w  d1,light_vz
+    move.w  #-110,light_vy
+
+    ; 1. Centralny chromowany Torus (Gouraud + EnvMap)
+    move.w  d7,d0
+    move.w  d7,d1
+    lsr.w   #1,d1
+    move.w  d7,d2
+    neg.w   d2
+    jsr     build_rot_matrix_3d
+
+    lea     torus3d_verts,a0
+    lea     v2_proj_buf,a1
+    move.w  #torus3d_vert_count,d7
+    moveq   #0,d4
+    moveq   #0,d5
+    moveq   #0,d6
+    jsr     transform_and_project_verts
+
+    lea     torus3d_norms,a0
+    lea     v2_env_buf,a1
+    move.w  #torus3d_vert_count,d7
+    jsr     transform_normals_envmap
+
+    lea     torus3d_env_mesh,a0
+    lea     v2_proj_buf,a1
+    lea     v2_chrome_bank,a2
+    lea     v2_env_buf,a3
+    jsr     draw_gouraud_env_mesh_v2
+
+    ; 2. Satelita A: Szescian 64x64 UV na orbicie poziomej (przelatuje przez otwor Torusa!)
+    move.l  vbl_tick(pc),d7
+    move.w  d7,d0
+    add.w   d0,d0
+    move.w  d7,d1
+    move.w  d7,d2
+    jsr     build_rot_matrix_3d
+
+    lea     sin_tab,a2
+    move.w  d7,d0
+    add.w   d0,d0
+    and.w   #$ff,d0
+    move.w  (a2,d0.w*2),d4
+    asr.w   #2,d4                   ; tx = sin(2t)*64
+    move.w  128(a2,d0.w*2),d6
+    asr.w   #2,d6                   ; tz = cos(2t)*64
+    moveq   #0,d5
+
+    lea     v2_sat_verts(pc),a0
+    lea     v2_proj_buf,a1
+    moveq   #8,d7
+    jsr     transform_and_project_verts
+
+    lea     v2_cube_mesh(pc),a0
+    lea     v2_proj_buf,a1
+    lea     v2_tex_bank,a2
+    jsr     draw_mesh_v2
+
+    ; 3. Satelita B: Drugi szescian 64x64 UV na orbicie pionowej (przeciwna faza)
+    move.l  vbl_tick(pc),d7
+    move.w  d7,d0
+    neg.w   d0
+    move.w  d7,d1
+    add.w   d1,d1
+    move.w  d7,d2
+    jsr     build_rot_matrix_3d
+
+    lea     sin_tab,a2
+    move.w  d7,d0
+    add.w   d0,d0
+    add.w   #128,d0
+    and.w   #$ff,d0
+    moveq   #0,d4
+    move.w  (a2,d0.w*2),d5
+    asr.w   #2,d5                   ; ty = sin(2t+pi)*64
+    move.w  128(a2,d0.w*2),d6
+    asr.w   #2,d6                   ; tz = cos(2t+pi)*64
+
+    lea     v2_sat_verts(pc),a0
+    lea     v2_proj_buf,a1
+    moveq   #8,d7
+    jsr     transform_and_project_verts
+
+    lea     v2_cube_mesh(pc),a0
+    lea     v2_proj_buf,a1
+    lea     v2_tex_bank,a2
+    jsr     draw_mesh_v2
+    rts
+
+    even
+v2_sat_verts:
+    dc.w    -16,-16,-16
+    dc.w     16,-16,-16
+    dc.w     16, 16,-16
+    dc.w    -16, 16,-16
+    dc.w    -16,-16, 16
+    dc.w     16,-16, 16
+    dc.w     16, 16, 16
+    dc.w    -16, 16, 16
