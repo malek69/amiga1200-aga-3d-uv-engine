@@ -76,3 +76,31 @@
 | **`H`** | Wlacz / wylacz **licznik FPS HUD** |
 | **`Spacja` / `R`** | Reset pozycji kamery |
 | **`LMB` / `ESC`** | Wyjscie do AmigaOS / WHDLoad |
+
+---
+
+## Architektura i Moduly Silnika (`engine/`)
+
+| Modul | Rola w silniku | Mechanizmy sprzetowe i algorytmy |
+| :--- | :--- | :--- |
+| **`gfx_engine.i`** | Inicjalizacja AGA i Coppera | Przejecie systemu (`sys_takeover`), 8 bitplanow (`320x256`, 256 kolorow), podwojne buforowanie VBL `50 Hz`, 24-bitowe niebo Coppera (`1`-`4`) |
+| **`c2p_chunky.i`** | Konwersja Chunky-to-Planar | Przeliczanie bufora `160x128` (8-bit) na 8 bitplanow AGA (`320x256`) w czasie rzeczywistym na M68020+ |
+| **`aura3d_v2.i`** | Glowny potok 3D i rasteryzer | Transformacje macierzowe 3D, rzutowanie perspektywiczne, cieniowanie Gourauda + UV (`bfextu`), Specular Highlights, `Z-Fog`, 16-bitowy **Z-Buffer** |
+| **`ground_grid.i`** | Falujaca tafla wody 3D | Perspektywiczne skanowanie wierszy tafli z modulacja sinusoidalna (`sin_tab`), przewijaniem wzdłuż `Z` i zapisem do Z-Buffera (`G`) |
+| **`mirror_reflect.i`** | Lustrzane odbicia 3D na wodzie | Symetryczne odbicie wierzcholkow pod tafla wody z falowaniem poziomym i sortowaniem glebi w Z-Bufferze (`M`) |
+| **`planar_shadow.i`** | Cienie rzucane 3D | Rzutowanie geometrii na plaszczyzne podloza z testem Z-Buffera (`C`) |
+| **`lens_flare.i`** | Rozblyski soczewkowe 3D | Promienie anamorficzne oraz 3 krazki dyfrakcyjne z testem zasloniecia w Z-Bufferze (`L`) |
+| **`terrain_3d.i`** | Teren 3D z mapy wysokosci | Proceduralny kanion `64x64` (`360` trojkatow), kierunkowe cieniowanie nachylenia stokow, jeziora w dolinach i szczyty |
+| **`particle_trail.i`** | System czasteczek 3D | Podwojna smuga spalin z dysz wahadlowca z zanikaniem jasnosci w Z-Bufferze |
+| **`starfield.i`** | Gwiezdziste tlo 3D | 256 wielowarstwowych gwiazd z paralaksa glebi |
+| **`hud_fps.i`** | Nakladka HUD i pomoc | Pomiar klatek na sekunde (`FPS:XX` z VBL `50 Hz`, klawisz `H`) oraz ekranowy panel klawiszologii (`K`) |
+| **`input_ctrl.i`** | Klawiatura i Joystick | Bezposredni odczyt CIA-A (`$BFEC01` + impuls `ACK`) oraz portu 2 joysticka (`JOY1DAT` + `Fire`) |
+| **`pt_player.i`** | Odtwarzacz ProTracker | 4-kanalowy odtwarzacz modulow `.MOD` z DMA Paula (`16 497 Hz`) |
+
+---
+
+## Narzedzia Deweloperskie (`tools/`)
+
+- **`tools/mesh_conv.py`** — konwerter modeli 3D Wavefront **`.obj`** na natywne tablice wierzcholkow, normalnych i trojkatow w asemblerze M68k (`--obj`, `--prefix`, `--out`, `--radius`, `--tex`).
+- **`tools/png_to_aga.py`** — konwerter obrazow **`.png`** na tekstury `64x64` chunky (`--mode texture`) lub pelnoekranowe obrazy `320x256` w 8 bitplanach AGA + 24-bitowa paleta (`--mode bitplanes`).
+- **`tools/build_demo.py`** — automatyczny skrypt kompilujacy kod M68020+ (`vasmm68k_mot`), WHDLoad Slave oraz budujacy obrazy **`.adf`**, archiwa **`.lha`** i paczki **`_FSUAE.zip`**.
