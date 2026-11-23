@@ -24,6 +24,7 @@ c2p_160x128_to_aga:
     move.l  d6,d5
     add.l   d7,d5
 
+    ; --- Low nibbles (BPL1..BPL4) dla 8 pikseli ---
     moveq   #0,d0
     move.b  (a0),d0
     and.w   #15,d0
@@ -42,7 +43,6 @@ c2p_160x128_to_aga:
     move.b  3(a0),d0
     and.w   #15,d0
     or.l    (a5,d0.w*4),d1
-    lsl.l   #8,d1
 
     move.b  4(a0),d0
     and.w   #15,d0
@@ -61,21 +61,37 @@ c2p_160x128_to_aga:
     move.b  7(a0),d0
     and.w   #15,d0
     or.l    (a5,d0.w*4),d3
-    or.l    d3,d1
 
-    move.w  d1,40(a4,d5.l)
-    move.w  d1,(a4,d5.l)
-    swap    d1
-    move.w  d1,40(a2,d5.l)
-    move.w  d1,(a2,d5.l)
-    lsr.l   #8,d1
-    move.w  d1,40(a1,d5.l)
-    move.w  d1,(a1,d5.l)
-    swap    d1
-    lsr.w   #8,d1
-    move.w  d1,40(a3,d5.l)
-    move.w  d1,(a3,d5.l)
+    move.w  d1,d2
+    lsl.w   #8,d2
+    move.b  d3,d2
+    move.w  d2,40(a1,d5.l)
+    move.w  d2,(a1,d5.l)
 
+    move.w  d1,d2
+    move.w  d3,d0
+    lsr.w   #8,d0
+    move.b  d0,d2
+    move.w  d2,40(a2,d5.l)
+    move.w  d2,(a2,d5.l)
+
+    swap    d1
+    swap    d3
+
+    move.w  d1,d2
+    lsl.w   #8,d2
+    move.b  d3,d2
+    move.w  d2,40(a3,d5.l)
+    move.w  d2,(a3,d5.l)
+
+    move.w  d1,d2
+    move.w  d3,d0
+    lsr.w   #8,d0
+    move.b  d0,d2
+    move.w  d2,40(a4,d5.l)
+    move.w  d2,(a4,d5.l)
+
+    ; --- High nibbles (BPL5..BPL8) dla 8 pikseli ---
     moveq   #0,d0
     move.b  (a0)+,d0
     lsr.b   #4,d0
@@ -94,7 +110,6 @@ c2p_160x128_to_aga:
     move.b  (a0)+,d0
     lsr.b   #4,d0
     or.l    (a5,d0.w*4),d1
-    lsl.l   #8,d1
 
     move.b  (a0)+,d0
     lsr.b   #4,d0
@@ -113,24 +128,39 @@ c2p_160x128_to_aga:
     move.b  (a0)+,d0
     lsr.b   #4,d0
     or.l    (a5,d0.w*4),d3
-    or.l    d3,d1
+
+    move.l  draw_bpl5(pc),a6
+    move.w  d1,d2
+    lsl.w   #8,d2
+    move.b  d3,d2
+    move.w  d2,40(a6,d5.l)
+    move.w  d2,(a6,d5.l)
+
+    move.l  draw_bpl6(pc),a6
+    move.w  d1,d2
+    move.w  d3,d0
+    lsr.w   #8,d0
+    move.b  d0,d2
+    move.w  d2,40(a6,d5.l)
+    move.w  d2,(a6,d5.l)
+
+    swap    d1
+    swap    d3
+
+    move.l  draw_bpl7(pc),a6
+    move.w  d1,d2
+    lsl.w   #8,d2
+    move.b  d3,d2
+    move.w  d2,40(a6,d5.l)
+    move.w  d2,(a6,d5.l)
 
     move.l  draw_bpl8(pc),a6
-    move.w  d1,40(a6,d5.l)
-    move.w  d1,(a6,d5.l)
-    swap    d1
-    move.l  draw_bpl6(pc),a6
-    move.w  d1,40(a6,d5.l)
-    move.w  d1,(a6,d5.l)
-    lsr.l   #8,d1
-    move.l  draw_bpl5(pc),a6
-    move.w  d1,40(a6,d5.l)
-    move.w  d1,(a6,d5.l)
-    swap    d1
-    lsr.w   #8,d1
-    move.l  draw_bpl7(pc),a6
-    move.w  d1,40(a6,d5.l)
-    move.w  d1,(a6,d5.l)
+    move.w  d1,d2
+    move.w  d3,d0
+    lsr.w   #8,d0
+    move.b  d0,d2
+    move.w  d2,40(a6,d5.l)
+    move.w  d2,(a6,d5.l)
 
     addq.l  #2,d7
     cmp.w   #40,d7
