@@ -175,11 +175,51 @@ transform_and_project_verts:
     move.w  d3,d1                   ; d1 = wy
     move.w  (sp)+,d0                ; d0 = wx
 
-    ; Transformacja kamery (cam_ox, cam_oy, cam_oz, cam_sin, cam_cos)
+    ; Transformacja kamery (pelna 3D cam_m00..22 lub szybka Y cam_sin/cos)
     sub.w   cam_ox(pc),d0
     sub.w   cam_oy(pc),d1
     sub.w   cam_oz(pc),d2
 
+    tst.b   cam_3d_active
+    beq.s   .cam_y_only
+
+    movem.l d4-d6/a2,-(sp)
+    lea     cam_m00(pc),a2
+    ; rx = (dx*cm00 + dy*cm01 + dz*cm02) >> 8
+    move.w  d0,d3
+    muls.w  (a2),d3
+    move.w  d1,d4
+    muls.w  2(a2),d4
+    add.l   d4,d3
+    move.w  d2,d4
+    muls.w  4(a2),d4
+    add.l   d4,d3
+    asr.l   #8,d3                   ; d3 = rx
+
+    ; ry = (dx*cm10 + dy*cm11 + dz*cm12) >> 8
+    move.w  d0,d4
+    muls.w  6(a2),d4
+    move.w  d1,d5
+    muls.w  8(a2),d5
+    add.l   d5,d4
+    move.w  d2,d5
+    muls.w  10(a2),d5
+    add.l   d5,d4
+    asr.l   #8,d4                   ; d4 = ry
+
+    ; rz = (dx*cm20 + dy*cm21 + dz*cm22) >> 8
+    muls.w  12(a2),d0
+    muls.w  14(a2),d1
+    add.l   d1,d0
+    muls.w  16(a2),d2
+    add.l   d2,d0
+    asr.l   #8,d0
+    move.w  d0,d2                   ; d2 = rz
+    move.w  d4,d1                   ; d1 = ry
+    movem.l (sp)+,d4-d6/a2
+    bra.s   .cam_done
+
+.cam_y_only:
     move.w  d0,d3
     muls.w  cam_cos(pc),d3
     move.l  d4,-(sp)
@@ -193,6 +233,7 @@ transform_and_project_verts:
     add.l   d0,d2
     asr.l   #8,d2                   ; rz
     move.l  (sp)+,d4
+.cam_done:
 
     cmp.w   #24,d2
     bge.s   .z_clip_ok
@@ -1494,3 +1535,39 @@ orb_core_r2:  dc.w 0
 orb_base_col: dc.b 0
 orb_core_col: dc.b 0
 orb_halo_col: dc.b 0
+
+; ============================================================================
+;  MODUL PELNEJ KAMERY 3D 6DOF (Yaw / Pitch / Roll) - Krok 2
+; ============================================================================
+; build_cam_matrix_3d: wylicza macierz obrotu kamery cam_m00..cam_m22
+; Input: d0.b = cam_yaw, d1.b = cam_pitch, d2.b = cam_roll
+build_cam_matrix_3d:
+    movem.l d0-d7/a0-a1,-(sp)
+    bsr.w   build_rot_matrix_3d
+    lea     rot_m00(pc),a0
+    lea     cam_m00(pc),a1
+    ; Transpozycja macierzy obiektu = odwrotny obrot kamery!
+    move.w  (a0),(a1)               ; cam_m00 = rot_m00
+    move.w  6(a0),2(a1)             ; cam_m01 = rot_m10
+    move.w  12(a0),4(a1)            ; cam_m02 = rot_m20
+    move.w  2(a0),6(a1)             ; cam_m10 = rot_m01
+    move.w  8(a0),8(a1)             ; cam_m11 = rot_m11
+    move.w  14(a0),10(a1)           ; cam_m12 = rot_m21
+    move.w  4(a0),12(a1)            ; cam_m20 = rot_m02
+    move.w  10(a0),14(a1)           ; cam_m21 = rot_m12
+    move.w  16(a0),16(a1)           ; cam_m22 = rot_m22
+    move.b  #1,cam_3d_active
+    movem.l (sp)+,d0-d7/a0-a1
+    rts
+
+    even
+cam_m00: dc.w 256
+cam_m01: dc.w 0
+cam_m02: dc.w 0
+cam_m10: dc.w 0
+cam_m11: dc.w 256
+cam_m12: dc.w 0
+cam_m20: dc.w 0
+cam_m21: dc.w 0
+cam_m22: dc.w 256
+cam_3d_active: dc.b 0,0

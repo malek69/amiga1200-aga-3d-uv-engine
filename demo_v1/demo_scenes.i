@@ -1,6 +1,7 @@
 scene_timeline_table:
-    dc.l    0,450,demo_act0c_v2_planetary
-    dc.l    450,800,demo_act0b_v2_gouraud_torus
+    dc.l    0,420,demo_act0c_v2_planetary
+    dc.l    420,840,demo_act0d_v2_cam_flythrough
+    dc.l    840,1180,demo_act0b_v2_gouraud_torus
     dc.l    800,1150,demo_act0_v2_zbuffer
     dc.l    1150,1530,demo_act1_flyin
     dc.l    830,1630,demo_act2_orbit_zsort

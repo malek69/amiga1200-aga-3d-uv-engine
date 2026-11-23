@@ -50,7 +50,7 @@ with open(txt, "w") as f:
     f.write("AURA-3D AGA ENGINE v1.0 - DEMO 1.0 (2026)\nEngine & Code: malek69 & Gemini AI\n3D Scene: malek69 & Gemini AI\nMusic (.MOD): 1991-Not A Number\nExit: LMB or ESC\n")
 
 lha_bin = shutil.which("lha") or "/usr/bin/lha"
-lha_path = os.path.join(rd, "aura3d_demo_v1_AGA.lha")
+lha_path = os.path.join(rd, "aura3d_demo_v2_AGA.lha")
 if os.path.exists(lha_path):
     os.remove(lha_path)
 env = os.environ.copy()
@@ -59,7 +59,7 @@ subprocess.run((lha_bin, f"ao1w={env['TMPDIR']}", lha_path, pkg_name, f"{pkg_nam
 
 xdftool_bin = shutil.which("xdftool")
 if xdftool_bin:
-    adf_path = os.path.join(rd, "aura3d_demo_v1_AGA.adf")
+    adf_path = os.path.join(rd, "aura3d_demo_v2_AGA.adf")
     if os.path.exists(adf_path):
         os.remove(adf_path)
     ss = os.path.join(rd, "startup-sequence")
