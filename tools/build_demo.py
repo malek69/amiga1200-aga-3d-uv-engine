@@ -43,7 +43,7 @@ lha_path = os.path.join(rd, "aura3d_demo_v2_AGA.lha")
 if os.path.exists(lha_path): os.remove(lha_path)
 env = os.environ.copy()
 env["TMPDIR"] = os.environ.get("TMPDIR", "/tmp")
-subprocess.run((lha_bin, f"ao1w={env[\"TMPDIR\"]}", lha_path, pkg_name, f"{pkg_name}.info"), cwd=rd, env=env, check=True)
+subprocess.run((lha_bin, f"ao1w=/tmp", lha_path, pkg_name, f"{pkg_name}.info"), cwd=rd, env=env, check=True)
 
 zip_path = os.path.join(rd, "aura3d_demo_v2_AGA_FSUAE.zip")
 if os.path.exists(zip_path): os.remove(zip_path)
