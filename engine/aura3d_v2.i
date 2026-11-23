@@ -984,43 +984,18 @@ draw_gouraud_env_mesh_v2:
     sub.l   d2,d0
     ble.w   .dgem_skip
 
-    ; Zbuduj pakiet 3 wierzcholkow po 6 slow: [sx, sy, sz, u, v, shade]
+    ; Zbuduj pakiet 3 wierzcholkow po 6 slow: [sx, sy, sz, u, v, shade + Z-Fog]
     lea     v2_g_pkt,a5
-    move.w  (a4),(a5)+
-    move.w  2(a4),(a5)+
-    move.w  4(a4),(a5)+
-    moveq   #0,d0
-    move.b  (a3,d4.w*4),d0
-    move.w  d0,(a5)+
-    move.b  1(a3,d4.w*4),d0
-    move.w  d0,(a5)+
-    move.b  2(a3,d4.w*4),d0
-    move.w  d0,(a5)+
-
-    move.w  d5,d0
-    mulu.w  #6,d0
-    lea     (a1,d0.w),a4
-    move.w  (a4),(a5)+
-    move.w  2(a4),(a5)+
-    move.w  4(a4),(a5)+
-    moveq   #0,d0
-    move.b  (a3,d5.w*4),d0
-    move.w  d0,(a5)+
-    move.b  1(a3,d5.w*4),d0
-    move.w  d0,(a5)+
-    move.b  2(a3,d5.w*4),d0
-    move.w  d0,(a5)+
-
-    move.w  (a6),(a5)+
-    move.w  2(a6),(a5)+
-    move.w  4(a6),(a5)+
-    moveq   #0,d0
-    move.b  (a3,d6.w*4),d0
-    move.w  d0,(a5)+
-    move.b  1(a3,d6.w*4),d0
-    move.w  d0,(a5)+
-    move.b  2(a3,d6.w*4),d0
-    move.w  d0,(a5)+
+    move.w  d4,d1
+    bsr.s   .emit_g_vert
+    move.w  d5,d1
+    mulu.w  #6,d1
+    lea     (a1,d1.w),a4
+    move.w  d5,d1
+    bsr.s   .emit_g_vert
+    move.l  a6,a4
+    move.w  d6,d1
+    bsr.s   .emit_g_vert
 
     move.w  (a0)+,d1                ; tex_id
     lsl.w   #8,d1
@@ -1042,6 +1017,30 @@ draw_gouraud_env_mesh_v2:
 .dgem_done:
     movem.l (sp)+,d0-d7/a0-a6
     rts
+
+; .emit_g_vert: zapisuje [sx, sy, sz, u, v, zfog_shade] z a4 i env[d1] do (a5)+
+.emit_g_vert:
+    move.w  (a4),(a5)+
+    move.w  2(a4),(a5)+
+    move.w  4(a4),d2
+    move.w  d2,(a5)+
+    moveq   #0,d0
+    move.b  (a3,d1.w*4),d0
+    move.w  d0,(a5)+
+    move.b  1(a3,d1.w*4),d0
+    move.w  d0,(a5)+
+    move.b  2(a3,d1.w*4),d0
+    sub.w   zfog_near(pc),d2
+    ble.s   .zf_ok
+    lsr.w   #4,d2
+    sub.w   d2,d0
+    bpl.s   .zf_ok
+    moveq   #0,d0
+.zf_ok:
+    move.w  d0,(a5)+
+    rts
+
+zfog_near: dc.w 200
 
 ; ----------------------------------------------------------------------------
 ; draw_uv_gouraud_z_tri (natywny bufor 160x128)
