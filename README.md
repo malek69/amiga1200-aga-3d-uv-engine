@@ -14,10 +14,10 @@
 
 | Package / Paczka | Target Platform / Docelowy system | Launch / Uruchomienie |
 | :--- | :--- | :--- |
-| **[aura3d_demo_v1.1_AGA.lha](https://github.com)** | **RetroArch (`PUAE` — Android / PC)**, **THEA1200 (Amiberry)**, **Amiga 1200** (8 MB Fast RAM) | **1-click:** Load Content directly on `.lha` (WHDLoad auto-boot). |
-| **[aura3d_demo_v1.1_AGA_FSUAE.zip](https://github.com)** | **FS-UAE Launcher** (Linux / Windows / macOS) & **WinUAE** | **1-click:** Mount as Hard Drive (`DH0`) on A1200 (8 MB Fast RAM) and click **Start**. |
-| **[aura3d_demo_v1.1_AGA.adf](https://github.com)** | Floppy Drive (`DF0:`) / Gotek / Amiga 1200 (8 MB Fast RAM) | Boot directly from floppy image (`S/startup-sequence`). |
-| **[aura3d-aga-engine-v1.1-src.zip](https://github.com)** | M68020+ Assembly & Python Developers | Complete engine source (`engine/`), demo scenes (`demo_v1/`), and `.obj` tools (`tools/`). |
+| **[aura3d_demo_v1.1_AGA.lha](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.1/aura3d_demo_v1.1_AGA.lha)** | **RetroArch (`PUAE` — Android / PC)**, **THEA1200 (Amiberry)**, **Amiga 1200** (8 MB Fast RAM) | **1-click:** Load Content directly on `.lha` (WHDLoad auto-boot). |
+| **[aura3d_demo_v1.1_AGA_FSUAE.zip](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.1/aura3d_demo_v1.1_AGA_FSUAE.zip)** | **FS-UAE Launcher** (Linux / Windows / macOS) & **WinUAE** | **1-click:** Mount as Hard Drive (`DH0`) on A1200 (8 MB Fast RAM) and click **Start**. |
+| **[aura3d_demo_v1.1_AGA.adf](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.1/aura3d_demo_v1.1_AGA.adf)** | Floppy Drive (`DF0:`) / Gotek / Amiga 1200 (8 MB Fast RAM) | Boot directly from floppy image (`S/startup-sequence`). |
+| **[aura3d-aga-engine-v1.1-src.zip](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.1/aura3d-aga-engine-v1.1-src.zip)** | M68020+ Assembly & Python Developers | Complete engine source (`engine/`), demo scenes (`demo_v1/`), and `.obj` tools (`tools/`). |
 
 ## What's New in v1.1 / Nowości w wersji v1.1
 - **3D World-Space Particle Trail (`engine/particle_trail.i`):** Twin-nozzle exhaust emitter `(-9,0,-36)` & `(+9,0,-36)` on the Space Shuttle with turbulent thrust vectors and full 16-bit Z-Buffer depth sorting (`draw_z_orb_v2`).
