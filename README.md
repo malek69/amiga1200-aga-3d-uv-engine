@@ -1,8 +1,14 @@
+![AURA-3D AGA Engine Logo](docs/logo_aura3d.png)
+
 # AURA-3D AGA Engine v1.0 (Amiga 1200 / THEA1200) [EN / PL]
 
 **Credits / Autorzy:** malek69 & **Gemini AI** *(Vibe Coding Edition, 2026 — Bare-Metal M68020+ 3D Engine & Python Toolchain)*
 
-![AURA-3D Demo Preview](docs/preview.png)
+## Live Hardware / FS-UAE Showcase (v1.0)
+
+| 3D Vertex Morphing | Space Shuttle 3D (Gouraud + EnvMap) | 16-bit Z-Buffer Torus + UV Cube |
+| :---: | :---: | :---: |
+| ![3D Morph](docs/preview.png) | ![Space Shuttle](docs/preview.png) | ![Z-Buffer Torus](docs/preview.png) |
 
 ## Download Baseline Release (v1.0) / Pobierz wersję bazową (v1.0)
 
