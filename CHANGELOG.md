@@ -1,7 +1,4 @@
-# Historia Zmian / Changelog — AURA-3D AGA Engine
-
-Chronologiczny rejestr rozwoju silnika **AURA-3D AGA Engine** (Amiga 1200 M68020+/AGA/256 kolorów).
-
+...
 ---
 
 # AURA-3D AGA Engine v1.14
