@@ -1,8 +1,3 @@
-; ============================================================================
-;  PLIK / FILE: c2p_chunky.i
-;  OPIS: Silnik Chunky 160x128 -> 4 Bitplany AGA (16 kolorow) + Rasteryzator
-;        trojkatow 3D z prawdziwym mapowaniem tekstur UV 64x64 i cieniowaniem.
-; ============================================================================
 clear_chunky:
     lea     chunky_buf,a0
     move.w  #(160*128/16)-1,d0
@@ -18,13 +13,17 @@ c2p_160x128_to_aga:
     movem.l d0-d7/a0-a6,-(sp)
     lea     chunky_buf,a0
     lea     c2p_exp(pc),a5
-    moveq   #0,d6                   ; offset linii * 80
+    move.l  draw_bpl1(pc),a1
+    move.l  draw_bpl2(pc),a2
+    move.l  draw_bpl3(pc),a3
+    move.l  draw_bpl4(pc),a4
+    moveq   #0,d6
 .row_lp:
-    moveq   #0,d7                   ; kolumna 0..39
+    moveq   #0,d7
 .col_lp:
     move.l  d6,d5
     add.l   d7,d5
-    ; Low nibbles -> BPL1..BPL4
+
     moveq   #0,d0
     move.b  (a0),d0
     and.w   #15,d0
@@ -43,22 +42,40 @@ c2p_160x128_to_aga:
     move.b  3(a0),d0
     and.w   #15,d0
     or.l    (a5,d0.w*4),d1
-    move.l  draw_bpl4(pc),a1
-    move.b  d1,40(a1,d5.l)
-    move.b  d1,(a1,d5.l)
+    lsl.l   #8,d1
+
+    move.b  4(a0),d0
+    and.w   #15,d0
+    move.l  (a5,d0.w*4),d3
+    lsl.l   #6,d3
+    move.b  5(a0),d0
+    and.w   #15,d0
+    move.l  (a5,d0.w*4),d2
+    lsl.l   #4,d2
+    or.l    d2,d3
+    move.b  6(a0),d0
+    and.w   #15,d0
+    move.l  (a5,d0.w*4),d2
+    lsl.l   #2,d2
+    or.l    d2,d3
+    move.b  7(a0),d0
+    and.w   #15,d0
+    or.l    (a5,d0.w*4),d3
+    or.l    d3,d1
+
+    move.w  d1,40(a4,d5.l)
+    move.w  d1,(a4,d5.l)
+    swap    d1
+    move.w  d1,40(a2,d5.l)
+    move.w  d1,(a2,d5.l)
     lsr.l   #8,d1
-    move.l  draw_bpl3(pc),a1
-    move.b  d1,40(a1,d5.l)
-    move.b  d1,(a1,d5.l)
-    lsr.l   #8,d1
-    move.l  draw_bpl2(pc),a1
-    move.b  d1,40(a1,d5.l)
-    move.b  d1,(a1,d5.l)
-    lsr.l   #8,d1
-    move.l  draw_bpl1(pc),a1
-    move.b  d1,40(a1,d5.l)
-    move.b  d1,(a1,d5.l)
-    ; High nibbles -> BPL5..BPL8
+    move.w  d1,40(a1,d5.l)
+    move.w  d1,(a1,d5.l)
+    swap    d1
+    lsr.w   #8,d1
+    move.w  d1,40(a3,d5.l)
+    move.w  d1,(a3,d5.l)
+
     moveq   #0,d0
     move.b  (a0)+,d0
     lsr.b   #4,d0
@@ -77,22 +94,45 @@ c2p_160x128_to_aga:
     move.b  (a0)+,d0
     lsr.b   #4,d0
     or.l    (a5,d0.w*4),d1
-    move.l  draw_bpl8(pc),a1
-    move.b  d1,40(a1,d5.l)
-    move.b  d1,(a1,d5.l)
+    lsl.l   #8,d1
+
+    move.b  (a0)+,d0
+    lsr.b   #4,d0
+    move.l  (a5,d0.w*4),d3
+    lsl.l   #6,d3
+    move.b  (a0)+,d0
+    lsr.b   #4,d0
+    move.l  (a5,d0.w*4),d2
+    lsl.l   #4,d2
+    or.l    d2,d3
+    move.b  (a0)+,d0
+    lsr.b   #4,d0
+    move.l  (a5,d0.w*4),d2
+    lsl.l   #2,d2
+    or.l    d2,d3
+    move.b  (a0)+,d0
+    lsr.b   #4,d0
+    or.l    (a5,d0.w*4),d3
+    or.l    d3,d1
+
+    move.l  draw_bpl8(pc),a6
+    move.w  d1,40(a6,d5.l)
+    move.w  d1,(a6,d5.l)
+    swap    d1
+    move.l  draw_bpl6(pc),a6
+    move.w  d1,40(a6,d5.l)
+    move.w  d1,(a6,d5.l)
     lsr.l   #8,d1
-    move.l  draw_bpl7(pc),a1
-    move.b  d1,40(a1,d5.l)
-    move.b  d1,(a1,d5.l)
-    lsr.l   #8,d1
-    move.l  draw_bpl6(pc),a1
-    move.b  d1,40(a1,d5.l)
-    move.b  d1,(a1,d5.l)
-    lsr.l   #8,d1
-    move.l  draw_bpl5(pc),a1
-    move.b  d1,40(a1,d5.l)
-    move.b  d1,(a1,d5.l)
-    addq.w  #1,d7
+    move.l  draw_bpl5(pc),a6
+    move.w  d1,40(a6,d5.l)
+    move.w  d1,(a6,d5.l)
+    swap    d1
+    lsr.w   #8,d1
+    move.l  draw_bpl7(pc),a6
+    move.w  d1,40(a6,d5.l)
+    move.w  d1,(a6,d5.l)
+
+    addq.l  #2,d7
     cmp.w   #40,d7
     blo.w   .col_lp
     add.l   #80,d6
