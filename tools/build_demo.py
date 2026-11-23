@@ -4,7 +4,7 @@ def write_whdload_info(path, tooltypes=("SLAVE=Aura3DDemo_AGA.slave",)):
     # Dokładny nagłówek AmigaOS Workbench DiskObject (78 bajtów) + Image (20 bajtów)
     hdr = struct.pack(">HH", 0xE310, 1)
     # struct Gadget (44 bajty): GadgetRender=1 (wskazuje na obecność Image)
-    gad = struct.pack(">IhhhhHHHIIIIIHI", 0, 0, 0, 32, 16, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0)
+    gad = struct.pack(">IhhhhHHHIIIIIHI", 0, 0, 0, 32, 16, 4, 3, 1, 1, 0, 0, 0, 0, 0, 0)
     # Reszta DiskObject (30 bajtów): Type=4 (WBPROJECT), DefaultTool=1, ToolTypes=1
     body = struct.pack(">BBIIIIIII", 4, 0, 1, 1, 0x80000000, 0x80000000, 0, 0, 8192)
     # struct Image (20 bajtów) + 64 bajty bitmapy 32x16x1
