@@ -216,8 +216,8 @@ build_copper:
     move.l  #(BPLCON0<<16)|$0210,(a0)+    ; 8 bitplanow AGA = 256 kolorow!
     move.l  #(BPLCON1<<16)|$0000,(a0)+
     move.l  #(BPLCON2<<16)|$0024,(a0)+
-    move.l  #(BPL1MOD<<16)|$ffd8,(a0)+
-    move.l  #(BPL2MOD<<16)|$ffd8,(a0)+
+    move.l  #(BPL1MOD<<16)|$0000,(a0)+
+    move.l  #(BPL2MOD<<16)|$0000,(a0)+
     move.l  #$0107fffe,(a0)+
     lea     disp_bpl1(pc),a1
     lea     cop_bpl1_ptr(pc),a2

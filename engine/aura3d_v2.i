@@ -1040,7 +1040,7 @@ draw_gouraud_env_mesh_v2:
     move.w  d0,(a5)+
     rts
 
-zfog_near: dc.w 135
+zfog_near: dc.w 200
 
 ; ----------------------------------------------------------------------------
 ; draw_uv_gouraud_z_tri (natywny bufor 160x128)
