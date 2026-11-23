@@ -1,4 +1,8 @@
-...
+# Changelog — AURA-3D AGA Engine
+
+## v1.14.1
+- Phong Shader (`[P]`), Dynamic Terrain Point Light, Animated UV, 32-bit C2P, `movem.l` fast clear, 2048 Recip LUT, Bilingual HUD (`[H]` Help / `[L]` PL-EN / `[I]` HUD).
+
 ---
 
 # AURA-3D AGA Engine v1.14
