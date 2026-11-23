@@ -8,7 +8,7 @@
 
 | 3D Vertex Morphing | Space Shuttle 3D + Particle Trail | 16-bit Z-Buffer Torus + Copper Sky |
 | :---: | :---: | :---: |
-| ![3D Morph](docs/shot_morph.png) | ![Space Shuttle](docs/shot_shuttle.png) | ![Z-Buffer Torus](docs/shot_torus.png) |
+| ![3D Morph](docs/shot_morph.png?v=11) | ![Space Shuttle](docs/shot_shuttle.png?v=11) | ![Z-Buffer Torus](docs/shot_torus.png?v=11) |
 
 ## Download Latest Release (v1.1) / Pobierz najnowszą wersję (v1.1)
 
