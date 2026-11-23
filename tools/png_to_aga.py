@@ -129,9 +129,9 @@ def main():
     if args.mode == "texture":
         convert_textures(args.input, args.pal, args.out)
     elif args.mode == "palette":
-        extract_palette_and_lut(args.input, args.out, args.lut)
+        extract_palette_and_lut(args.input[0], args.out, args.lut)
     elif args.mode == "bitplanes":
-        convert_bitplanes(args.input, args.out, args.pal)
+        convert_bitplanes(args.input[0], args.out, args.pal)
 
 if __name__ == "__main__":
     main()

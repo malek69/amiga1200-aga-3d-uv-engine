@@ -3,9 +3,11 @@ scene_timeline_table:
     dc.l    320,640,demo_act0e_v2_shuttle
     dc.l    640,980,demo_act0c_v2_planetary
     dc.l    980,1260,demo_act0d_v2_cam_flythrough
-    dc.l    1150,1530,demo_act1_flyin
-    dc.l    830,1630,demo_act2_orbit_zsort
-    dc.l    1630,$ffffffff,demo_act3_hero_closeup
+    dc.l    1260,1580,demo_act0h_v2_net_obj
+    dc.l    1580,1900,demo_act0g_v2_terrain
+    dc.l    1900,2200,demo_act1_flyin
+    dc.l    2200,2480,demo_act2_orbit_zsort
+    dc.l    2480,$ffffffff,demo_act3_hero_closeup
 
 demo_act1_flyin:
     jsr     clear_chunky

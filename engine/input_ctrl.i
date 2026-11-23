@@ -1,28 +1,8 @@
 ; ============================================================================
-; AURA-3D AGA Engine v1.1 - Real-Time Joystick (Port 2) & Keyboard Controller
+; AURA-3D AGA Engine v1.14 - Kontroler Joysticka (Port 2) i Klawiatury CIA-A
 ; ============================================================================
 
-; Surowe kody CIA SDR ($BFEC01) dla wcisnietych klawiszy: ~(rawkey << 1)
-KEY_UP      equ $67                     ; raw $4c
-KEY_DOWN    equ $65                     ; raw $4d
-KEY_RIGHT   equ $63                     ; raw $4e
-KEY_LEFT    equ $61                     ; raw $4f
-KEY_W       equ $dd                     ; raw $11
-KEY_S       equ $bd                     ; raw $21
-KEY_F       equ $b9                     ; raw $23
-KEY_G       equ $b7                     ; raw $24
-KEY_H       equ $b5                     ; raw $25
-KEY_C       equ $99                     ; raw $33
-KEY_R       equ $d9                     ; raw $13
-KEY_SPACE   equ $7f                     ; raw $40
-KEY_1       equ $fd                     ; raw $01
-KEY_2       equ $fb                     ; raw $02
-KEY_3       equ $f9                     ; raw $03
-KEY_4       equ $f7                     ; raw $04
-
-; ----------------------------------------------------------------------------
-; input_update_controls - Wywolywane raz na klatke w mainloop
-; ----------------------------------------------------------------------------
+    even
 input_update_controls:
     movem.l d0-d3,-(sp)
 
@@ -30,13 +10,11 @@ input_update_controls:
     move.w  $dff00c,d0
     move.w  d0,d1
     lsr.w   #1,d1
-    eor.w   d0,d1                   ; bit 0 = Down, bit 8 = Up
+    eor.w   d0,d1
 
-    ; Sprawdz przycisk Fire (Port 2 = bit 7 CIAAPRA, 0 = wcisniety)
     btst    #7,$bfe001
     bne.s   .joy_normal
 
-    ; Fire wcisniety: Gora/Dol reguluje Zoom kamery
     btst    #8,d1
     beq.s   .jf_no_up
     subq.w  #3,user_zoom
@@ -47,7 +25,6 @@ input_update_controls:
     bra.s   .joy_lr
 
 .joy_normal:
-    ; Bez Fire: Gora/Dol reguluje Pitch
     btst    #8,d1
     beq.s   .jn_no_up
     subq.w  #2,user_pitch
@@ -57,136 +34,232 @@ input_update_controls:
     addq.w  #2,user_pitch
 
 .joy_lr:
-    btst    #9,d0                   ; Left
+    btst    #9,d0
     beq.s   .j_no_left
     subq.w  #2,user_yaw
 .j_no_left:
-    btst    #1,d0                   ; Right
+    btst    #1,d0
     beq.s   .read_kbd
     addq.w  #2,user_yaw
 
-    ; 2. Odczyt klawiatury z CIA SDR ($BFEC01) + sprzetowy handshake CIA-A ($BFEE01)
+    ; 2. Odczyt klawiatury z CIA-A ($BFED01 ICR + $BFEC01 SDR)
 .read_kbd:
     move.b  $bfec01,d0
-    cmp.b   input_last_key(pc),d0
-    beq.s   .kbd_no_ack
-
-    ; Nowy skankod z klawiatury -> wyslij impuls ACK (SPMODE=1 przez ~85 us)
+    cmp.b   kbd_last_sdr(pc),d0
+    beq.w   .held_keys
+    move.b  d0,kbd_last_sdr
+    ; Wyslij impuls potwierdzenia ACK do klawiatury (SPMODE=1 przez ~85 us)
     or.b    #$40,$bfee01
     move.b  $dff006,d1
-.ack_wait:
+.ack1:
     cmp.b   $dff006,d1
-    beq.s   .ack_wait
+    beq.s   .ack1
     move.b  $dff006,d1
-.ack_wait2:
+.ack2:
     cmp.b   $dff006,d1
-    beq.s   .ack_wait2
+    beq.s   .ack2
     and.b   #$bf,$bfee01
 
-.kbd_no_ack:
-    move.b  input_last_key(pc),d2
-    move.b  d0,input_last_key
+    ; Dekoduj surowy skankod Amigi: not.b d0 -> bit 0 = 0 (wcisniety) / 1 (puszczony), bity 7..1 = rawkey
+    not.b   d0
+    lsr.b   #1,d0                       ; Carry = 1 jesli puszczony (key-up), d0 = czysty rawkey ($00..$7f)
+    bcs.w   .key_up
 
-    ; Klawisze ciagle (trzymane):
-    cmp.b   #KEY_LEFT,d0
-    bne.s   .k_not_left
-    subq.w  #2,user_yaw
-.k_not_left:
-    cmp.b   #KEY_RIGHT,d0
-    bne.s   .k_not_right
-    addq.w  #2,user_yaw
-.k_not_right:
-    cmp.b   #KEY_UP,d0
-    bne.s   .k_not_up
-    subq.w  #2,user_pitch
-.k_not_up:
-    cmp.b   #KEY_DOWN,d0
-    bne.s   .k_not_down
-    addq.w  #2,user_pitch
-.k_not_down:
-    cmp.b   #KEY_W,d0
-    bne.s   .k_not_w
-    subq.w  #3,user_zoom
-.k_not_w:
-    cmp.b   #KEY_S,d0
-    bne.s   .k_toggles
-    addq.w  #3,user_zoom
+    move.b  d0,kbd_held_raw
 
-    ; Klawisze jednorazowe (wyzwolenie na zboczu wcisniecia d0 != d2):
-.k_toggles:
-    cmp.b   d0,d2
-    beq.w   .clamp_zoom
-
-    cmp.b   #KEY_SPACE,d0
-    beq.s   .do_reset
-    cmp.b   #KEY_R,d0
-    bne.s   .k_not_rst
-.do_reset:
+    ; Obsluga klawiszy jednorazowych (wyzwolenie przy kazdym wcisnieciu!):
+    cmp.b   #$27,d0                     ; K = pokaz / ukryj panel klawiszy
+    bne.s   .n_k
+    eor.b   #1,keymap_visible
+    bra.w   .held_keys
+.n_k:
+    cmp.b   #$25,d0                     ; H = pokaz / ukryj licznik FPS
+    bne.s   .n_h
+    eor.b   #1,hud_enabled
+    bra.w   .held_keys
+.n_h:
+    cmp.b   #$24,d0                     ; G = wlacz / wylacz podloge 3D
+    bne.s   .n_g
+    eor.b   #1,grid_enabled
+    bra.w   .held_keys
+.n_g:
+    cmp.b   #$37,d0
+    bne.s   .n_m
+    eor.b   #1,mirror_enabled
+    bra.w   .held_keys
+.n_m:
+    cmp.b   #$28,d0
+    bne.s   .n_l
+    eor.b   #1,flare_enabled
+    bra.w   .held_keys
+.n_l:
+    cmp.b   #$33,d0                     ; C = wlacz / wylacz cienie 3D
+    bne.s   .n_c
+    eor.b   #1,shadows_enabled
+    bra.w   .held_keys
+.n_c:
+    cmp.b   #$23,d0                     ; F = wlacz / wylacz mgle Z-Fog
+    bne.s   .n_f
+    eor.b   #1,zfog_enabled
+    bra.w   .held_keys
+.n_f:
+    cmp.b   #$40,d0                     ; Spacja = reset kamery
+    beq.s   .do_rst
+    cmp.b   #$13,d0                     ; R = reset kamery
+    bne.s   .n_rst
+.do_rst:
     clr.w   user_yaw
     clr.w   user_pitch
     clr.w   user_zoom
-    bra.s   .clamp_zoom
-.k_not_rst:
-
-    cmp.b   #KEY_F,d0
-    bne.s   .k_not_fog
-    eor.b   #1,zfog_enabled
-    bra.s   .clamp_zoom
-.k_not_fog:
-
-    cmp.b   #KEY_H,d0
-    bne.s   .k_not_hud
-    eor.b   #1,hud_enabled
-    bra.s   .clamp_zoom
-.k_not_hud:
-
-    cmp.b   #KEY_C,d0
-    bne.s   .k_not_shd
-    eor.b   #1,shadows_enabled
-    bra.s   .clamp_zoom
-.k_not_shd:
-
-    cmp.b   #KEY_G,d0
-    bne.s   .k_not_grd
-    eor.b   #1,grid_enabled
-    bra.s   .clamp_zoom
-.k_not_grd:
-
-    cmp.b   #KEY_1,d0
-    bne.s   .k_not_1
+    bra.w   .held_keys
+.n_rst:
+    cmp.b   #$01,d0                     ; 1 = niebo 1
+    bne.s   .n_1
     moveq   #0,d0
     jsr     copper_set_sky_theme
-    bra.s   .clamp_zoom
-.k_not_1:
-    cmp.b   #KEY_2,d0
-    bne.s   .k_not_2
+    bra.w   .held_keys
+.n_1:
+    cmp.b   #$02,d0                     ; 2 = niebo 2
+    bne.s   .n_2
     moveq   #1,d0
     jsr     copper_set_sky_theme
-    bra.s   .clamp_zoom
-.k_not_2:
-    cmp.b   #KEY_3,d0
-    bne.s   .k_not_3
+    bra.w   .held_keys
+.n_2:
+    cmp.b   #$03,d0                     ; 3 = niebo 3
+    bne.s   .n_3
     moveq   #2,d0
     jsr     copper_set_sky_theme
-    bra.s   .clamp_zoom
-.k_not_3:
-    cmp.b   #KEY_4,d0
-    bne.s   .clamp_zoom
+    bra.w   .held_keys
+.n_3:
+    cmp.b   #$04,d0                     ; 4 = niebo 4
+    bne.s   .n_4
     moveq   #3,d0
     jsr     copper_set_sky_theme
+    bra.w   .held_keys
+.n_4:
+    cmp.b   #$50,d0                     ; F1 = Plansza tytulowa 256 kolorow AGA
+    bne.s   .n_f1
+    move.l  #0,vbl_tick
+    bra.w   .held_keys
+.n_f1:
+    cmp.b   #$51,d0                     ; F2 = Scena 1 (Morphing)
+    bne.s   .n_f2
+    move.l  #150,vbl_tick
+    bra.w   .held_keys
+.n_f2:
+    cmp.b   #$52,d0                     ; F3 = Scena 2 (Wahadlowiec + Flara)
+    bne.s   .n_f3
+    move.l  #470,vbl_tick
+    bra.w   .held_keys
+.n_f3:
+    cmp.b   #$53,d0                     ; F4 = Scena 3 (System Planetarny)
+    bne.s   .n_f4
+    move.l  #790,vbl_tick
+    bra.w   .held_keys
+.n_f4:
+    cmp.b   #$54,d0                     ; F5 = Scena 4 (Przelot przez Torus)
+    bne.s   .n_f5
+    move.l  #1130,vbl_tick
+    bra.w   .held_keys
+.n_f5:
+    cmp.b   #$55,d0                     ; F6 = Scena 5 (Model 3D Suzanne)
+    bne.s   .n_f6
+    move.l  #1410,vbl_tick
+    bra.w   .held_keys
+.n_f6:
+    cmp.b   #$56,d0                     ; F7 = Scena 6 (Teren 3D)
+    bne.s   .n_f7
+    move.l  #1730,vbl_tick
+    bra.w   .held_keys
+.n_f7:
+    cmp.b   #$57,d0                     ; F8 = Scena 7 (Final 3D)
+    bne.s   .n_f8
+    move.l  #2050,vbl_tick
+    bra.w   .held_keys
+.n_f8:
+    cmp.b   #$42,d0                     ; Tab = nastepna scena
+    bne.w   .held_keys
+    move.l  vbl_tick(pc),d1
+    cmp.l   #150,d1
+    bhs.s   .tb1
+    move.l  #150,vbl_tick
+    bra.w   .held_keys
+.tb1:
+    cmp.l   #470,d1
+    bhs.s   .tb2
+    move.l  #470,vbl_tick
+    bra.w   .held_keys
+.tb2:
+    cmp.l   #790,d1
+    bhs.s   .tb3
+    move.l  #790,vbl_tick
+    bra.w   .held_keys
+.tb3:
+    cmp.l   #1130,d1
+    bhs.s   .tb4
+    move.l  #1130,vbl_tick
+    bra.w   .held_keys
+.tb4:
+    cmp.l   #1410,d1
+    bhs.s   .tb5
+    move.l  #1410,vbl_tick
+    bra.w   .held_keys
+.tb5:
+    cmp.l   #1730,d1
+    bhs.s   .tb6
+    move.l  #1730,vbl_tick
+    bra.w   .held_keys
+.tb6:
+    cmp.l   #2050,d1
+    bhs.s   .tb7
+    move.l  #2050,vbl_tick
+    bra.w   .held_keys
+.tb7:
+    move.l  #0,vbl_tick
+    bra.w   .held_keys
+
+.key_up:
+    cmp.b   kbd_held_raw(pc),d0
+    bne.w   .held_keys
+    move.b  #$ff,kbd_held_raw
+
+.held_keys:
+    move.b  kbd_held_raw(pc),d0
+    cmp.b   #$4f,d0                     ; Strzalka w lewo
+    bne.s   .h_nl
+    subq.w  #2,user_yaw
+.h_nl:
+    cmp.b   #$4e,d0                     ; Strzalka w prawo
+    bne.s   .h_nr
+    addq.w  #2,user_yaw
+.h_nr:
+    cmp.b   #$4c,d0                     ; Strzalka w gore
+    bne.s   .h_nu
+    subq.w  #2,user_pitch
+.h_nu:
+    cmp.b   #$4d,d0                     ; Strzalka w dol
+    bne.s   .h_nd
+    addq.w  #2,user_pitch
+.h_nd:
+    cmp.b   #$11,d0                     ; W = Zoom in
+    bne.s   .h_nw
+    subq.w  #3,user_zoom
+.h_nw:
+    cmp.b   #$21,d0                     ; S = Zoom out
+    bne.s   .clamp_zoom
+    addq.w  #3,user_zoom
 
 .clamp_zoom:
     move.w  user_zoom(pc),d0
     cmp.w   #-80,d0
-    bge.s   .z_min_ok
+    bge.s   .zmin
     move.w  #-80,user_zoom
-    bra.s   .inp_done
-.z_min_ok:
+    bra.s   .done
+.zmin:
     cmp.w   #180,d0
-    ble.s   .inp_done
+    ble.s   .done
     move.w  #180,user_zoom
-
-.inp_done:
+.done:
     movem.l (sp)+,d0-d3
     rts
 
@@ -194,4 +267,5 @@ input_update_controls:
 user_yaw:       dc.w 0
 user_pitch:     dc.w 0
 user_zoom:      dc.w 0
-input_last_key: dc.b $ff,0
+kbd_held_raw:   dc.b $ff
+kbd_last_sdr:   dc.b $ff

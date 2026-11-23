@@ -23,6 +23,11 @@ start:
     move.l  #0,vbl_tick
     jsr     hud_fps_init
 
+
+; ----------------------------------------------------------------------------
+; show_aga_splash - Wyswietla 8-bitplanowy ekran tytulowy AGA (320x256)
+;                   wygenerowany z PNG przez tools/png_to_aga.py (2.5s / skip)
+; ----------------------------------------------------------------------------
 mainloop:
     bsr.w   wait_vbl
     bsr.w   clear_draw_bpl
@@ -74,6 +79,9 @@ exit_program:
     include "hud_fps.i"
     include "planar_shadow.i"
     include "ground_grid.i"
+    include "mirror_reflect.i"
+    include "lens_flare.i"
+    include "terrain_3d.i"
 
 
     even
@@ -146,3 +154,12 @@ mod_data:    incbin "demo_tune.mod"
     even
 chunky_buf:  ds.b 160*128
 edge_buf:    ds.b 256*8
+
+
+    section uv_data,data_p
+    even
+splash_pal_data:
+    incbin  "splash_pal.bin"
+splash_bpl_rle:
+    incbin  "splash_bpl.rle"
+    section code,code

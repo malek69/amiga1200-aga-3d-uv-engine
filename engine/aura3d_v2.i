@@ -806,6 +806,13 @@ transform_normals_envmap:
     asr.l   #8,d0
     asr.l   #4,d0
     addq.w  #6,d0
+    cmp.w   #11,d0
+    ble.s   .no_spec
+    move.w  d0,d3
+    sub.w   #11,d3
+    add.w   d3,d3
+    add.w   d3,d0
+.no_spec:
     cmp.w   #1,d0
     bge.s   .nl_min
     moveq   #1,d0

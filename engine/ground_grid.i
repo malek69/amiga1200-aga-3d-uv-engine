@@ -61,18 +61,18 @@ draw_3d_ground_grid:
     ; Dobierz pare kolorow kafelkow (jasny / ciemny) zaleznie od odleglosci rz
     cmp.w   #115,d2
     bge.s   .f_col_mid
-    move.b  #206,d5                     ; jasny turkusowy kafel z przodu
-    move.b  #16,d6                      ; ciemny stalowy granat
+    move.b  #214,d5                     ; jasny turkusowy kafel z przodu
+    move.b  #206,d6                      ; ciemny stalowy granat
     bra.s   .f_col_ok
 .f_col_mid:
     cmp.w   #185,d2
     bge.s   .f_col_far
-    move.b  #200,d5                     ; sredni turkus
-    move.b  #12,d6                      ; gleboki granat
+    move.b  #214,d5                     ; sredni turkus
+    move.b  #206,d6                      ; gleboki granat
     bra.s   .f_col_ok
 .f_col_far:
-    move.b  #14,d5                      ; przygaszony stalowy blekit przy horyzoncie
-    move.b  #8,d6                       ; niemal stapia sie z horyzontem Coppera
+    move.b  #214,d5                      ; przygaszony stalowy blekit przy horyzoncie
+    move.b  #206,d6                       ; niemal stapia sie z horyzontem Coppera
 .f_col_ok:
 
     ; Wspolczynnik skali poziomej: step_cam = rz / 128 (8.8 fixed point = rz << 1)
@@ -89,6 +89,17 @@ draw_3d_ground_grid:
     move.l  d0,d3
     asr.l   #8,d3
     add.w   cam_ox,d3                   ; wx_center (int)
+    movem.l d4/a2,-(sp)
+    lea     sin_tab,a2
+    move.w  d7,d4
+    lsl.w   #3,d4
+    add.w   floor_scroll_z(pc),d4
+    add.w   floor_scroll_z(pc),d4
+    and.w   #$ff,d4
+    move.w  (a2,d4.w*2),d4
+    asr.w   #4,d4                       ; wyraźne falowanie poziome calej tafli wody
+    add.w   d4,d3
+    movem.l (sp)+,d4/a2
 
     move.w  d2,d1
     muls.w  floor_cos(pc),d1            ; rz * cos (8.8)
@@ -130,7 +141,7 @@ draw_3d_ground_grid:
     move.l  a4,d2                       ; d2.l = dwz (8.8)
 
     move.w  (sp)+,a3                    ; a3.w = rz (glebokosc Z do Z-Buffera)
-    addq.w  #3,a3                       ; bias Z (+3), aby cienie lezaly na podlodze
+    addq.w  #6,a3                       ; bias Z (+3), aby cienie lezaly na podlodze
 
     move.w  d7,-(sp)                    ; zachowaj licznik wierszy py
     move.l  a0,a4                       ; wskaznik chunky w wierszu
@@ -194,67 +205,6 @@ draw_3d_ground_grid:
 ; (pelne 320x228 bez naruszania c2p_chunky.i).
 ; ----------------------------------------------------------------------------
 ground_fill_screen_margins:
-    tst.b   grid_enabled(pc)
-    beq.w   .gfm_ret
-    movem.l d0-d7/a0-a4,-(sp)
-
-    ; 1. Lewy margines 32 px (bajty 0..3 w kazdym bitplanie) dla wierszy chunky 66..107
-    lea     chunky_buf,a0
-    adda.l  #66*160,a0
-    moveq   #41,d7                      ; 42 wiersze chunky (linie ekranu 132..215)
-    move.l  #132*40,d6
-.gm_row:
-    move.b  (a0),d4                     ; kolor lewego skraju szachownicy
-    lea     160(a0),a0
-
-    lea     draw_bpl1(pc),a1
-    moveq   #0,d3
-.gm_bpl:
-    move.l  (a1),a2
-    addq.l  #8,a1
-    adda.l  d6,a2
-
-    btst    d3,d4
-    beq.s   .gm_l0
-    move.l  #$ffffffff,(a2)
-    move.l  #$ffffffff,40(a2)
-    bra.s   .gm_nbpl
-.gm_l0:
-    clr.l   (a2)
-    clr.l   40(a2)
-.gm_nbpl:
-    addq.w  #1,d3
-    cmp.w   #8,d3
-    blo.s   .gm_bpl
-
-    add.l   #80,d6
-    dbf     d7,.gm_row
-
-    ; 2. Dolne 12 linii ekranu (y = 216..227): powiel pelne 40 bajtow z linii 214 (z wzorem kafli!)
-    lea     draw_bpl1(pc),a1
-    moveq   #7,d3
-.gm_bot_bpl:
-    move.l  (a1),a2
-    addq.l  #8,a1
-    lea     214*40(a2),a3               ; wzorcowa linia 214 z pelnym wzorem szachownicy
-    lea     216*40(a2),a4               ; docelowe linie 216..227
-    moveq   #11,d1                      ; 12 linii
-.gm_blp:
-    move.l  (a3),(a4)+
-    move.l  4(a3),(a4)+
-    move.l  8(a3),(a4)+
-    move.l  12(a3),(a4)+
-    move.l  16(a3),(a4)+
-    move.l  20(a3),(a4)+
-    move.l  24(a3),(a4)+
-    move.l  28(a3),(a4)+
-    move.l  32(a3),(a4)+
-    move.l  36(a3),(a4)+
-    dbf     d1,.gm_blp
-    dbf     d3,.gm_bot_bpl
-
-    movem.l (sp)+,d0-d7/a0-a4
-.gfm_ret:
     rts
 
     even

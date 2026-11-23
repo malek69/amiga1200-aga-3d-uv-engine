@@ -305,6 +305,17 @@ demo_act0c_v2_planetary:
     lea     torus3d_env_mesh,a0
     lea     v2_proj_buf,a1
     jsr     draw_shadow_mesh_v2
+    lea     torus3d_verts,a0
+    lea     v2_proj_buf,a1
+    move.w  #torus3d_vert_count,d7
+    moveq   #0,d4
+    moveq   #0,d5
+    moveq   #0,d6
+    jsr     project_mirror_verts_3d
+    lea     torus3d_env_mesh,a0
+    lea     v2_proj_buf,a1
+    lea     v2_env_buf,a3
+    jsr     draw_mirror_env_mesh_v2
 
     ; 2. Satelita A: Szescian 64x64 UV na orbicie poziomej (przelatuje przez otwor Torusa!)
     move.l  vbl_tick(pc),d7
@@ -529,6 +540,17 @@ demo_act0e_v2_shuttle:
     lea     shuttle3d_env_mesh,a0
     lea     v2_morph_buf,a1
     jsr     draw_shadow_mesh_v2
+    lea     shuttle3d_verts,a0
+    lea     v2_morph_buf,a1
+    move.w  #shuttle3d_vert_count,d7
+    moveq   #0,d4
+    moveq   #0,d5
+    moveq   #0,d6
+    jsr     project_mirror_verts_3d
+    lea     shuttle3d_env_mesh,a0
+    lea     v2_morph_buf,a1
+    lea     v2_env_buf,a3
+    jsr     draw_mirror_env_mesh_v2
 
     ; Smuga czasteczek 3D z obu dysz wahadlowca (-9,0,-36) i (+9,0,-36)
     moveq   #0,d4
@@ -546,6 +568,7 @@ demo_act0e_v2_shuttle:
     move.w  #1200,d3
     moveq   #62,d4
     jsr     draw_z_orb_v2
+    jsr     draw_3d_lens_flare
     rts
 
     include "shuttle_mesh.i"
@@ -637,3 +660,124 @@ demo_act0f_v2_morph:
     even
 v2_png_tex_bank:
     incbin  "custom_png_tex.bin"
+
+demo_act0g_v2_terrain:
+    jsr     clear_chunky
+    jsr     clear_zbuffer_v2
+    jsr     draw_256_starfield
+
+    clr.w   cam_ox
+    clr.w   cam_oy
+    move.w  #-155,cam_oz
+    move.w  #0,cam_sin
+    move.w  #256,cam_cos
+
+    jsr     render_3d_terrain_flyover
+
+    move.l  vbl_tick(pc),d7
+    lea     sin_tab,a2
+    move.w  d7,d0
+    add.w   d0,d0
+    and.w   #$ff,d0
+    move.w  (a2,d0.w*2),d1
+    asr.w   #3,d1
+    move.w  d1,d2
+    move.w  #128,d0
+    moveq   #0,d1
+    add.w   user_yaw,d1
+    add.w   user_pitch,d0
+    jsr     build_rot_matrix_3d
+
+    lea     shuttle3d_verts,a0
+    lea     v2_proj_buf,a1
+    move.w  #shuttle3d_vert_count,d7
+    moveq   #0,d4
+    move.w  #-18,d5
+    moveq   #0,d6
+    jsr     transform_and_project_verts
+
+    lea     shuttle3d_norms,a0
+    lea     v2_env_buf,a1
+    move.w  #shuttle3d_vert_count,d7
+    jsr     transform_normals_envmap
+
+    lea     shuttle3d_env_mesh,a0
+    lea     v2_proj_buf,a1
+    lea     v2_tex_bank,a2
+    lea     v2_env_buf,a3
+    jsr     draw_gouraud_env_mesh_v2
+
+    moveq   #0,d4
+    move.w  #-18,d5
+    moveq   #0,d6
+    jsr     ptrail_emit_twin_nozzles
+    jsr     ptrail_update_and_draw
+    rts
+
+demo_act0h_v2_net_obj:
+    jsr     clear_chunky
+    jsr     clear_zbuffer_v2
+    jsr     draw_256_starfield
+
+    clr.w   cam_ox
+    clr.w   cam_oy
+    move.w  #-155,cam_oz
+    move.w  #0,cam_sin
+    move.w  #256,cam_cos
+
+    jsr     draw_3d_ground_grid
+
+    move.l  vbl_tick(pc),d7
+    move.w  d7,d1
+    add.w   d1,d1
+    move.w  #128,d0                     ; pionowa orientacja glowy Suzanne
+    moveq   #0,d2
+    add.w   user_yaw,d1
+    add.w   user_pitch,d0
+    jsr     build_rot_matrix_3d
+
+    lea     netobj3d_verts,a0
+    lea     v2_proj_buf,a1
+    move.w  #netobj3d_vert_count,d7
+    moveq   #0,d4
+    move.w  #-6,d5
+    moveq   #0,d6
+    jsr     transform_and_project_verts
+
+    lea     netobj3d_norms,a0
+    lea     v2_env_buf,a1
+    move.w  #netobj3d_vert_count,d7
+    jsr     transform_normals_envmap
+
+    lea     netobj3d_env_mesh,a0
+    lea     v2_proj_buf,a1
+    lea     v2_chrome_bank,a2
+    lea     v2_env_buf,a3
+    jsr     draw_gouraud_env_mesh_v2
+
+    ; Cien i lustrzane odbicie modelu z sieci
+    lea     netobj3d_verts,a0
+    lea     v2_proj_buf,a1
+    move.w  #netobj3d_vert_count,d7
+    moveq   #0,d4
+    move.w  #-6,d5
+    moveq   #0,d6
+    jsr     project_planar_shadows_3d
+    lea     netobj3d_env_mesh,a0
+    lea     v2_proj_buf,a1
+    jsr     draw_shadow_mesh_v2
+
+    lea     netobj3d_verts,a0
+    lea     v2_proj_buf,a1
+    move.w  #netobj3d_vert_count,d7
+    moveq   #0,d4
+    move.w  #-6,d5
+    moveq   #0,d6
+    jsr     project_mirror_verts_3d
+    lea     netobj3d_env_mesh,a0
+    lea     v2_proj_buf,a1
+    lea     v2_env_buf,a3
+    jsr     draw_mirror_env_mesh_v2
+    rts
+
+    include "net_obj_mesh.i"
