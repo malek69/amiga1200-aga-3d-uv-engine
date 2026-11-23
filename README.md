@@ -1,53 +1,78 @@
-![AURA-3D AGA Engine Logo](docs/logo_aura3d.png)
+<div align="center">
+  <img src="docs/logo_aura3d.png" alt="AURA-3D AGA Engine" width="520" />
+  <h1>AURA-3D AGA Engine v1.14</h1>
+  <p><strong>Bare-metal 3D Software Engine for Commodore Amiga 1200 (M68020+ / AGA / 256 Colors)</strong></p>
+  <p>
+    <a href="https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14/aura3d_demo_v1.14_AGA.lha">Download .LHA</a> &bull;
+    <a href="https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14/aura3d_demo_v1.14_AGA_FSUAE.zip">Download FS-UAE .ZIP</a> &bull;
+    <a href="https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14/aura3d_demo_v1.14_AGA.adf">Download .ADF</a> &bull;
+    <a href="https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14/aura3d-aga-engine-v1.14-src.zip">Source .ZIP</a>
+  </p>
+</div>
 
-# AURA-3D AGA Engine v1.14 (Amiga 1200 / THEA1200) [EN / PL]
+---
 
-**Credits / Autorzy:** malek69 & **Gemini AI** *(Vibe Coding Edition, 2026 — Bare-Metal M68020+ 3D Engine & Python Toolchain)*
+## Gallery / Galeria (7 Scen na Prawdziwym Potoku AGA)
 
-## Live Hardware / FS-UAE Showcase (v1.14)
+<table>
+  <tr>
+    <td align="center"><img src="docs/shot_v114_1.png" width="240" /><br/><sub><b>1. Plansza Startowa AGA</b> (8-bitplan RLE)</sub></td>
+    <td align="center"><img src="docs/shot_v114_2.png" width="240" /><br/><sub><b>2. Vertex Morphing</b> (1008 trojkatow)</sub></td>
+    <td align="center"><img src="docs/shot_v114_3.png" width="240" /><br/><sub><b>3. Wahadlowiec + Flara 3D</b> (576 tris)</sub></td>
+    <td align="center"><img src="docs/shot_v114_4.png" width="240" /><br/><sub><b>4. System Planetarny</b> (1008-tri Chrom)</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/shot_v114_5.png" width="240" /><br/><sub><b>5. Przelot przez Torus</b> (Kamera 6DOF)</sub></td>
+    <td align="center"><img src="docs/shot_v114_6.png" width="240" /><br/><sub><b>6. Model .OBJ Suzanne</b> (968 trojkatow)</sub></td>
+    <td align="center"><img src="docs/shot_v114_7.png" width="240" /><br/><sub><b>7. Teren 3D Heightmap</b> (Kanion + Woda)</sub></td>
+    <td align="center"><b>M68020+ / AGA 256</b><br/><sub>16-bit Z-Buffer &bull; C2P &bull; 4-kanalowy MOD</sub></td>
+  </tr>
+</table>
 
-| 3D Vertex Morphing (1008 Tris) | Space Shuttle + Particle Trail | High-Poly Torus + 3D Floor | 3D Hero Mesh + Copper Sky |
-| :---: | :---: | :---: | :---: |
-| ![Shot 1](docs/shot_v114_1.png) | ![Shot 2](docs/shot_v114_2.png) | ![Shot 3](docs/shot_v114_3.png) | ![Shot 4](docs/shot_v114_4.png) |
+---
 
-## Download Latest Release (v1.14) / Pobierz najnowszą wersję (v1.14)
+## Co mamy w wersji v1.14 / Engine Features
 
-| Package / Paczka | Target Platform / Docelowy system | Launch / Uruchomienie |
+- **8-Bitplanowy Ekran Startowy AGA (`320x256`, 256 kolorow):** konwertowany z pliku `.png` przez `tools/png_to_aga.py` ze strumieniowa dekompresja RLE.
+- **Falujaca Tafla Wody i Lustrzane Odbicia (`M`):** perspektywiczna woda z modulacja sinusoidalna oraz odbicia obiektow sortowane w 16-bitowym Z-Bufferze.
+- **Rozblyski Soczewkowe 3D / Lens Flare (`L`):** promienie anamorficzne oraz 3 krazki dyfrakcyjne z testem zasloniecia w Z-Bufferze.
+- **Blyski Lustrzane (Specular Highlights):** ostre refleksy swietlne na krzywiznie metalu (`transform_normals_envmap` z optymalizacja `bfextu` na M68020).
+- **Teren 3D z Mapy Wysokosci (`engine/terrain_3d.i`):** proceduralny kanion `64x64` z kierunkowym cieniowaniem zboczy, blekitnymi jeziorami i osniezonymi szczytami.
+- **Wielomaterialowe Siatki 3D + Konwerter `.obj` / `.png`:** obsluga do 4 tekstur `64x64` na jedna bryle (`tools/mesh_conv.py` oraz `tools/png_to_aga.py`).
+- **24-bitowe Niebo Coppera (`1`-`4`), Cienie Rzucane (`C`), Mgla Glebi (`F`) i HUD FPS (`H`, `K`).
+
+---
+
+## Opis Wszystkich Scen (Klawisze `F1`–`F8` oraz `Tab`)
+
+| Klawisz | Scena | Zawartosc i aktywne efekty |
 | :--- | :--- | :--- |
-| **[aura3d_demo_v1.14_AGA.lha](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14/aura3d_demo_v1.14_AGA.lha)** | **RetroArch (`PUAE` — Android / PC)**, **THEA1200 (Amiberry)**, **Amiga 1200** (8 MB Fast RAM) | **1-click:** Load Content directly on `.lha` (WHDLoad auto-boot). |
-| **[aura3d_demo_v1.14_AGA_FSUAE.zip](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14/aura3d_demo_v1.14_AGA_FSUAE.zip)** | **FS-UAE Launcher** (Linux / Windows / macOS) & **WinUAE** | **1-click:** Mount as Hard Drive (`DH0`) on A1200 (8 MB Fast RAM) and click **Start**. |
-| **[aura3d_demo_v1.14_AGA.adf](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14/aura3d_demo_v1.14_AGA.adf)** | Floppy Drive (`DF0:`) / Gotek / Amiga 1200 (8 MB Fast RAM) | Boot directly from floppy image (`S/startup-sequence`). |
-| **[aura3d-aga-engine-v1.14-src.zip](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14/aura3d-aga-engine-v1.14-src.zip)** | M68020+ Assembly & Python Developers | Complete engine source (`engine/`), demo scenes (`demo_v1/`), and `.obj` tools (`tools/`). |
+| **`F1`** | **Plansza Tytulowa AGA** | 8-bitplanowy ekran startowy `320x256` (256 kolorow) zdekompresowany z RLE |
+| **`F2`** | **Scena 1: 3D Vertex Morphing** | Plynna morfologia siatki `1008` trojkatow (Torus <-> Kula <-> Gwiazda) nad falujaca woda z cieniami |
+| **`F3`** | **Scena 2: Wielomaterialowy Wahadlowiec** | Model `576` trojkatow (tytan, cyber-obwody, oslona termiczna), smuga z 2 dysz, rozblysk Lens Flare (`L`) oraz odbicie wodne (`M`) |
+| **`F4`** | **Scena 3: System Planetarny** | Centralny Torus (`1008` trojkatow, satynowy chrom) + 2 teksturowane ksiezyce na orbicie i falujaca woda |
+| **`F5`** | **Scena 4: Przelot Kamery przez Torus** | Pelna kamera 3D 6DOF przelatujaca przez srodek chromowanego Torusa `1008` trojkatow |
+| **`F6`** | **Scena 5: Model Wavefront `.OBJ` (Suzanne)** | Siatka `968` trojkatow zaimportowana z pliku `.obj` przez `tools/mesh_conv.py` w satynowym chromie nad woda |
+| **`F7`** | **Scena 6: Przelot nad Terenem 3D** | Proceduralny teren z mapy wysokosci `64x64` z cieniowaniem zboczy, blekitna woda w dolinach i przelatujacym wahadlowcem |
+| **`F8`** | **Scena 7: Final 3D & Orbita** | Klasyczna bryla wektorowa 3D, gwizdziste tlo i 4-kanalowy odtwarzacz ProTracker `.MOD` |
 
-## What's New in v1.14 / Nowości w wersji v1.14
-- **Multi-Material 576-Tri Space Shuttle & Full-Screen 320×228 3D Floor:** Titanium panels, cyber-circuits, thermal tiles, and M68020 `dbf`-optimized perspective floor.
-- **3D Perspective Checkered Floor (`engine/ground_grid.i`):** Raycasted ground plane with full 16-bit Z-Buffer depth sorting (`G` key toggle) beneath shadows and 3D meshes.
-- **High-Polygon 3D Pipeline (`2048` vertices):** 1008-triangle Torus & Vertex Morphing plus a 576-triangle subdivided Space Shuttle.
-- **PNG to Amiga AGA Converter (`tools/png_to_aga.py`):** Converts `.png` images into `64×64` UV textures, 24-bit palettes + `shade_lut_v2.bin`, and 8-bitplane AGA screens.
-- **Real-Time Native FPS HUD (`engine/hud_fps.i`):** Crisp 320×256 bitplane `FPS:XX` counter in the top-right corner (`H` key toggle).
-- **3D Planar Shadows (`engine/planar_shadow.i`):** Directional light ground-plane shadow projection with 16-bit Z-Buffer depth sorting (`C` key toggle) and refined satin chrome reflections.
-- **3D World-Space Particle Trail (`engine/particle_trail.i`):** Twin-nozzle exhaust emitter `(-9,0,-36)` & `(+9,0,-36)` on the Space Shuttle with turbulent thrust vectors and full 16-bit Z-Buffer depth sorting (`draw_z_orb_v2`).
-- **24-bit AGA Copper Sky & Horizon Gradient (`engine/copper_sky.i`):** Zero-CPU-cycle per-scanline 24-bit `COLOR00` gradient (`BPLCON3` LOCT 0/1) across 228 PAL display lines with 4 switchable atmospheric themes.
-- **Z-Fog / Depth Cueing (`engine/aura3d_v2.i`):** Per-vertex depth-based luminance attenuation (`zfog_start = 118`, `zfog_shift = 2`) integrated into the Gouraud + Environment Mapping pipeline.
-- **Real-Time Joystick (Port 2) & Keyboard Controls (`engine/input_ctrl.i`):** Live 3D object rotation, camera zoom, sky theme switching, and Z-Fog toggle via `JOY1DAT` (`$DFF00C`) and `CIA-A` (`$BFEC01` with hardware `$BFEE01` handshake).
+---
 
-## Live Interactive Controls / Sterowanie na żywo (v1.14)
+## Pelna Klawiszologia / Controls
 
-| Input / Klawisz lub Joystick | Action / Działanie |
+| Klawisz / Kontroler | Dzialanie |
 | :--- | :--- |
-| **Arrow Keys / Joystick Port 2** | Rotate 3D objects in real time (`user_yaw`, `user_pitch`) |
-| **W / S** or **Fire + Up/Down** | Zoom camera in / out (`user_zoom`) |
-| **1 – 4** | Switch 24-bit Copper sky theme (`Cosmic Horizon`, `Solaris Dusk`, `Emerald Nebula`, `Pure Black`) |
-| **F** | Toggle Z-Fog (Depth Cueing) ON / OFF |
-| **H** | Toggle real-time FPS HUD ON / OFF |
-| **C** | Toggle 3D Planar Shadows ON / OFF |
-| **G** | Toggle 3D Perspective Floor ON / OFF |
-| **Space / R** | Reset user camera rotation and zoom |
-| **LMB / ESC** | Exit cleanly to AmigaOS |
-
-## Engine Capabilities / Możliwości silnika (`engine/`)
-- **Full M68020+ 3D Pipeline (`engine/aura3d_v2.i`):** 3×3 Euler rotation matrices (Yaw / Pitch / Roll), multi-object world transforms, 6DOF camera, and perspective projection.
-- **16-bit Fast-RAM Z-Buffer:** Per-pixel depth sorting eliminating polygon overlap artifacts across concave meshes, particle trails, and intersecting objects.
-- **3D Vertex Morphing (`morph_verts_3d`):** Real-time linear interpolation between 3D meshes on 68020.
-- **64×64×256 UV Texturing & Gouraud + Environment Mapping:** Directional lighting (`N · L`), 16-level AGA `shade_lut_v2`, chrome reflections, and 3D depth-sorted light orbs.
-- **Wavefront `.obj` Toolchain (`tools/mesh_conv.py`):** Automatic conversion of `.obj` models (including the Space Shuttle 3D mesh) with smoothed vertex normals.
+| **`F1` – `F8`** | Natychmiastowy skok do wybranej sceny (od planszy startowej po final 3D) |
+| **`Tab`** | Przelaczenie do kolejnej sceny w petli |
+| **`K`** | Otworz / zamknij **panel klawiszologii na ekranie** |
+| **`Strzalki` / Joystick Port 2** | Obrot kamery i obiektow 3D (`Yaw` / `Pitch`) |
+| **`W` / `S` lub `Fire + Gora/Dol`** | Przyblizenie / oddalenie kamery (`Zoom`) |
+| **`1` – `4`** | Zmiana 24-bitowego motywu nieba Coppera (Noc, Zachod slonca, Zorza, Mglawica) |
+| **`M`** | Wlacz / wylacz **lustrzane odbicia 3D** na wodzie |
+| **`L`** | Wlacz / wylacz **rozblyski soczewkowe 3D (Lens Flare)** |
+| **`G`** | Wlacz / wylacz **falujaca tafle wody / podloge 3D** |
+| **`C`** | Wlacz / wylacz **cienie rzucane 3D** (Planar Shadows) |
+| **`F`** | Wlacz / wylacz **mgle glebi Z-Fog** |
+| **`H`** | Wlacz / wylacz **licznik FPS HUD** |
+| **`Spacja` / `R`** | Reset pozycji kamery |
+| **`LMB` / `ESC`** | Wyjscie do AmigaOS / WHDLoad |
