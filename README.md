@@ -8,7 +8,7 @@
 
 | 3D Vertex Morphing | Space Shuttle 3D (Gouraud + EnvMap) | 16-bit Z-Buffer Torus + UV Cube |
 | :---: | :---: | :---: |
-| ![3D Morph](docs/preview.png) | ![Space Shuttle](docs/preview.png) | ![Z-Buffer Torus](docs/preview.png) |
+| ![3D Morph](docs/shot_morph.png) | ![Space Shuttle](docs/shot_shuttle.png) | ![Z-Buffer Torus](docs/shot_torus.png) | ![Space Shuttle](docs/preview.png) | ![Z-Buffer Torus](docs/preview.png) |
 
 ## Download Baseline Release (v1.0) / Pobierz wersję bazową (v1.0)
 
