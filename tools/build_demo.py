@@ -16,8 +16,6 @@ def write_whdload_info(path, tooltypes=("SLAVE=Aura3DDemo_AGA.slave",)):
     tt_entries = b""
     for entry in tooltypes:
         raw = entry.encode("ascii") + b"\x00"
-        if len(raw) % 2:
-            raw += b"\x00"
         tt_entries += struct.pack(">I", len(raw)) + raw
     tt_blk = struct.pack(">I", (len(tooltypes) + 1) * 4) + tt_entries
 
@@ -57,7 +55,7 @@ if os.path.exists(lha_path):
     os.remove(lha_path)
 env = os.environ.copy()
 env["TMPDIR"] = os.environ.get("TMPDIR", "/tmp")
-subprocess.run((lha_bin, f"ao5w={env['TMPDIR']}", lha_path, pkg_name, f"{pkg_name}.info"), cwd=rd, env=env, check=True)
+subprocess.run((lha_bin, f"ao1w={env['TMPDIR']}", lha_path, pkg_name, f"{pkg_name}.info"), cwd=rd, env=env, check=True)
 
 xdftool_bin = shutil.which("xdftool")
 if xdftool_bin:
