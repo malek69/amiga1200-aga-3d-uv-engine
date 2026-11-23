@@ -1,4 +1,4 @@
-import os, shutil, struct, subprocess
+import os, shutil, struct, subprocess, zipfile
 
 def write_whdload_info(path, tooltypes=("SLAVE=Aura3DDemo_AGA.slave",)):
     # Dokładny nagłówek AmigaOS Workbench DiskObject (78 bajtów) + Image (20 bajtów)
@@ -65,7 +65,19 @@ if xdftool_bin:
     ss = os.path.join(rd, "startup-sequence")
     with open(ss, "w") as f:
         f.write("AURA3D_DEMO\n")
-    subprocess.run((xdftool_bin, adf_path, "format", "AURA3D_DEMO", "+", "boot", "install", "+", "makedir", "S", "+", "write", exe, "AURA3D_DEMO", "+", "protect", "AURA3D_DEMO", "+e", "+", "write", txt, "README.txt", "+", "write", ss, "S/startup-sequence"), check=True)
+    subprocess.run((xdftool_bin, adf_path, "format", "AURA3D_DEMO", "+", "boot", "install", "+", "makedir", "S", "+", "write", exe, "AURA3D_DEMO", "+", "protect", "AURA3D_DEMO", "+rwed", "+", "write", txt, "README.txt", "+", "write", ss, "S/startup-sequence"), check=True)
     os.remove(ss)
 
-print("BUILD OK:", lha_path)
+
+zip_path = os.path.join(rd, "aura3d_demo_v2_AGA_FSUAE.zip")
+if os.path.exists(zip_path):
+    os.remove(zip_path)
+with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
+    zf.writestr("S/startup-sequence", f"cd {pkg_name}
+AURA3D_DEMO
+")
+    for fn in sorted(os.listdir(pkg)):
+        zf.write(os.path.join(pkg, fn), os.path.join(pkg_name, fn))
+    zf.write(top_inf, f"{pkg_name}.info")
+
+print("BUILD OK:", lha_path, "|", zip_path)
