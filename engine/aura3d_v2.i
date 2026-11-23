@@ -890,3 +890,451 @@ v2_proj_buf:  ds.w 512*3
 v2_env_buf:   ds.l 512
 
     section code,code
+
+; ============================================================================
+;  MODUL GOURAUD SHADING + ENVIRONMENT MAPPING (Krok 3)
+; ============================================================================
+
+; ----------------------------------------------------------------------------
+; draw_gouraud_env_mesh_v2
+; Renderuje siatke 3D z gladkim cieniowaniem Gourauda po wierzcholkach,
+; Environment Mappingiem 64x64 oraz 16-bitowym Z-Bufferem.
+; Input: a0 = siatka: [num_tris.w] + [i0.w, i1.w, i2.w, tex_id.w]
+;        a1 = v2_proj_buf [sx.w, sy.w, sz.w]
+;        a2 = bank tekstur 64x64 (4096B na teksture)
+;        a3 = v2_env_buf [u.b, v.b, shade.b, pad.b]
+; ----------------------------------------------------------------------------
+draw_gouraud_env_mesh_v2:
+    movem.l d0-d7/a0-a6,-(sp)
+    move.w  (a0)+,d7
+    subq.w  #1,d7
+    bmi.w   .dgem_done
+
+.dgem_lp:
+    move.w  (a0)+,d4                ; i0
+    move.w  (a0)+,d5                ; i1
+    move.w  (a0)+,d6                ; i2
+
+    move.w  d4,d0
+    mulu.w  #6,d0
+    lea     (a1,d0.w),a4            ; proj v0
+    move.w  d5,d0
+    mulu.w  #6,d0
+    lea     (a1,d0.w),a5            ; proj v1
+    move.w  d6,d0
+    mulu.w  #6,d0
+    lea     (a1,d0.w),a6            ; proj v2
+
+    ; Backface culling
+    move.w  (a5),d0
+    sub.w   (a4),d0
+    move.w  2(a6),d1
+    sub.w   2(a4),d1
+    muls.w  d1,d0
+    move.w  2(a5),d2
+    sub.w   2(a4),d2
+    move.w  (a6),d3
+    sub.w   (a4),d3
+    muls.w  d3,d2
+    sub.l   d2,d0
+    ble.w   .dgem_skip
+
+    ; Zbuduj pakiet 3 wierzcholkow po 6 slow: [sx, sy, sz, u, v, shade]
+    lea     v2_g_pkt,a5
+    move.w  (a4),(a5)+
+    move.w  2(a4),(a5)+
+    move.w  4(a4),(a5)+
+    moveq   #0,d0
+    move.b  (a3,d4.w*4),d0
+    move.w  d0,(a5)+
+    move.b  1(a3,d4.w*4),d0
+    move.w  d0,(a5)+
+    move.b  2(a3,d4.w*4),d0
+    move.w  d0,(a5)+
+
+    move.w  d5,d0
+    mulu.w  #6,d0
+    lea     (a1,d0.w),a4
+    move.w  (a4),(a5)+
+    move.w  2(a4),(a5)+
+    move.w  4(a4),(a5)+
+    moveq   #0,d0
+    move.b  (a3,d5.w*4),d0
+    move.w  d0,(a5)+
+    move.b  1(a3,d5.w*4),d0
+    move.w  d0,(a5)+
+    move.b  2(a3,d5.w*4),d0
+    move.w  d0,(a5)+
+
+    move.w  (a6),(a5)+
+    move.w  2(a6),(a5)+
+    move.w  4(a6),(a5)+
+    moveq   #0,d0
+    move.b  (a3,d6.w*4),d0
+    move.w  d0,(a5)+
+    move.b  1(a3,d6.w*4),d0
+    move.w  d0,(a5)+
+    move.b  2(a3,d6.w*4),d0
+    move.w  d0,(a5)+
+
+    move.w  (a0)+,d1                ; tex_id
+    lsl.w   #8,d1
+    lsl.w   #4,d1
+
+    movem.l d7/a0,-(sp)
+    lea     (a2,d1.w),a5
+    lea     v2_g_pkt,a4
+    bsr.w   draw_uv_gouraud_z_tri
+    movem.l (sp)+,d7/a0
+
+    dbf     d7,.dgem_lp
+    bra.s   .dgem_done
+
+.dgem_skip:
+    addq.l  #2,a0
+    dbf     d7,.dgem_lp
+
+.dgem_done:
+    movem.l (sp)+,d0-d7/a0-a6
+    rts
+
+; ----------------------------------------------------------------------------
+; draw_uv_gouraud_z_tri (natywny bufor 160x128)
+; Input: a4 -> 3 wierzcholki po 6 slow: [sx, sy, sz, u, v, shade]
+;        a5 -> tekstura 64x64 chunky (4096B)
+; ----------------------------------------------------------------------------
+draw_uv_gouraud_z_tri:
+    movem.l d0-d7/a0-a6,-(sp)
+    move.l  a5,g_tex_ptr
+
+    lea     g_verts,a0
+    move.w  #17,d0
+.gcp_v:
+    move.w  (a4)+,(a0)+
+    dbf     d0,.gcp_v
+
+    lea     g_verts,a0
+    move.w  2(a0),d6
+    move.w  d6,d7
+    move.w  14(a0),d0
+    cmp.w   d0,d6
+    ble.s   .gy1a
+    move.w  d0,d6
+.gy1a:
+    cmp.w   d0,d7
+    bge.s   .gy1b
+    move.w  d0,d7
+.gy1b:
+    move.w  26(a0),d0
+    cmp.w   d0,d6
+    ble.s   .gy2a
+    move.w  d0,d6
+.gy2a:
+    cmp.w   d0,d7
+    bge.s   .gy2b
+    move.w  d0,d7
+.gy2b:
+    tst.w   d6
+    bpl.s   .gyc1
+    moveq   #0,d6
+.gyc1:
+    cmp.w   #127,d7
+    ble.s   .gyc2
+    move.w  #127,d7
+.gyc2:
+    cmp.w   d6,d7
+    ble.w   .guvz_done
+    move.w  d6,g_ymin
+    move.w  d6,g_cur_y
+    move.w  d7,g_ymax
+
+    ; Wyzeruj granice w v2_g_edge_buf (40 bajtow na wiersz)
+    lea     v2_g_edge_buf,a1
+    move.w  d6,d0
+    mulu.w  #40,d0
+    add.l   d0,a1
+    move.w  d7,d1
+    sub.w   d6,d1
+    move.l  #$7fff0000,d2
+    move.l  #$80010000,d3
+.gie_lp:
+    move.l  d2,(a1)
+    move.l  d3,20(a1)
+    lea     40(a1),a1
+    dbf     d1,.gie_lp
+
+    lea     g_verts,a0
+    lea     12(a0),a1
+    bsr.w   scan_gouraud_edge
+    lea     g_verts+12,a0
+    lea     12(a0),a1
+    bsr.w   scan_gouraud_edge
+    lea     g_verts+24,a0
+    lea     g_verts,a1
+    bsr.w   scan_gouraud_edge
+
+    move.w  g_ymin(pc),d6
+    move.w  g_ymax(pc),d7
+    lea     v2_g_edge_buf,a0
+    move.w  d6,d0
+    mulu.w  #40,d0
+    add.l   d0,a0
+
+    lea     chunky_buf,a1
+    lea     zbuf_3d,a2
+    move.w  d6,d0
+    mulu.w  #160,d0
+    add.l   d0,a1
+    add.l   d0,d0
+    add.l   d0,a2
+
+    move.l  g_tex_ptr(pc),a4
+    lea     shade_lut_v2,a5
+
+.gspan_y:
+    move.w  (a0),d0                 ; xl
+    move.w  20(a0),d1               ; xr
+    cmp.w   d0,d1
+    ble.w   .gnext_y
+
+    move.w  d1,d2
+    sub.w   d0,d2                   ; dx > 0
+    ext.l   d2
+
+    move.l  4(a0),d3                ; zl
+    move.l  24(a0),d4               ; zr
+    sub.l   d3,d4
+    divs.l  d2,d4
+    move.l  d4,g_dz
+
+    move.l  8(a0),d4                ; ul
+    move.l  28(a0),d5               ; ur
+    sub.l   d4,d5
+    divs.l  d2,d5
+    move.l  d5,g_du
+
+    move.l  12(a0),d5               ; vl
+    move.l  32(a0),d6               ; vr
+    sub.l   d5,d6
+    divs.l  d2,d6
+    move.l  d6,g_dv
+
+    move.l  16(a0),d6               ; sl
+    move.l  36(a0),d7               ; sr
+    sub.l   d6,d7
+    divs.l  d2,d7
+    move.l  d7,g_ds
+
+    move.l  16(a0),d2               ; cur_s (16.16)
+
+    tst.w   d0
+    bpl.s   .gxl_ok
+    neg.w   d0
+    ext.l   d0
+    move.l  g_dz(pc),d6
+    muls.l  d0,d6
+    add.l   d6,d3
+    move.l  g_du(pc),d6
+    muls.l  d0,d6
+    add.l   d6,d4
+    move.l  g_dv(pc),d6
+    muls.l  d0,d6
+    add.l   d6,d5
+    move.l  g_ds(pc),d6
+    muls.l  d0,d6
+    add.l   d6,d2
+    moveq   #0,d0
+.gxl_ok:
+    cmp.w   #159,d1
+    ble.s   .gxr_ok
+    move.w  #159,d1
+.gxr_ok:
+    sub.w   d0,d1
+    bmi.w   .gnext_y
+
+    lea     (a1,d0.w),a3
+    lea     (a2,d0.w*2),a6
+
+.gpx_lp:
+    move.l  d3,d0
+    swap    d0
+    cmp.w   (a6),d0
+    bge.s   .gpx_skip
+    move.w  d0,(a6)
+
+    move.l  d5,d0
+    swap    d0
+    and.w   #63,d0
+    lsl.w   #6,d0
+    move.l  d4,d6
+    swap    d6
+    and.w   #63,d6
+    or.w    d6,d0
+
+    move.l  d2,d7
+    swap    d7
+    and.w   #$0f,d7
+    lsl.w   #8,d7
+    move.b  (a4,d0.w),d7
+    move.b  (a5,d7.w),(a3)
+.gpx_skip:
+    addq.l  #1,a3
+    addq.l  #2,a6
+    add.l   g_dz(pc),d3
+    add.l   g_du(pc),d4
+    add.l   g_dv(pc),d5
+    add.l   g_ds(pc),d2
+    dbf     d1,.gpx_lp
+
+    move.w  g_ymax(pc),d7
+    move.w  g_cur_y(pc),d6
+.gnext_y:
+    addq.w  #1,d6
+    move.w  d6,g_cur_y
+    lea     40(a0),a0
+    lea     160(a1),a1
+    lea     320(a2),a2
+    cmp.w   d7,d6
+    ble.w   .gspan_y
+
+.guvz_done:
+    movem.l (sp)+,d0-d7/a0-a6
+    rts
+
+; ----------------------------------------------------------------------------
+; scan_gouraud_edge: interpoluje X, Z, U, V, S wzdluz krawedzi a0 -> a1
+; ----------------------------------------------------------------------------
+scan_gouraud_edge:
+    movem.l d0-d7/a0-a3,-(sp)
+    move.w  2(a0),d1
+    move.w  2(a1),d3
+    cmp.w   d1,d3
+    beq.w   .gse_done
+    bgt.s   .gse_ord
+    exg     a0,a1
+    exg     d1,d3
+.gse_ord:
+    move.w  d3,d6
+    sub.w   d1,d6                   ; dy > 0
+    ext.l   d6
+
+    move.w  (a1),d0
+    sub.w   (a0),d0
+    ext.l   d0
+    swap    d0
+    divs.l  d6,d0
+    move.l  d0,ge_dx
+
+    move.w  4(a1),d0
+    sub.w   4(a0),d0
+    ext.l   d0
+    swap    d0
+    divs.l  d6,d0
+    move.l  d0,ge_dz
+
+    move.w  6(a1),d0
+    sub.w   6(a0),d0
+    ext.l   d0
+    swap    d0
+    divs.l  d6,d0
+    move.l  d0,ge_du
+
+    move.w  8(a1),d0
+    sub.w   8(a0),d0
+    ext.l   d0
+    swap    d0
+    divs.l  d6,d0
+    move.l  d0,ge_dv
+
+    move.w  10(a1),d0
+    sub.w   10(a0),d0
+    ext.l   d0
+    swap    d0
+    divs.l  d6,d0
+    move.l  d0,ge_ds
+
+    move.w  (a0),d4
+    swap    d4
+    move.w  #$8000,d4               ; cur_x
+    move.w  4(a0),d5
+    swap    d5
+    clr.w   d5                      ; cur_z
+    move.w  6(a0),d6
+    swap    d6
+    clr.w   d6                      ; cur_u
+    move.w  8(a0),d7
+    swap    d7
+    clr.w   d7                      ; cur_v
+    move.w  10(a0),d0
+    swap    d0
+    clr.w   d0                      ; cur_s
+
+    lea     v2_g_edge_buf,a2
+
+.gse_lp:
+    cmp.w   #127,d3
+    ble.s   .gse_ylim
+    move.w  #127,d3
+.gse_ylim:
+    tst.w   d1
+    bmi.s   .gse_adv
+    cmp.w   d3,d1
+    bgt.s   .gse_done
+
+    move.w  d1,d2
+    mulu.w  #40,d2
+    lea     (a2,d2.l),a3
+
+    move.l  d4,d2
+    swap    d2
+    cmp.w   (a3),d2
+    bge.s   .gchk_r
+    move.l  d4,(a3)
+    move.l  d5,4(a3)
+    move.l  d6,8(a3)
+    move.l  d7,12(a3)
+    move.l  d0,16(a3)
+.gchk_r:
+    cmp.w   20(a3),d2
+    ble.s   .gse_adv
+    move.l  d4,20(a3)
+    move.l  d5,24(a3)
+    move.l  d6,28(a3)
+    move.l  d7,32(a3)
+    move.l  d0,36(a3)
+
+.gse_adv:
+    add.l   ge_dx(pc),d4
+    add.l   ge_dz(pc),d5
+    add.l   ge_du(pc),d6
+    add.l   ge_dv(pc),d7
+    add.l   ge_ds(pc),d0
+    addq.w  #1,d1
+    cmp.w   d3,d1
+    ble.s   .gse_lp
+
+.gse_done:
+    movem.l (sp)+,d0-d7/a0-a3
+    rts
+
+    even
+g_tex_ptr:  dc.l 0
+g_dz:       dc.l 0
+g_du:       dc.l 0
+g_dv:       dc.l 0
+g_ds:       dc.l 0
+ge_dx:      dc.l 0
+ge_dz:      dc.l 0
+ge_du:      dc.l 0
+ge_dv:      dc.l 0
+ge_ds:      dc.l 0
+g_ymin:     dc.w 0
+g_ymax:     dc.w 0
+g_cur_y:    dc.w 0
+g_verts:    ds.w 18
+v2_g_pkt:   ds.w 18
+
+    section fastram_bss,bss_p
+v2_g_edge_buf: ds.b 128*40
+
+    section code,code
