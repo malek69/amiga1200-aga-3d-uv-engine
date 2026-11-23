@@ -331,7 +331,7 @@ demo_act0c_v2_planetary:
 
     lea     v2_cube_mesh(pc),a0
     lea     v2_proj_buf,a1
-    lea     v2_png_tex_bank,a2
+    lea     v2_tex_bank,a2
     jsr     draw_mesh_v2
 
     ; Cien Satelity A
@@ -514,7 +514,7 @@ demo_act0e_v2_shuttle:
 
     lea     shuttle3d_env_mesh,a0
     lea     v2_proj_buf,a1
-    lea     v2_chrome_bank,a2
+    lea     v2_tex_bank,a2
     lea     v2_env_buf,a3
     jsr     draw_gouraud_env_mesh_v2
 

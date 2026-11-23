@@ -132,34 +132,42 @@ draw_3d_ground_grid:
     move.w  (sp)+,a3                    ; a3.w = rz (glebokosc Z do Z-Buffera)
     addq.w  #3,a3                       ; bias Z (+3), aby cienie lezaly na podlodze
 
+    move.w  d7,-(sp)                    ; zachowaj licznik wierszy py
     move.l  a0,a4                       ; wskaznik chunky w wierszu
     move.l  a1,a5                       ; wskaznik zbuf w wierszu
-    move.w  #159,a6                     ; licznik 160 pikseli
+    move.w  a3,a6                       ; a6.w = rz + 3
+    move.w  #159,d7                     ; szybki licznik petli dbf (160 px)
 
 .fx_lp:
-    move.w  a3,d4
-    cmp.w   (a5),d4
+    move.w  a6,d4
+    cmp.w   (a5)+,d4
     bge.s   .fx_skip
-    move.w  d4,(a5)
+    move.w  d4,-2(a5)
 
-    ; Rozmiar kafla = 32x32 (bit 5 w czesci calkowitej wx i wz -> bit 13 w 8.8!)
+    ; Rozmiar kafla = 32x32 (bit 13 w 8.8 fixed point)
     move.l  d3,d4
     eor.l   d1,d4
     btst    #13,d4
     beq.s   .tile_a
-    move.b  d5,(a4)
-    bra.s   .fx_skip
+    move.b  d5,(a4)+
+    add.l   d0,d3
+    add.l   d2,d1
+    dbf     d7,.fx_lp
+    bra.s   .fx_end
 .tile_a:
-    move.b  d6,(a4)
+    move.b  d6,(a4)+
+    add.l   d0,d3
+    add.l   d2,d1
+    dbf     d7,.fx_lp
+    bra.s   .fx_end
 
 .fx_skip:
     addq.l  #1,a4
-    addq.l  #2,a5
-    add.l   d0,d3                       ; cur_wx += dwx
-    add.l   d2,d1                       ; cur_wz += dwz
-    subq.w  #1,a6
-    cmpa.w  #-1,a6
-    bne.s   .fx_lp
+    add.l   d0,d3
+    add.l   d2,d1
+    dbf     d7,.fx_lp
+.fx_end:
+    move.w  (sp)+,d7                    ; przywroc licznik wierszy py
 
     ; Odbuduj d4.l = (ground_y - cam_oy) * 128 dla kolejnego wiersza
     move.w  shadow_ground_y,d4
@@ -177,6 +185,76 @@ draw_3d_ground_grid:
 .flr_done:
     movem.l (sp)+,d0-d7/a0-a6
 .flr_ret:
+    rts
+
+
+; ----------------------------------------------------------------------------
+; ground_fill_screen_margins - Rozciaga skrajne piksele podlogi z chunky_buf
+; na 16-pikselowe (2-bajtowe) marginesy boczne oraz dolne 12 linii bitplanow
+; (pelne 320x228 bez naruszania c2p_chunky.i).
+; ----------------------------------------------------------------------------
+ground_fill_screen_margins:
+    tst.b   grid_enabled(pc)
+    beq.w   .gfm_ret
+    movem.l d0-d7/a0-a4,-(sp)
+
+    ; 1. Lewy margines 32 px (bajty 0..3 w kazdym bitplanie) dla wierszy chunky 66..107
+    lea     chunky_buf,a0
+    adda.l  #66*160,a0
+    moveq   #41,d7                      ; 42 wiersze chunky (linie ekranu 132..215)
+    move.l  #132*40,d6
+.gm_row:
+    move.b  (a0),d4                     ; kolor lewego skraju szachownicy
+    lea     160(a0),a0
+
+    lea     draw_bpl1(pc),a1
+    moveq   #0,d3
+.gm_bpl:
+    move.l  (a1),a2
+    addq.l  #8,a1
+    adda.l  d6,a2
+
+    btst    d3,d4
+    beq.s   .gm_l0
+    move.l  #$ffffffff,(a2)
+    move.l  #$ffffffff,40(a2)
+    bra.s   .gm_nbpl
+.gm_l0:
+    clr.l   (a2)
+    clr.l   40(a2)
+.gm_nbpl:
+    addq.w  #1,d3
+    cmp.w   #8,d3
+    blo.s   .gm_bpl
+
+    add.l   #80,d6
+    dbf     d7,.gm_row
+
+    ; 2. Dolne 12 linii ekranu (y = 216..227): powiel pelne 40 bajtow z linii 214 (z wzorem kafli!)
+    lea     draw_bpl1(pc),a1
+    moveq   #7,d3
+.gm_bot_bpl:
+    move.l  (a1),a2
+    addq.l  #8,a1
+    lea     214*40(a2),a3               ; wzorcowa linia 214 z pelnym wzorem szachownicy
+    lea     216*40(a2),a4               ; docelowe linie 216..227
+    moveq   #11,d1                      ; 12 linii
+.gm_blp:
+    move.l  (a3),(a4)+
+    move.l  4(a3),(a4)+
+    move.l  8(a3),(a4)+
+    move.l  12(a3),(a4)+
+    move.l  16(a3),(a4)+
+    move.l  20(a3),(a4)+
+    move.l  24(a3),(a4)+
+    move.l  28(a3),(a4)+
+    move.l  32(a3),(a4)+
+    move.l  36(a3),(a4)+
+    dbf     d1,.gm_blp
+    dbf     d3,.gm_bot_bpl
+
+    movem.l (sp)+,d0-d7/a0-a4
+.gfm_ret:
     rts
 
     even

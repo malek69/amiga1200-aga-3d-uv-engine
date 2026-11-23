@@ -1,25 +1,26 @@
 ![AURA-3D AGA Engine Logo](docs/logo_aura3d.png)
 
-# AURA-3D AGA Engine v1.3 (Amiga 1200 / THEA1200) [EN / PL]
+# AURA-3D AGA Engine v1.13 (Amiga 1200 / THEA1200) [EN / PL]
 
 **Credits / Autorzy:** malek69 & **Gemini AI** *(Vibe Coding Edition, 2026 — Bare-Metal M68020+ 3D Engine & Python Toolchain)*
 
-## Live Hardware / FS-UAE Showcase (v1.3)
+## Live Hardware / FS-UAE Showcase (v1.13)
 
 | 3D Vertex Morphing (1008 Tris) | Space Shuttle + Particle Trail | High-Poly Torus + 3D Floor | 3D Hero Mesh + Copper Sky |
 | :---: | :---: | :---: | :---: |
-| ![Shot 1](docs/shot_v13_1.png) | ![Shot 2](docs/shot_v13_2.png) | ![Shot 3](docs/shot_v13_3.png) | ![Shot 4](docs/shot_v13_4.png) |
+| ![Shot 1](docs/shot_v113_1.png) | ![Shot 2](docs/shot_v113_2.png) | ![Shot 3](docs/shot_v113_3.png) | ![Shot 4](docs/shot_v113_4.png) |
 
-## Download Latest Release (v1.3) / Pobierz najnowszą wersję (v1.3)
+## Download Latest Release (v1.13) / Pobierz najnowszą wersję (v1.13)
 
 | Package / Paczka | Target Platform / Docelowy system | Launch / Uruchomienie |
 | :--- | :--- | :--- |
-| **[aura3d_demo_v1.3_AGA.lha](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.3/aura3d_demo_v1.3_AGA.lha)** | **RetroArch (`PUAE` — Android / PC)**, **THEA1200 (Amiberry)**, **Amiga 1200** (8 MB Fast RAM) | **1-click:** Load Content directly on `.lha` (WHDLoad auto-boot). |
-| **[aura3d_demo_v1.3_AGA_FSUAE.zip](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.3/aura3d_demo_v1.3_AGA_FSUAE.zip)** | **FS-UAE Launcher** (Linux / Windows / macOS) & **WinUAE** | **1-click:** Mount as Hard Drive (`DH0`) on A1200 (8 MB Fast RAM) and click **Start**. |
-| **[aura3d_demo_v1.3_AGA.adf](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.3/aura3d_demo_v1.3_AGA.adf)** | Floppy Drive (`DF0:`) / Gotek / Amiga 1200 (8 MB Fast RAM) | Boot directly from floppy image (`S/startup-sequence`). |
-| **[aura3d-aga-engine-v1.3-src.zip](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.3/aura3d-aga-engine-v1.3-src.zip)** | M68020+ Assembly & Python Developers | Complete engine source (`engine/`), demo scenes (`demo_v1/`), and `.obj` tools (`tools/`). |
+| **[aura3d_demo_v1.13_AGA.lha](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.13/aura3d_demo_v1.13_AGA.lha)** | **RetroArch (`PUAE` — Android / PC)**, **THEA1200 (Amiberry)**, **Amiga 1200** (8 MB Fast RAM) | **1-click:** Load Content directly on `.lha` (WHDLoad auto-boot). |
+| **[aura3d_demo_v1.13_AGA_FSUAE.zip](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.13/aura3d_demo_v1.13_AGA_FSUAE.zip)** | **FS-UAE Launcher** (Linux / Windows / macOS) & **WinUAE** | **1-click:** Mount as Hard Drive (`DH0`) on A1200 (8 MB Fast RAM) and click **Start**. |
+| **[aura3d_demo_v1.13_AGA.adf](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.13/aura3d_demo_v1.13_AGA.adf)** | Floppy Drive (`DF0:`) / Gotek / Amiga 1200 (8 MB Fast RAM) | Boot directly from floppy image (`S/startup-sequence`). |
+| **[aura3d-aga-engine-v1.13-src.zip](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.13/aura3d-aga-engine-v1.13-src.zip)** | M68020+ Assembly & Python Developers | Complete engine source (`engine/`), demo scenes (`demo_v1/`), and `.obj` tools (`tools/`). |
 
-## What's New in v1.3 / Nowości w wersji v1.3
+## What's New in v1.13 / Nowości w wersji v1.13
+- **Multi-Material 576-Tri Space Shuttle & Full-Screen 320×228 3D Floor:** Titanium panels, cyber-circuits, thermal tiles, and M68020 `dbf`-optimized perspective floor.
 - **3D Perspective Checkered Floor (`engine/ground_grid.i`):** Raycasted ground plane with full 16-bit Z-Buffer depth sorting (`G` key toggle) beneath shadows and 3D meshes.
 - **High-Polygon 3D Pipeline (`2048` vertices):** 1008-triangle Torus & Vertex Morphing plus a 576-triangle subdivided Space Shuttle.
 - **PNG to Amiga AGA Converter (`tools/png_to_aga.py`):** Converts `.png` images into `64×64` UV textures, 24-bit palettes + `shade_lut_v2.bin`, and 8-bitplane AGA screens.
@@ -30,7 +31,7 @@
 - **Z-Fog / Depth Cueing (`engine/aura3d_v2.i`):** Per-vertex depth-based luminance attenuation (`zfog_start = 118`, `zfog_shift = 2`) integrated into the Gouraud + Environment Mapping pipeline.
 - **Real-Time Joystick (Port 2) & Keyboard Controls (`engine/input_ctrl.i`):** Live 3D object rotation, camera zoom, sky theme switching, and Z-Fog toggle via `JOY1DAT` (`$DFF00C`) and `CIA-A` (`$BFEC01` with hardware `$BFEE01` handshake).
 
-## Live Interactive Controls / Sterowanie na żywo (v1.3)
+## Live Interactive Controls / Sterowanie na żywo (v1.13)
 
 | Input / Klawisz lub Joystick | Action / Działanie |
 | :--- | :--- |
