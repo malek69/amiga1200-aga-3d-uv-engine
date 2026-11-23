@@ -12,6 +12,17 @@
 
 ---
 
+## Pobieranie / Downloads (v1.14 Latest)
+
+| Pakiet | Przeznaczenie i platforma | Link |
+| :--- | :--- | :--- |
+| **`aura3d_demo_v1.14_AGA.lha`** | **WHDLoad / THEA1200 / RetroArch (PUAE) / Amiga 1200 + Fast RAM** — gotowy katalog z ikonami `.info`, WHDLoad Slave i plikiem wykonywalnym | [Pobierz .LHA](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14/aura3d_demo_v1.14_AGA.lha) |
+| **`aura3d_demo_v1.14_AGA_FSUAE.zip`** | **FS-UAE Launcher / WinUAE** — paczka skonfigurowana pod emulatory Amigi 1200 AGA (`68020` + `8 MB Fast RAM`) | [Pobierz FS-UAE .ZIP](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14/aura3d_demo_v1.14_AGA_FSUAE.zip) |
+| **`aura3d_demo_v1.14_AGA.adf`** | **Stacja dyskietek `DF0:` / Gotek FlashFloppy** — samostartujący obraz dyskietki 880 KB dla prawdziwej Amigi 1200 | [Pobierz .ADF](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14/aura3d_demo_v1.14_AGA.adf) |
+| **`aura3d-aga-engine-v1.14-src.zip`** | **Kod źródłowy (M68020 ASM + Python)** — kompletne źródła silnika `engine/`, scen `demo_v1/` oraz konwerterów `tools/` | [Pobierz Source .ZIP](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14/aura3d-aga-engine-v1.14-src.zip) |
+
+---
+
 ## Gallery / Galeria (8 Etapow na Prawdziwym Potoku AGA)
 
 <table>
