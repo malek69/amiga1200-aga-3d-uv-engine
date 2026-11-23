@@ -239,7 +239,10 @@ build_copper:
     move.l  #(BPLCON3<<16)|$0c00,(a0)+
     move.l  #($010c<<16)|$0000,(a0)+
     move.l  #(COLOR00<<16)|$0000,(a0)+
+    move.l  a0,cop_sky_ptr
     move.l  #$fffffffe,(a0)+
+    moveq   #0,d0
+    jsr     copper_set_sky_theme
     rts
 cop_sky_ptr: dc.l 0
 beat_boost:  dc.b 0,0

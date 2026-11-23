@@ -40,6 +40,7 @@ mainloop:
 .f_ok:
     move.w  d0,cur_frame
 
+    jsr     input_update_controls
     bsr.w   render_realtime_3d
 
     btst    #6,CIAAPRA
@@ -65,6 +66,9 @@ exit_program:
     include "realtime_3d.i"
     include "demo_v2_scene.i"
     include "demo_scenes.i"
+    include "particle_trail.i"
+    include "copper_sky.i"
+    include "input_ctrl.i"
 
 
     even
@@ -103,6 +107,8 @@ tunnel_lut:  incbin "tunnel_lut.bin"
 aga_pal256:  incbin "pal256.bin"
     even
 scroll_font: ds.b 1024
+    even
+ptrail_pool: ds.b 1024
 
     even
 sin_tab:

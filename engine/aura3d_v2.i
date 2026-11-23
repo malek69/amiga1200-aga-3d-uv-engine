@@ -15,6 +15,8 @@
 ; ----------------------------------------------------------------------------
 build_rot_matrix_3d:
     movem.l d0-d7/a0,-(sp)
+    add.w   user_yaw(pc),d0
+    add.w   user_pitch(pc),d1
     lea     sin_tab,a0
 
     and.w   #$ff,d0
@@ -179,6 +181,7 @@ transform_and_project_verts:
     sub.w   cam_ox(pc),d0
     sub.w   cam_oy(pc),d1
     sub.w   cam_oz(pc),d2
+    add.w   user_zoom(pc),d2
 
     tst.b   cam_3d_active
     beq.s   .cam_y_only
@@ -575,9 +578,9 @@ draw_uv_z_tri:
     dbf     d1,.px_lp
     movem.l (sp)+,a0-a1
 
+.next_y:
     move.w  v2_ymax(pc),d7
     move.w  v2_cur_y(pc),d6
-.next_y:
     addq.w  #1,d6
     move.w  d6,v2_cur_y
     lea     32(a0),a0
@@ -984,17 +987,19 @@ draw_gouraud_env_mesh_v2:
     sub.l   d2,d0
     ble.w   .dgem_skip
 
-    ; Zbuduj pakiet 3 wierzcholkow po 6 slow: [sx, sy, sz, u, v, shade]
+    ; Zbuduj pakiet 3 wierzcholkow po 6 slow: [sx, sy, sz, u, v, shade] + Z-Fog
     lea     v2_g_pkt,a5
     move.w  (a4),(a5)+
     move.w  2(a4),(a5)+
-    move.w  4(a4),(a5)+
+    move.w  4(a4),d1                ; sz0
+    move.w  d1,(a5)+
     moveq   #0,d0
     move.b  (a3,d4.w*4),d0
     move.w  d0,(a5)+
     move.b  1(a3,d4.w*4),d0
     move.w  d0,(a5)+
     move.b  2(a3,d4.w*4),d0
+    bsr.s   .apply_zfog
     move.w  d0,(a5)+
 
     move.w  d5,d0
@@ -1002,24 +1007,28 @@ draw_gouraud_env_mesh_v2:
     lea     (a1,d0.w),a4
     move.w  (a4),(a5)+
     move.w  2(a4),(a5)+
-    move.w  4(a4),(a5)+
+    move.w  4(a4),d1                ; sz1
+    move.w  d1,(a5)+
     moveq   #0,d0
     move.b  (a3,d5.w*4),d0
     move.w  d0,(a5)+
     move.b  1(a3,d5.w*4),d0
     move.w  d0,(a5)+
     move.b  2(a3,d5.w*4),d0
+    bsr.s   .apply_zfog
     move.w  d0,(a5)+
 
     move.w  (a6),(a5)+
     move.w  2(a6),(a5)+
-    move.w  4(a6),(a5)+
+    move.w  4(a6),d1                ; sz2
+    move.w  d1,(a5)+
     moveq   #0,d0
     move.b  (a3,d6.w*4),d0
     move.w  d0,(a5)+
     move.b  1(a3,d6.w*4),d0
     move.w  d0,(a5)+
     move.b  2(a3,d6.w*4),d0
+    bsr.s   .apply_zfog
     move.w  d0,(a5)+
 
     move.w  (a0)+,d1                ; tex_id
@@ -1042,6 +1051,24 @@ draw_gouraud_env_mesh_v2:
 .dgem_done:
     movem.l (sp)+,d0-d7/a0-a6
     rts
+
+; Z-Fog (Depth Cueing): d0.w = shade (0..15), d1.w = sz
+.apply_zfog:
+    tst.b   zfog_enabled(pc)
+    beq.s   .zf_ret
+    sub.w   zfog_start(pc),d1
+    ble.s   .zf_ret
+    move.w  zfog_shift(pc),d2
+    asr.w   d2,d1
+    sub.w   d1,d0
+    bge.s   .zf_ret
+    moveq   #0,d0                   ; pelne wygaszenie w glebi sceny
+.zf_ret:
+    rts
+
+zfog_start:   dc.w 118
+zfog_shift:   dc.w 2
+zfog_enabled: dc.b 1,0
 
 ; ----------------------------------------------------------------------------
 ; draw_uv_gouraud_z_tri (natywny bufor 160x128)
@@ -1237,9 +1264,9 @@ draw_uv_gouraud_z_tri:
     dbf     d1,.gpx_lp
     movem.l (sp)+,a0-a2
 
+.gnext_y:
     move.w  g_ymax(pc),d7
     move.w  g_cur_y(pc),d6
-.gnext_y:
     addq.w  #1,d6
     move.w  d6,g_cur_y
     lea     40(a0),a0

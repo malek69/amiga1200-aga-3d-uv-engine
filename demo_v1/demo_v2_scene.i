@@ -415,6 +415,10 @@ demo_act0d_v2_cam_flythrough:
     rts
 
 demo_act0e_v2_shuttle:
+    tst.w   d7
+    bne.s   .no_ptrail_rst
+    jsr     ptrail_reset
+.no_ptrail_rst:
     jsr     clear_chunky
     jsr     clear_zbuffer_v2
     jsr     draw_256_starfield
@@ -466,6 +470,13 @@ demo_act0e_v2_shuttle:
     lea     v2_chrome_bank,a2
     lea     v2_env_buf,a3
     jsr     draw_gouraud_env_mesh_v2
+
+    ; Smuga czasteczek 3D z obu dysz wahadlowca (-9,0,-36) i (+9,0,-36)
+    moveq   #0,d4
+    moveq   #0,d5
+    moveq   #0,d6
+    jsr     ptrail_emit_twin_nozzles
+    jsr     ptrail_update_and_draw
 
     ; Orbitujacy swietlik eskortujacy wahadlowiec
     move.w  light_vx(pc),d0
