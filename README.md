@@ -12,7 +12,7 @@
 
 ---
 
-## Gallery / Galeria (7 Scen na Prawdziwym Potoku AGA)
+## Gallery / Galeria (8 Etapow na Prawdziwym Potoku AGA)
 
 <table>
   <tr>
@@ -25,7 +25,7 @@
     <td align="center"><img src="docs/shot_v114_5.png" width="240" /><br/><sub><b>5. Przelot przez Torus</b> (Kamera 6DOF)</sub></td>
     <td align="center"><img src="docs/shot_v114_6.png" width="240" /><br/><sub><b>6. Model .OBJ Suzanne</b> (968 trojkatow)</sub></td>
     <td align="center"><img src="docs/shot_v114_7.png" width="240" /><br/><sub><b>7. Teren 3D Heightmap</b> (Kanion + Woda)</sub></td>
-    <td align="center"><b>M68020+ / AGA 256</b><br/><sub>16-bit Z-Buffer &bull; C2P &bull; 4-kanalowy MOD</sub></td>
+    <td align="center"><img src="docs/shot_v114_8.png" width="240" /><br/><sub><b>8. Final 3D &amp; Orbita</b> (Postac Wektorowa)</sub></td>
   </tr>
 </table>
 
