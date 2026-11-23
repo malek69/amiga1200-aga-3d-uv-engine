@@ -1,4 +1,4 @@
-<p align="right"><a href="README.md">Polski</a> | <strong>English</strong> | <a href="CHANGELOG.md">Changelog</a></p>
+<p align="right"><a href="README.md">Polski</a> | <strong>English</strong> | <a href="CHANGELOG_EN.md">Changelog</a></p>
 
 <div align="center">
   <img src="docs/logo_aura3d.png" alt="AURA-3D AGA Engine" width="520" />

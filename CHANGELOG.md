@@ -1,4 +1,4 @@
-<p align="right"><a href="README.md">Polski</a> | <a href="README_EN.md">English</a> | <strong>Historia Zmian / Changelog</strong></p>
+<p align="right"><a href="README.md">Polski</a> | <a href="README_EN.md">English</a> | <strong>Historia Zmian (PL)</strong> | <a href="CHANGELOG_EN.md">Changelog (EN)</a></p>
 
 # Historia Zmian / Changelog — AURA-3D AGA Engine
 
