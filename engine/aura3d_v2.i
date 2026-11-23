@@ -1061,13 +1061,14 @@ draw_gouraud_env_mesh_v2:
     move.w  zfog_shift(pc),d2
     asr.w   d2,d1
     sub.w   d1,d0
+    cmp.w   #5,d0
     bge.s   .zf_ret
-    moveq   #0,d0                   ; pelne wygaszenie w glebi sceny
+    moveq   #5,d0                   ; zachowaj nasycenie kolorow w glebi
 .zf_ret:
     rts
 
-zfog_start:   dc.w 118
-zfog_shift:   dc.w 2
+zfog_start:   dc.w 152
+zfog_shift:   dc.w 3
 zfog_enabled: dc.b 1,0
 
 ; ----------------------------------------------------------------------------

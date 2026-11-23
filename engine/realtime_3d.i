@@ -19,6 +19,7 @@ render_realtime_3d:
     sub.l   d0,d7                   ; lokalny czas sceny (t = 0..N)
     jsr     (a1)
     bsr.w   c2p_160x128_to_aga
+    jsr     hud_draw_overlay
     movem.l (sp)+,d0-d7/a0-a5
     rts
 pal_loaded: dc.b 0,0

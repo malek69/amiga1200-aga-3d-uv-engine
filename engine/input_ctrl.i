@@ -10,6 +10,8 @@ KEY_LEFT    equ $61                     ; raw $4f
 KEY_W       equ $dd                     ; raw $11
 KEY_S       equ $bd                     ; raw $21
 KEY_F       equ $b9                     ; raw $23
+KEY_H       equ $b5                     ; raw $25
+KEY_C       equ $99                     ; raw $33
 KEY_R       equ $d9                     ; raw $13
 KEY_SPACE   equ $7f                     ; raw $40
 KEY_1       equ $fd                     ; raw $01
@@ -130,6 +132,18 @@ input_update_controls:
     eor.b   #1,zfog_enabled
     bra.s   .clamp_zoom
 .k_not_fog:
+
+    cmp.b   #KEY_H,d0
+    bne.s   .k_not_hud
+    eor.b   #1,hud_enabled
+    bra.s   .clamp_zoom
+.k_not_hud:
+
+    cmp.b   #KEY_C,d0
+    bne.s   .k_not_shd
+    eor.b   #1,shadows_enabled
+    bra.s   .clamp_zoom
+.k_not_shd:
 
     cmp.b   #KEY_1,d0
     bne.s   .k_not_1

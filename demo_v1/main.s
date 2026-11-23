@@ -21,6 +21,7 @@ start:
     beq.w   exit_program
 
     move.l  #0,vbl_tick
+    jsr     hud_fps_init
 
 mainloop:
     bsr.w   wait_vbl
@@ -42,6 +43,7 @@ mainloop:
 
     jsr     input_update_controls
     bsr.w   render_realtime_3d
+    jsr     hud_fps_tick
 
     btst    #6,CIAAPRA
     beq.s   shutdown
@@ -69,6 +71,8 @@ exit_program:
     include "particle_trail.i"
     include "copper_sky.i"
     include "input_ctrl.i"
+    include "hud_fps.i"
+    include "planar_shadow.i"
 
 
     even

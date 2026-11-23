@@ -220,6 +220,18 @@ demo_act0b_v2_gouraud_torus:
     lea     v2_chrome_bank,a2
     lea     v2_env_buf,a3
     jsr     draw_gouraud_env_mesh_v2
+
+    ; Cien rzucany przez torus na podloze (Z-Buffer)
+    lea     torus3d_verts,a0
+    lea     v2_morph_buf,a1
+    move.w  #torus3d_vert_count,d7
+    moveq   #0,d4
+    moveq   #0,d5
+    moveq   #0,d6
+    jsr     project_planar_shadows_3d
+    lea     torus3d_env_mesh,a0
+    lea     v2_morph_buf,a1
+    jsr     draw_shadow_mesh_v2
     rts
 
     include "torus_mesh.i"
@@ -279,6 +291,18 @@ demo_act0c_v2_planetary:
     lea     v2_env_buf,a3
     jsr     draw_gouraud_env_mesh_v2
 
+    ; Cien centralnego Torusa
+    lea     torus3d_verts,a0
+    lea     v2_proj_buf,a1
+    move.w  #torus3d_vert_count,d7
+    moveq   #0,d4
+    moveq   #0,d5
+    moveq   #0,d6
+    jsr     project_planar_shadows_3d
+    lea     torus3d_env_mesh,a0
+    lea     v2_proj_buf,a1
+    jsr     draw_shadow_mesh_v2
+
     ; 2. Satelita A: Szescian 64x64 UV na orbicie poziomej (przelatuje przez otwor Torusa!)
     move.l  vbl_tick(pc),d7
     move.w  d7,d0
@@ -306,6 +330,15 @@ demo_act0c_v2_planetary:
     lea     v2_proj_buf,a1
     lea     v2_tex_bank,a2
     jsr     draw_mesh_v2
+
+    ; Cien Satelity A
+    lea     v2_sat_verts(pc),a0
+    lea     v2_proj_buf,a1
+    moveq   #8,d7
+    jsr     project_planar_shadows_3d
+    lea     v2_cube_mesh(pc),a0
+    lea     v2_proj_buf,a1
+    jsr     draw_shadow_mesh_v2
 
     ; 3. Satelita B: Drugi szescian 64x64 UV na orbicie pionowej (przeciwna faza)
     move.l  vbl_tick(pc),d7
@@ -336,6 +369,15 @@ demo_act0c_v2_planetary:
     lea     v2_proj_buf,a1
     lea     v2_tex_bank,a2
     jsr     draw_mesh_v2
+
+    ; Cien Satelity B
+    lea     v2_sat_verts(pc),a0
+    lea     v2_proj_buf,a1
+    moveq   #8,d7
+    jsr     project_planar_shadows_3d
+    lea     v2_cube_mesh(pc),a0
+    lea     v2_proj_buf,a1
+    jsr     draw_shadow_mesh_v2
     rts
 
     even
@@ -471,6 +513,18 @@ demo_act0e_v2_shuttle:
     lea     v2_env_buf,a3
     jsr     draw_gouraud_env_mesh_v2
 
+    ; Cien rzucany przez wahadlowiec na podloze (Z-Buffer)
+    lea     shuttle3d_verts,a0
+    lea     v2_morph_buf,a1
+    move.w  #shuttle3d_vert_count,d7
+    moveq   #0,d4
+    moveq   #0,d5
+    moveq   #0,d6
+    jsr     project_planar_shadows_3d
+    lea     shuttle3d_env_mesh,a0
+    lea     v2_morph_buf,a1
+    jsr     draw_shadow_mesh_v2
+
     ; Smuga czasteczek 3D z obu dysz wahadlowca (-9,0,-36) i (+9,0,-36)
     moveq   #0,d4
     moveq   #0,d5
@@ -558,6 +612,18 @@ demo_act0f_v2_morph:
     lea     v2_chrome_bank,a2
     lea     v2_env_buf,a3
     jsr     draw_gouraud_env_mesh_v2
+
+    ; Cien obiektu po 3D Vertex Morphingu
+    lea     v2_morph_buf,a0
+    lea     v2_proj_buf,a1
+    move.w  #torus3d_vert_count,d7
+    moveq   #0,d4
+    moveq   #0,d5
+    moveq   #0,d6
+    jsr     project_planar_shadows_3d
+    lea     torus3d_env_mesh,a0
+    lea     v2_proj_buf,a1
+    jsr     draw_shadow_mesh_v2
     rts
 
     include "morph_target.i"
