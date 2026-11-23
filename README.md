@@ -6,9 +6,9 @@
 
 ## Live Hardware / FS-UAE Showcase (v1.3)
 
-| 3D Vertex Morphing | Space Shuttle 3D + Particle Trail | 16-bit Z-Buffer Torus + Copper Sky |
-| :---: | :---: | :---: |
-| ![3D Morph](docs/shot_morph.png?v=13) | ![Space Shuttle](docs/shot_shuttle.png?v=13) | ![Z-Buffer Torus](docs/shot_torus.png?v=13) |
+| 3D Vertex Morphing (1008 Tris) | Space Shuttle + Particle Trail | High-Poly Torus + 3D Floor | 3D Hero Mesh + Copper Sky |
+| :---: | :---: | :---: | :---: |
+| ![3D Morph](docs/shot_morph.png?v=134) | ![Space Shuttle](docs/shot_shuttle.png?v=134) | ![Z-Buffer Torus](docs/shot_torus.png?v=134) | ![3D Hero](docs/shot_hero.png?v=134) |
 
 ## Download Latest Release (v1.3) / Pobierz najnowszą wersję (v1.3)
 
