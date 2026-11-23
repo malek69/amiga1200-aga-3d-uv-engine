@@ -38,7 +38,7 @@ write_whdload_info(inner_inf, ("SLAVE=Aura3DDemo_AGA.slave",))
 write_whdload_info(top_inf, ("SLAVE=Aura3DDemo_AGA.slave",))
 
 with open(txt, "w") as f:
-    f.write("AURA-3D AGA ENGINE v1.14.1 (2026)\nEngine & Code: malek69 & Gemini AI\nMusic (.MOD): 1991-Not A Number\nExit: LMB or ESC\n")
+    f.write("AURA-3D AGA ENGINE v1.14.2 (2026)\nEngine & Code: malek69 & Gemini AI\nMusic (.MOD): 1991-Not A Number\nExit: LMB or ESC\n")
 
 lha_bin = shutil.which("lha") or "/usr/bin/lha"
 lha_path = os.path.join(rd, "aura3d_demo_v2_AGA.lha")

@@ -380,10 +380,11 @@ draw_mesh_v2:
 draw_uv_z_tri:
     movem.l d0-d7/a0-a6,-(sp)
     move.l  vbl_tick(pc),d0
-    lsr.l   #1,d0
-    move.w  d0,v2_uv_anim_u
-    lsr.w   #1,d0
-    move.w  d0,v2_uv_anim_v
+    lsr.l   #2,d0
+    and.w   #63,d0
+    add.w   d0,8(a4)
+    add.w   d0,18(a4)
+    add.w   d0,28(a4)
     move.l  a5,v2_tex_ptr
     and.w   #$0f,d7
     lsl.w   #8,d7
@@ -482,9 +483,9 @@ draw_uv_z_tri:
 
     move.w  d1,d2
     sub.w   d0,d2                   ; dx > 0
-    cmp.w   #512,d2
+    cmp.w   #2048,d2
     ble.s   .dx_ok
-    move.w  #512,d2
+    move.w  #2048,d2
 .dx_ok:
     lea     recip_table_32(pc),a6
     move.l  (a6,d2.w*4),d2          ; d2 = 1/dx w formacie 16.16 (zero divs.l!)
@@ -555,12 +556,10 @@ draw_uv_z_tri:
 
     move.l  d5,d0
     swap    d0
-    add.w   v2_uv_anim_v(pc),d0
     and.w   #63,d0
     lsl.w   #6,d0
     move.l  d4,d6
     swap    d6
-    add.w   v2_uv_anim_u(pc),d6
     and.w   #63,d6
     or.w    d6,d0
 
@@ -606,9 +605,9 @@ scan_uvz_edge:
 .se_ord:
     move.w  d3,d6
     sub.w   d1,d6
-    cmp.w   #512,d6
+    cmp.w   #2048,d6
     ble.s   .edy_ok
-    move.w  #512,d6
+    move.w  #2048,d6
 .edy_ok:
     lea     recip_table_32(pc),a2
     move.l  (a2,d6.w*4),d6          ; d6 = 1/dy w 16.16 (zero divs.l!)
