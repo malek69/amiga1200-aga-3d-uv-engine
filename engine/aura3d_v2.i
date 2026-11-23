@@ -671,6 +671,215 @@ v2_cur_y:     dc.w 0
 v2_verts:     ds.w 15
 v2_tri_pkt:   ds.w 15
 
+; ----------------------------------------------------------------------------
+; transform_normals_envmap
+; Input: a0 = zrodlowe normalne wierzcholkow [nx.w, ny.w, nz.w] (skala 256)
+;        a1 = bufor wynikowy v2_env_buf [u.b, v.b, shade.b, pad.b]
+;        d7.w = liczba wierzcholkow (> 0)
+; ----------------------------------------------------------------------------
+transform_normals_envmap:
+    movem.l d0-d7/a0-a2,-(sp)
+    subq.w  #1,d7
+    bmi.w   .tne_done
+    lea     rot_m00(pc),a2
+.tne_lp:
+    move.w  (a0)+,d0                ; nx
+    move.w  (a0)+,d1                ; ny
+    move.w  (a0)+,d2                ; nz
+
+    ; rx = (nx*m00 + ny*m01 + nz*m02) >> 8
+    move.w  d0,d3
+    muls.w  (a2),d3
+    move.w  d1,-(sp)
+    muls.w  2(a2),d1
+    add.l   d1,d3
+    move.w  d2,d1
+    muls.w  4(a2),d1
+    add.l   d1,d3
+    asr.l   #8,d3                   ; d3 = rx
+    move.w  (sp)+,d1
+
+    ; ry = (nx*m10 + ny*m11 + nz*m12) >> 8
+    move.w  d3,-(sp)                ; zachowaj rx
+    move.w  d0,d3
+    muls.w  6(a2),d3
+    move.w  d1,-(sp)
+    muls.w  8(a2),d1
+    add.l   d1,d3
+    move.w  d2,d1
+    muls.w  10(a2),d1
+    add.l   d1,d3
+    asr.l   #8,d3                   ; d3 = ry
+    move.w  (sp)+,d1
+
+    ; rz = (nx*m20 + ny*m21 + nz*m22) >> 8
+    muls.w  12(a2),d0
+    muls.w  14(a2),d1
+    add.l   d1,d0
+    muls.w  16(a2),d2
+    add.l   d2,d0
+    asr.l   #8,d0
+    move.w  d0,d2                   ; d2 = rz
+    move.w  d3,d1                   ; d1 = ry
+    move.w  (sp)+,d0                ; d0 = rx
+
+    ; EnvMap U = clamp((rx >> 3) + 32, 0, 63)
+    move.w  d0,d3
+    asr.w   #3,d3
+    add.w   #32,d3
+    bpl.s   .eu_min
+    moveq   #0,d3
+.eu_min:
+    cmp.w   #63,d3
+    ble.s   .eu_max
+    moveq   #63,d3
+.eu_max:
+    move.b  d3,(a1)+                ; u.b
+
+    ; EnvMap V = clamp((ry >> 3) + 32, 0, 63)
+    move.w  d1,d3
+    asr.w   #3,d3
+    add.w   #32,d3
+    bpl.s   .ev_min
+    moveq   #0,d3
+.ev_min:
+    cmp.w   #63,d3
+    ble.s   .ev_max
+    moveq   #63,d3
+.ev_max:
+    move.b  d3,(a1)+                ; v.b
+
+    ; Oswietlenie kierunkowe N . L = (rx*lx + ry*ly + rz*lz) >> 12 + ambient(6)
+    muls.w  light_vx(pc),d0
+    muls.w  light_vy(pc),d1
+    add.l   d1,d0
+    muls.w  light_vz(pc),d2
+    add.l   d2,d0
+    asr.l   #8,d0
+    asr.l   #4,d0
+    addq.w  #6,d0
+    cmp.w   #1,d0
+    bge.s   .nl_min
+    moveq   #1,d0
+.nl_min:
+    cmp.w   #15,d0
+    ble.s   .nl_max
+    moveq   #15,d0
+.nl_max:
+    move.b  d0,(a1)+                ; shade.b
+    clr.b   (a1)+                   ; pad.b
+
+    dbf     d7,.tne_lp
+.tne_done:
+    movem.l (sp)+,d0-d7/a0-a2
+    rts
+
+; ----------------------------------------------------------------------------
+; draw_env_mesh_v2
+; Renderuje siatke 3D z Environment Mappingiem i oswietleniem N . L
+; Input: a0 = siatka: [num_tris.w] + [i0.w, i1.w, i2.w, tex_id.w] (8B na trojkat)
+;        a1 = v2_proj_buf [sx.w, sy.w, sz.w]
+;        a2 = bank tekstur 64x64 (4096B na teksture)
+;        a3 = v2_env_buf [u.b, v.b, shade.b, pad.b]
+; ----------------------------------------------------------------------------
+draw_env_mesh_v2:
+    movem.l d0-d7/a0-a6,-(sp)
+    move.w  (a0)+,d7
+    subq.w  #1,d7
+    bmi.w   .dem_done
+
+.dem_lp:
+    move.w  (a0)+,d4                ; i0
+    move.w  (a0)+,d5                ; i1
+    move.w  (a0)+,d6                ; i2
+
+    move.w  d4,d0
+    mulu.w  #6,d0
+    lea     (a1,d0.w),a4            ; proj v0
+    move.w  d5,d0
+    mulu.w  #6,d0
+    lea     (a1,d0.w),a5            ; proj v1
+    move.w  d6,d0
+    mulu.w  #6,d0
+    lea     (a1,d0.w),a6            ; proj v2
+
+    ; Backface culling
+    move.w  (a5),d0
+    sub.w   (a4),d0
+    move.w  2(a6),d1
+    sub.w   2(a4),d1
+    muls.w  d1,d0
+    move.w  2(a5),d2
+    sub.w   2(a4),d2
+    move.w  (a6),d3
+    sub.w   (a4),d3
+    muls.w  d3,d2
+    sub.l   d2,d0
+    ble.w   .dem_skip
+
+    ; Wypelnij v2_tri_pkt pozycjami (sx, sy, sz)
+    move.w  (a4),v2_tri_pkt
+    move.w  2(a4),v2_tri_pkt+2
+    move.w  4(a4),v2_tri_pkt+4
+    move.w  (a5),v2_tri_pkt+10
+    move.w  2(a5),v2_tri_pkt+12
+    move.w  4(a5),v2_tri_pkt+14
+    move.w  (a6),v2_tri_pkt+20
+    move.w  2(a6),v2_tri_pkt+22
+    move.w  4(a6),v2_tri_pkt+24
+
+    ; Pobierz EnvMap (u, v) oraz srednia jasnosc N . L z 3 wierzcholkow
+    moveq   #0,d3                   ; suma jasnosci
+    moveq   #0,d0
+    move.b  (a3,d4.w*4),d0
+    move.w  d0,v2_tri_pkt+6
+    move.b  1(a3,d4.w*4),d0
+    move.w  d0,v2_tri_pkt+8
+    move.b  2(a3,d4.w*4),d0
+    add.w   d0,d3
+
+    move.b  (a3,d5.w*4),d0
+    move.w  d0,v2_tri_pkt+16
+    move.b  1(a3,d5.w*4),d0
+    move.w  d0,v2_tri_pkt+18
+    move.b  2(a3,d5.w*4),d0
+    add.w   d0,d3
+
+    move.b  (a3,d6.w*4),d0
+    move.w  d0,v2_tri_pkt+26
+    move.b  1(a3,d6.w*4),d0
+    move.w  d0,v2_tri_pkt+28
+    move.b  2(a3,d6.w*4),d0
+    add.w   d0,d3
+
+    divs.w  #3,d3                   ; sredni poziom swiatla 0..15
+    move.w  (a0)+,d1                ; tex_id
+    lsl.w   #8,d1
+    lsl.w   #4,d1
+
+    movem.l d7/a0/a5,-(sp)
+    lea     (a2,d1.w),a5
+    lea     v2_tri_pkt,a4
+    move.w  d3,d7
+    bsr.w   draw_uv_z_tri
+    movem.l (sp)+,d7/a0/a5
+
+    dbf     d7,.dem_lp
+    bra.s   .dem_done
+
+.dem_skip:
+    addq.l  #2,a0
+    dbf     d7,.dem_lp
+
+.dem_done:
+    movem.l (sp)+,d0-d7/a0-a6
+    rts
+
+light_vx:     dc.w 110
+light_vy:     dc.w -140
+light_vz:     dc.w -180
+
+
 shade_lut_v2:
     incbin  "shade_lut_v2.bin"
 
@@ -678,5 +887,6 @@ shade_lut_v2:
 zbuf_3d:      ds.w 160*128
 v2_edge_buf:  ds.b 128*32
 v2_proj_buf:  ds.w 512*3
+v2_env_buf:   ds.l 512
 
     section code,code
