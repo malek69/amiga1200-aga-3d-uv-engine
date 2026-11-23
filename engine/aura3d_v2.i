@@ -2,36 +2,119 @@
 ;  PLIK / FILE: aura3d_v2.i
 ;  OPIS: Silnik 3D v2.0 (M68020+ / AGA 256 kolorow, natywny bufor 160x128 C2P):
 ;        - build_rot_matrix_3d / transform_verts_3d: pelny obrot 3D (Yaw/Pitch/Roll)
-;        - clear_zbuffer_v2:
-    movem.l d0-d7/a0-a6,-(sp)
-    lea     zbuf_3d+40960,a0
-    move.l  #$7fff7fff,d0
-    move.l  d0,d1
-    move.l  d0,d2
-    move.l  d0,d3
-    move.l  d0,d4
-    move.l  d0,d5
-    move.l  d0,d6
-    move.l  d0,d7
-    move.l  d0,a1
-    move.l  d0,a2
-    move.l  d0,a3
-    move.l  d0,a4
-    move.l  d0,a5
-    move.l  d0,a6
-    move.w  #730,d0
-    move.l  d1,d0
-    move.w  #730,a6
-.cz_blk:
-    movem.l d0-d7/a1-a5,-(a0)
-    subq.w  #1,a6
-    cmpa.w  #0,a6
-    bne.s   .cz_blk
-    move.w  #21,d1
-.cz_rem:
-    move.l  d0,(a0)+
-    dbf     d1,.cz_rem
-    movem.l (sp)+,d0-d7/a0-a6
+;        - clear_zbuffer_v2: czyszczenie 16-bitowego Z-Buffera 160x128 (40 KB Fast RAM)
+;        - draw_uv_z_tri: rasteryzator trojkatow 3D z mapowaniem UV 64x64,
+;          testem glebi Z-Buffer (16-bit) i 16-poziomowym cieniowaniem AGA.
+;        - draw_mesh_v2: kompletny potok renderowania siatki 3D z rzutowaniem,
+;          backface cullingiem i automatycznym cieniowaniem scian.
+; ============================================================================
+
+; ----------------------------------------------------------------------------
+; build_rot_matrix_3d
+; Input: d0.b = yaw (Y), d1.b = pitch (X), d2.b = roll (Z)
+; ----------------------------------------------------------------------------
+build_rot_matrix_3d:
+    movem.l d0-d7/a0,-(sp)
+    lea     sin_tab,a0
+
+    and.w   #$ff,d0
+    move.w  (a0,d0.w*2),d3          ; sy = sin(yaw)
+    add.w   #64,d0
+    and.w   #$ff,d0
+    move.w  (a0,d0.w*2),d4          ; cy = cos(yaw)
+
+    and.w   #$ff,d1
+    move.w  (a0,d1.w*2),d5          ; sx = sin(pitch)
+    add.w   #64,d1
+    and.w   #$ff,d1
+    move.w  (a0,d1.w*2),d6          ; cx = cos(pitch)
+
+    and.w   #$ff,d2
+    move.w  (a0,d2.w*2),d7          ; sz = sin(roll)
+    add.w   #64,d2
+    and.w   #$ff,d2
+    move.w  (a0,d2.w*2),d2          ; cz = cos(roll)
+
+    ; m00 = cy*cz + sy*sx*sz
+    move.w  d4,d0
+    muls.w  d2,d0
+    asr.l   #8,d0
+    move.w  d3,d1
+    muls.w  d5,d1
+    asr.l   #8,d1
+    muls.w  d7,d1
+    asr.l   #8,d1
+    add.w   d1,d0
+    move.w  d0,rot_m00
+
+    ; m01 = -cy*sz + sy*sx*cz
+    move.w  d4,d0
+    neg.w   d0
+    muls.w  d7,d0
+    asr.l   #8,d0
+    move.w  d3,d1
+    muls.w  d5,d1
+    asr.l   #8,d1
+    muls.w  d2,d1
+    asr.l   #8,d1
+    add.w   d1,d0
+    move.w  d0,rot_m01
+
+    ; m02 = sy*cx
+    move.w  d3,d0
+    muls.w  d6,d0
+    asr.l   #8,d0
+    move.w  d0,rot_m02
+
+    ; m10 = cx*sz
+    move.w  d6,d0
+    muls.w  d7,d0
+    asr.l   #8,d0
+    move.w  d0,rot_m10
+
+    ; m11 = cx*cz
+    move.w  d6,d0
+    muls.w  d2,d0
+    asr.l   #8,d0
+    move.w  d0,rot_m11
+
+    ; m12 = -sx
+    move.w  d5,d0
+    neg.w   d0
+    move.w  d0,rot_m12
+
+    ; m20 = -sy*cz + cy*sx*sz
+    move.w  d3,d0
+    neg.w   d0
+    muls.w  d2,d0
+    asr.l   #8,d0
+    move.w  d4,d1
+    muls.w  d5,d1
+    asr.l   #8,d1
+    muls.w  d7,d1
+    asr.l   #8,d1
+    add.w   d1,d0
+    move.w  d0,rot_m20
+
+    ; m21 = sy*sz + cy*sx*cz
+    move.w  d3,d0
+    muls.w  d7,d0
+    asr.l   #8,d0
+    move.w  d4,d1
+    muls.w  d5,d1
+    asr.l   #8,d1
+    muls.w  d2,d1
+    asr.l   #8,d1
+    add.w   d1,d0
+    move.w  d0,rot_m21
+
+    ; m22 = cy*cx
+    move.w  d4,d0
+    muls.w  d6,d0
+    asr.l   #8,d0
+    move.w  d0,rot_m22
+
+    movem.l (sp)+,d0-d7/a0
     rts
 
 ; ----------------------------------------------------------------------------
@@ -901,18 +984,43 @@ draw_gouraud_env_mesh_v2:
     sub.l   d2,d0
     ble.w   .dgem_skip
 
-    ; Zbuduj pakiet 3 wierzcholkow po 6 slow: [sx, sy, sz, u, v, shade + Z-Fog]
+    ; Zbuduj pakiet 3 wierzcholkow po 6 slow: [sx, sy, sz, u, v, shade]
     lea     v2_g_pkt,a5
-    move.w  d4,d1
-    bsr.s   .emit_g_vert
-    move.w  d5,d1
-    mulu.w  #6,d1
-    lea     (a1,d1.w),a4
-    move.w  d5,d1
-    bsr.s   .emit_g_vert
-    move.l  a6,a4
-    move.w  d6,d1
-    bsr.s   .emit_g_vert
+    move.w  (a4),(a5)+
+    move.w  2(a4),(a5)+
+    move.w  4(a4),(a5)+
+    moveq   #0,d0
+    move.b  (a3,d4.w*4),d0
+    move.w  d0,(a5)+
+    move.b  1(a3,d4.w*4),d0
+    move.w  d0,(a5)+
+    move.b  2(a3,d4.w*4),d0
+    move.w  d0,(a5)+
+
+    move.w  d5,d0
+    mulu.w  #6,d0
+    lea     (a1,d0.w),a4
+    move.w  (a4),(a5)+
+    move.w  2(a4),(a5)+
+    move.w  4(a4),(a5)+
+    moveq   #0,d0
+    move.b  (a3,d5.w*4),d0
+    move.w  d0,(a5)+
+    move.b  1(a3,d5.w*4),d0
+    move.w  d0,(a5)+
+    move.b  2(a3,d5.w*4),d0
+    move.w  d0,(a5)+
+
+    move.w  (a6),(a5)+
+    move.w  2(a6),(a5)+
+    move.w  4(a6),(a5)+
+    moveq   #0,d0
+    move.b  (a3,d6.w*4),d0
+    move.w  d0,(a5)+
+    move.b  1(a3,d6.w*4),d0
+    move.w  d0,(a5)+
+    move.b  2(a3,d6.w*4),d0
+    move.w  d0,(a5)+
 
     move.w  (a0)+,d1                ; tex_id
     lsl.w   #8,d1
@@ -934,30 +1042,6 @@ draw_gouraud_env_mesh_v2:
 .dgem_done:
     movem.l (sp)+,d0-d7/a0-a6
     rts
-
-; .emit_g_vert: zapisuje [sx, sy, sz, u, v, zfog_shade] z a4 i env[d1] do (a5)+
-.emit_g_vert:
-    move.w  (a4),(a5)+
-    move.w  2(a4),(a5)+
-    move.w  4(a4),d2
-    move.w  d2,(a5)+
-    moveq   #0,d0
-    move.b  (a3,d1.w*4),d0
-    move.w  d0,(a5)+
-    move.b  1(a3,d1.w*4),d0
-    move.w  d0,(a5)+
-    move.b  2(a3,d1.w*4),d0
-    sub.w   zfog_near(pc),d2
-    ble.s   .zf_ok
-    lsr.w   #3,d2
-    sub.w   d2,d0
-    bpl.s   .zf_ok
-    moveq   #0,d0
-.zf_ok:
-    move.w  d0,(a5)+
-    rts
-
-zfog_near: dc.w 112
 
 ; ----------------------------------------------------------------------------
 ; draw_uv_gouraud_z_tri (natywny bufor 160x128)
