@@ -63,6 +63,7 @@ exit_program:
     include "c2p_chunky.i"
     include "aura3d_v2.i"
     include "realtime_3d.i"
+    include "demo_v2_scene.i"
     include "demo_scenes.i"
 
 

@@ -1,7 +1,8 @@
 scene_timeline_table:
-    dc.l    0,380,demo_act1_flyin
-    dc.l    380,1180,demo_act2_orbit_zsort
-    dc.l    1180,$ffffffff,demo_act3_hero_closeup
+    dc.l    0,450,demo_act0_v2_zbuffer
+    dc.l    450,830,demo_act1_flyin
+    dc.l    830,1630,demo_act2_orbit_zsort
+    dc.l    1630,$ffffffff,demo_act3_hero_closeup
 
 demo_act1_flyin:
     bsr.w   clear_chunky

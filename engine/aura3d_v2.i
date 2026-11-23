@@ -598,13 +598,12 @@ scan_uvz_edge:
     clr.w   d1
     move.l  d1,a3
     move.w  8(a0),a2
+    move.w  2(a0),-(sp)             ; zachowaj y0 na stosie
     move.l  a2,d1
     swap    d1
     clr.w   d1
-    move.l  d1,a0
-
-    move.w  2(a0),-(sp)             ; UWAGA: zapisujemy y0 przed nadpisaniem a0!
-    addq.l  #2,sp
+    move.l  d1,a0                   ; a0 = cur_v (16.16)
+    move.w  (sp)+,d1                ; d1 = y0
     lea     v2_edge_buf,a2
 
 .se_step:
