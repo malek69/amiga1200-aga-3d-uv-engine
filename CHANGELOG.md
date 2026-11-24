@@ -7,6 +7,17 @@ Chronologiczny rejestr rozwoju silnika **AURA-3D AGA Engine** dla Commodore Amig
 ---
 
 ## v1.14.3 — Experimental Hi-Res 320x128 (2026-11-24)
+
+<p>
+  <img src="docs/shot_v1143_1.png" width="180" />
+  <img src="docs/shot_v1143_2.png" width="180" />
+  <img src="docs/shot_v1143_3.png" width="180" />
+  <img src="docs/shot_v1143_4.png" width="180" /><br/>
+  <img src="docs/shot_v1143_5.png" width="180" />
+  <img src="docs/shot_v1143_6.png" width="180" />
+  <img src="docs/shot_v1143_7.png" width="180" />
+  <img src="docs/shot_v1143_8.png" width="180" />
+</p>
 - **Zwiększenie rozdzielczości renderowania 3D do `320x128` (1x2):** 2x większa ostrość pozioma wszystkich brył 3D, wody, cieni, flar i terenu z natywnym 32-bitowym konwerterem C2P (`32 px/iteracja`) oraz podwojonymi buforami Chunky (`40 KB`) i Z-Buffer (`80 KB`).
 - **16-krotnie wyższa precyzja Z-Buffera (`sz << 4`):** wyeliminowano błędy zaokrągleń głębi na krzywiznach Torusa w scenach System Planetarny (`F4`) i Przelot przez Torus (`F5`).
 - **Kompensacja proporcji `2:1` dla cząsteczek, Lens Flare i terenu 3D:** zachowano okrągły kształt spalin, proporcje anamorficznych promieni flary oraz odświeżono napisy na planszy tytułowej (`F1`).

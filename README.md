@@ -29,16 +29,16 @@
 
 <table>
   <tr>
-    <td align="center"><img src="docs/shot_v114_1.png" width="240" /><br/><sub><b>1. Plansza Startowa AGA</b> (8-bitplan RLE)</sub></td>
-    <td align="center"><img src="docs/shot_v114_2.png" width="240" /><br/><sub><b>2. Vertex Morphing</b> (1008 trojkatow)</sub></td>
-    <td align="center"><img src="docs/shot_v114_3.png" width="240" /><br/><sub><b>3. Wahadlowiec + Flara 3D</b> (576 tris)</sub></td>
-    <td align="center"><img src="docs/shot_v114_4.png" width="240" /><br/><sub><b>4. System Planetarny</b> (1008-tri Chrom)</sub></td>
+    <td align="center"><img src="docs/shot_v1143_1.png" width="240" /><br/><sub><b>1. Plansza Startowa AGA</b> (8-bitplan RLE)</sub></td>
+    <td align="center"><img src="docs/shot_v1143_2.png" width="240" /><br/><sub><b>2. Vertex Morphing</b> (1008 trojkatow)</sub></td>
+    <td align="center"><img src="docs/shot_v1143_3.png" width="240" /><br/><sub><b>3. Wahadlowiec + Flara 3D</b> (576 tris)</sub></td>
+    <td align="center"><img src="docs/shot_v1143_4.png" width="240" /><br/><sub><b>4. System Planetarny</b> (1008-tri Chrom)</sub></td>
   </tr>
   <tr>
-    <td align="center"><img src="docs/shot_v114_5.png" width="240" /><br/><sub><b>5. Przelot przez Torus</b> (Kamera 6DOF)</sub></td>
-    <td align="center"><img src="docs/shot_v114_6.png" width="240" /><br/><sub><b>6. Model .OBJ Suzanne</b> (968 trojkatow)</sub></td>
-    <td align="center"><img src="docs/shot_v114_7.png" width="240" /><br/><sub><b>7. Teren 3D Heightmap</b> (Kanion + Woda)</sub></td>
-    <td align="center"><img src="docs/shot_v114_8.png" width="240" /><br/><sub><b>8. Final 3D &amp; Orbita</b> (Postac Wektorowa)</sub></td>
+    <td align="center"><img src="docs/shot_v1143_5.png" width="240" /><br/><sub><b>5. Przelot przez Torus</b> (Kamera 6DOF)</sub></td>
+    <td align="center"><img src="docs/shot_v1143_6.png" width="240" /><br/><sub><b>6. Model .OBJ Suzanne</b> (968 trojkatow)</sub></td>
+    <td align="center"><img src="docs/shot_v1143_7.png" width="240" /><br/><sub><b>7. Teren 3D Heightmap</b> (Kanion + Woda)</sub></td>
+    <td align="center"><img src="docs/shot_v1143_8.png" width="240" /><br/><sub><b>8. Final 3D &amp; Orbita</b> (Postac Wektorowa)</sub></td>
   </tr>
 </table>
 

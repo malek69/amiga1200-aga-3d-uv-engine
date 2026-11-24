@@ -29,16 +29,16 @@
 
 <table>
   <tr>
-    <td align="center"><img src="docs/shot_v114_1.png" width="240" /><br/><sub><b>1. AGA Title Screen</b> (8-Bitplane RLE)</sub></td>
-    <td align="center"><img src="docs/shot_v114_2.png" width="240" /><br/><sub><b>2. 3D Vertex Morphing</b> (1008 Triangles)</sub></td>
-    <td align="center"><img src="docs/shot_v114_3.png" width="240" /><br/><sub><b>3. 3D Shuttle + Lens Flare</b> (576 Tris)</sub></td>
-    <td align="center"><img src="docs/shot_v114_4.png" width="240" /><br/><sub><b>4. Planetary System</b> (1008-Tri Chrome + UV)</sub></td>
+    <td align="center"><img src="docs/shot_v1143_1.png" width="240" /><br/><sub><b>1. AGA Title Screen</b> (8-Bitplane RLE)</sub></td>
+    <td align="center"><img src="docs/shot_v1143_2.png" width="240" /><br/><sub><b>2. 3D Vertex Morphing</b> (1008 Triangles)</sub></td>
+    <td align="center"><img src="docs/shot_v1143_3.png" width="240" /><br/><sub><b>3. 3D Shuttle + Lens Flare</b> (576 Tris)</sub></td>
+    <td align="center"><img src="docs/shot_v1143_4.png" width="240" /><br/><sub><b>4. Planetary System</b> (1008-Tri Chrome + UV)</sub></td>
   </tr>
   <tr>
-    <td align="center"><img src="docs/shot_v114_5.png" width="240" /><br/><sub><b>5. Torus Flythrough</b> (6DOF Camera)</sub></td>
-    <td align="center"><img src="docs/shot_v114_6.png" width="240" /><br/><sub><b>6. Wavefront .OBJ Suzanne</b> (968 Triangles)</sub></td>
-    <td align="center"><img src="docs/shot_v114_7.png" width="240" /><br/><sub><b>7. 3D Heightmap Terrain</b> (Point Light + Z-Fog)</sub></td>
-    <td align="center"><img src="docs/shot_v114_8.png" width="240" /><br/><sub><b>8. 3D Finale &amp; Orbit</b> (Vector Character)</sub></td>
+    <td align="center"><img src="docs/shot_v1143_5.png" width="240" /><br/><sub><b>5. Torus Flythrough</b> (6DOF Camera)</sub></td>
+    <td align="center"><img src="docs/shot_v1143_6.png" width="240" /><br/><sub><b>6. Wavefront .OBJ Suzanne</b> (968 Triangles)</sub></td>
+    <td align="center"><img src="docs/shot_v1143_7.png" width="240" /><br/><sub><b>7. 3D Heightmap Terrain</b> (Point Light + Z-Fog)</sub></td>
+    <td align="center"><img src="docs/shot_v1143_8.png" width="240" /><br/><sub><b>8. 3D Finale &amp; Orbit</b> (Vector Character)</sub></td>
   </tr>
 </table>
 
