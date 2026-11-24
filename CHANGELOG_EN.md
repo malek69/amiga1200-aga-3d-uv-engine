@@ -1,6 +1,11 @@
 <p align="right"><a href="README.md">Polski</a> | <a href="README_EN.md">English</a> | <a href="CHANGELOG.md">Historia Zmian (PL)</a> | <strong>Changelog (EN)</strong></p>
 
-# Changelog — AURA-3D AGA Engine
+# Changelog
+
+## [v1.14.3] - 2026-11-24
+- **Three Target Profiles (`--profile standard|thea1200|060`):** dedicated `.lha` and `*_FSUAE.zip` releases for stock A1200 (`020`), THEA1200, and `MC68060` turbo cards, with hybrid WHDLoad + `S/startup-sequence` boot.
+
+ — AURA-3D AGA Engine
 
 Chronological release history of the **AURA-3D AGA Engine** for Commodore Amiga 1200 (M68020+ / AGA / 256 Colors).
 

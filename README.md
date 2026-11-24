@@ -1,7 +1,7 @@
 <p align="right"><strong>Polski</strong> | <a href="README_EN.md">English</a> | <a href="CHANGELOG.md">Changelog</a></p>
 
 <div align="center">
-  <img src="docs/logo_aura3d.png" alt="AURA-3D AGA Engine" width="520" />
+  <img src="docs/logo.png" alt="AURA-3D AGA Engine" width="520" />
   <h1>AURA-3D AGA Engine v1.14.3</h1>
   <p><strong>Bare-metalowy silnik graficzny 3D dla Commodore Amiga 1200 (M68020+ / AGA / 256 Colors)</strong></p>
   <p>

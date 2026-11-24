@@ -1,3 +1,8 @@
+# Changelog
+
+## [v1.14.3] - 2026-11-24
+- **Trzy obozy wydawnicze (`--profile standard|thea1200|060`):** dedykowane paczki `.lha` i `*_FSUAE.zip` dla bazowej A1200 (`020`), konsoli THEA1200 oraz kart turbo `MC68060`, z hybrydowym startem WHDLoad + `S/startup-sequence`.
+
 <p align="right"><a href="README.md">Polski</a> | <a href="README_EN.md">English</a> | <strong>Historia Zmian (PL)</strong> | <a href="CHANGELOG_EN.md">Changelog (EN)</a></p>
 
 # Historia Zmian — AURA-3D AGA Engine
