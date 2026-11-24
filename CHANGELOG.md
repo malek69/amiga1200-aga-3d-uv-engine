@@ -6,6 +6,12 @@ Chronologiczny rejestr rozwoju silnika **AURA-3D AGA Engine** dla Commodore Amig
 
 ---
 
+## v1.14.2 (2026-11-24)
+- **Nowy efekt 3D — Animowane tekstury UV (`v2_uv_anim_u/v`)**: płynące tekstury energetyczne na satelitach w Systemie Planetarnym z zerowym narzutem w pętli pikseli scanline.
+- **Nowy efekt 3D — Fresnel Rim-Edge Glow**: poświata krawędziowa na sylwetkach modeli 3D zintegrowana z cieniowaniem Phonga i mapą normalnych.
+- **Optymalizacja C2P (`c2p_chunky.i`)**: 32-bitowe maskowanie półbajtów (`and.l #$0f0f0f0f`) we wszystkich 8 grupach konwersji Chunky-to-Planar (wzrost do 22–25 FPS).
+- **Naprawa błędów**: eliminacja artefaktów („zębów piły”) przy dolnej krawędzi terenu 3D, poprawa trajektorii przelotu i smugi spalin wahadłowca nad terenem oraz separacja statycznego EnvMap Torusa od animowanych UV satelitów.
+
 ## v1.14.1
 - **Shader Phonga z Mapą Normalnych (`[P]`):** generator `tools/gen_phong_lut.py` + tablica `engine/phong_norm_lut.bin` (ostre rozbłyski lustrzane i mikro-perturbacja normalnych).
 - **Dynamiczne Światło Punktowe na Terenie 3D (`engine/terrain_3d.i`):** ruchome źródło światła krążące nad kanionem i rozświetlające zbocza w czasie rzeczywistym.

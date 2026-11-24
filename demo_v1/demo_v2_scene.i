@@ -242,6 +242,8 @@ v2_chrome_bank:
     incbin  "chrome_tex.bin"
 
 demo_act0c_v2_planetary:
+    clr.w   v2_uv_anim_u
+    clr.w   v2_uv_anim_v
     jsr     clear_chunky
     jsr     clear_zbuffer_v2
     jsr     draw_256_starfield
@@ -317,6 +319,11 @@ demo_act0c_v2_planetary:
     lea     v2_env_buf,a3
     jsr     draw_mirror_env_mesh_v2
 
+    ; Wlacz plynaca teksture UV na satelitach energetycznych
+    move.l  vbl_tick(pc),d0
+    move.w  d0,v2_uv_anim_u
+    lsr.w   #1,d0
+    move.w  d0,v2_uv_anim_v
     ; 2. Satelita A: Szescian 64x64 UV na orbicie poziomej (przelatuje przez otwor Torusa!)
     move.l  vbl_tick(pc),d7
     move.w  d7,d0
@@ -406,6 +413,8 @@ v2_sat_verts:
     dc.w    -16, 16, 16
 
 demo_act0d_v2_cam_flythrough:
+    clr.w   v2_uv_anim_u
+    clr.w   v2_uv_anim_v
     jsr     clear_chunky
     jsr     clear_zbuffer_v2
     jsr     draw_256_starfield
@@ -662,6 +671,8 @@ v2_png_tex_bank:
     incbin  "custom_png_tex.bin"
 
 demo_act0g_v2_terrain:
+    clr.w   v2_uv_anim_u
+    clr.w   v2_uv_anim_v
     jsr     clear_chunky
     jsr     clear_zbuffer_v2
     jsr     draw_256_starfield
@@ -675,25 +686,30 @@ demo_act0g_v2_terrain:
     jsr     render_3d_terrain_flyover
 
     move.l  vbl_tick(pc),d7
+    tst.b   ter_ptrail_rst(pc)
+    bne.s   .ter_pt_ok
+    move.b  #1,ter_ptrail_rst
+    jsr     ptrail_reset
+.ter_pt_ok:
     lea     sin_tab,a2
     move.w  d7,d0
     add.w   d0,d0
     and.w   #$ff,d0
     move.w  (a2,d0.w*2),d1
     asr.w   #3,d1
-    move.w  d1,d2
-    move.w  #128,d0
-    moveq   #0,d1
-    add.w   user_yaw,d1
-    add.w   user_pitch,d0
+    move.w  d1,d2                   ; roll
+    move.w  #104,d0                 ; yaw: przelot po przekatnej w glab nad terenem
+    move.w  #-12,d1                 ; lekki pochyl w dol
+    add.w   user_yaw,d0
+    add.w   user_pitch,d1
     jsr     build_rot_matrix_3d
 
     lea     shuttle3d_verts,a0
     lea     v2_proj_buf,a1
     move.w  #shuttle3d_vert_count,d7
-    moveq   #0,d4
-    move.w  #-18,d5
-    moveq   #0,d6
+    moveq   #-10,d4
+    move.w  #-22,d5
+    moveq   #16,d6
     jsr     transform_and_project_verts
 
     lea     shuttle3d_norms,a0
@@ -707,9 +723,9 @@ demo_act0g_v2_terrain:
     lea     v2_env_buf,a3
     jsr     draw_gouraud_env_mesh_v2
 
-    moveq   #0,d4
-    move.w  #-18,d5
-    moveq   #0,d6
+    moveq   #-10,d4
+    move.w  #-22,d5
+    moveq   #16,d6
     jsr     ptrail_emit_twin_nozzles
     jsr     ptrail_update_and_draw
     rts
@@ -781,3 +797,6 @@ demo_act0h_v2_net_obj:
     rts
 
     include "net_obj_mesh.i"
+
+    even
+ter_ptrail_rst: dc.b 0,0

@@ -82,7 +82,7 @@ render_3d_terrain_flyover:
 .tr_z_lp:
     move.w  d7,d5
     lsl.w   #4,d5
-    add.w   #36,d5
+    add.w   #48,d5
     sub.w   ter_sub_z(pc),d5
 
     move.w  d7,d3
@@ -116,9 +116,9 @@ render_3d_terrain_flyover:
 
     move.w  d5,d0
     add.w   user_zoom,d0
-    cmp.w   #24,d0
+    cmp.w   #42,d0
     bge.s   .tz_ok
-    move.w  #24,d0
+    move.w  #42,d0
 .tz_ok:
 
     movem.l d3/d5-d6,-(sp)

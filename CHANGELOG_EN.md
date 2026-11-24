@@ -6,6 +6,12 @@ Chronological release history of the **AURA-3D AGA Engine** for Commodore Amiga 
 
 ---
 
+## v1.14.2 (2026-11-24)
+- **New 3D Effect — Animated UV Textures (`v2_uv_anim_u/v`)**: scrolling energy textures on orbiting satellites in the Planetary System with zero per-pixel scanline overhead.
+- **New 3D Effect — Fresnel Rim-Edge Glow**: silhouette edge rim lighting integrated into the Phong + normal map shader.
+- **C2P Optimization (`c2p_chunky.i`)**: 32-bit nibble masking (`and.l #$0f0f0f0f`) across all 8 groups in the Chunky-to-Planar converter (boosting performance to 22–25 FPS).
+- **Bug Fixes**: eliminated near-plane sawtooth artifacts at the bottom edge of the 3D terrain, fixed shuttle flight angle and twin-nozzle particle trail over the terrain, and isolated static Torus EnvMap from animated satellite UVs.
+
 ## v1.14.1
 - **Phong Shader with Normal Map (`[P]`):** `tools/gen_phong_lut.py` + `engine/phong_norm_lut.bin` (sharp specular highlights + normal map perturbation).
 - **Dynamic Point Light on 3D Terrain (`engine/terrain_3d.i`):** moving light source orbiting the canyon and illuminating slopes in real time.

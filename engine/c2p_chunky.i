@@ -187,22 +187,21 @@ c2p_160x128_to_aga:
     ; Grupa 0 -> d1 (lsr.l #4 przesuwa wszystkie 4 gorne polbajty naraz!)
     move.l  (a0)+,d0
     lsr.l   #4,d0
-    move.w  d0,d2
-    and.w   #15,d2
+    and.l   #$0f0f0f0f,d0
+    moveq   #0,d2
+    move.b  d0,d2
     move.l  (a5,d2.w*4),d1
     lsr.w   #8,d0
-    and.w   #15,d0
     move.l  (a5,d0.w*4),d2
     lsl.l   #2,d2
     or.l    d2,d1
     swap    d0
-    move.w  d0,d2
-    and.w   #15,d2
+    moveq   #0,d2
+    move.b  d0,d2
     move.l  (a5,d2.w*4),d2
     lsl.l   #4,d2
     or.l    d2,d1
     lsr.w   #8,d0
-    and.w   #15,d0
     move.l  (a5,d0.w*4),d2
     lsl.l   #6,d2
     or.l    d2,d1
@@ -210,22 +209,21 @@ c2p_160x128_to_aga:
     ; Grupa 1 -> d3
     move.l  (a0)+,d0
     lsr.l   #4,d0
-    move.w  d0,d2
-    and.w   #15,d2
+    and.l   #$0f0f0f0f,d0
+    moveq   #0,d2
+    move.b  d0,d2
     move.l  (a5,d2.w*4),d3
     lsr.w   #8,d0
-    and.w   #15,d0
     move.l  (a5,d0.w*4),d2
     lsl.l   #2,d2
     or.l    d2,d3
     swap    d0
-    move.w  d0,d2
-    and.w   #15,d2
+    moveq   #0,d2
+    move.b  d0,d2
     move.l  (a5,d2.w*4),d2
     lsl.l   #4,d2
     or.l    d2,d3
     lsr.w   #8,d0
-    and.w   #15,d0
     move.l  (a5,d0.w*4),d2
     lsl.l   #6,d2
     or.l    d2,d3
@@ -233,22 +231,21 @@ c2p_160x128_to_aga:
     ; Grupa 2 -> d4
     move.l  (a0)+,d0
     lsr.l   #4,d0
-    move.w  d0,d2
-    and.w   #15,d2
+    and.l   #$0f0f0f0f,d0
+    moveq   #0,d2
+    move.b  d0,d2
     move.l  (a5,d2.w*4),d4
     lsr.w   #8,d0
-    and.w   #15,d0
     move.l  (a5,d0.w*4),d2
     lsl.l   #2,d2
     or.l    d2,d4
     swap    d0
-    move.w  d0,d2
-    and.w   #15,d2
+    moveq   #0,d2
+    move.b  d0,d2
     move.l  (a5,d2.w*4),d2
     lsl.l   #4,d2
     or.l    d2,d4
     lsr.w   #8,d0
-    and.w   #15,d0
     move.l  (a5,d0.w*4),d2
     lsl.l   #6,d2
     or.l    d2,d4
@@ -256,22 +253,21 @@ c2p_160x128_to_aga:
     ; Grupa 3 -> d5
     move.l  (a0)+,d0
     lsr.l   #4,d0
-    move.w  d0,d2
-    and.w   #15,d2
+    and.l   #$0f0f0f0f,d0
+    moveq   #0,d2
+    move.b  d0,d2
     move.l  (a5,d2.w*4),d5
     lsr.w   #8,d0
-    and.w   #15,d0
     move.l  (a5,d0.w*4),d2
     lsl.l   #2,d2
     or.l    d2,d5
     swap    d0
-    move.w  d0,d2
-    and.w   #15,d2
+    moveq   #0,d2
+    move.b  d0,d2
     move.l  (a5,d2.w*4),d2
     lsl.l   #4,d2
     or.l    d2,d5
     lsr.w   #8,d0
-    and.w   #15,d0
     move.l  (a5,d0.w*4),d2
     lsl.l   #6,d2
     or.l    d2,d5

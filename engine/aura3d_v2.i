@@ -542,6 +542,14 @@ draw_uv_z_tri:
     bra.s   .xr_clip
 .xl_clip_ok:
     move.l  8(a0),d4
+    move.w  v2_uv_anim_u(pc),d6
+    swap    d6
+    clr.w   d6
+    add.l   d6,d4
+    move.w  v2_uv_anim_v(pc),d6
+    swap    d6
+    clr.w   d6
+    add.l   d6,d5
 .xr_clip:
     cmp.w   #159,d1
     ble.s   .xr_clip_ok
@@ -937,6 +945,21 @@ draw_env_mesh_v2:
     or.w    d2,d0                   ; indeks 0..4095 w phong_norm_lut
     lea     phong_norm_lut(pc),a6
     move.b  (a6,d0.w),d3            ; jasnosc Phonga + Normal Map (0..15)
+    ; Fresnel Rim-Edge Glow: podbicie jasnosci na krawedziach sylwetki 3D
+    move.w  d0,d2
+    and.w   #63,d2
+    sub.w   #32,d2
+    muls.w  d2,d2
+    lsr.w   #6,d0
+    sub.w   #32,d0
+    muls.w  d0,d0
+    add.w   d0,d2                   ; r^2 od srodka normal mapy (0..2048)
+    cmp.w   #820,d2
+    ble.s   .no_phong
+    addq.b  #1,d3
+    cmp.b   #15,d3
+    ble.s   .no_phong
+    moveq   #15,d3
 .no_phong:
     move.w  (a0)+,d1                ; tex_id
     lsl.w   #8,d1
