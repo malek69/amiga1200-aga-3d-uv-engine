@@ -18,10 +18,10 @@
 
 | Package | Target Platform & Usage | Link |
 | :--- | :--- | :--- |
-| **`aura3d_demo_v1.14.2_AGA.lha`** | **WHDLoad / THEA1200 / RetroArch (PUAE) / Amiga 1200 + Fast RAM** — gotowy katalog z ikonami `.info`, WHDLoad Slave i plikiem wykonywalnym | [Download .LHA](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.2/aura3d_demo_v1.14.2_AGA.lha) |
-| **`aura3d_demo_v1.14.2_AGA_FSUAE.zip`** | **FS-UAE Launcher / WinUAE** — paczka skonfigurowana pod emulatory Amigi 1200 AGA (`68020` + `8 MB Fast RAM`) | [Download FS-UAE .ZIP](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.2/aura3d_demo_v1.14.2_AGA_FSUAE.zip) |
-| **`aura3d_demo_v1.14.2_AGA.adf`** | **Stacja dyskietek `DF0:` / Gotek FlashFloppy** — samostartujący obraz dyskietki 880 KB dla prawdziwej Amigi 1200 | [Download .ADF](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.2/aura3d_demo_v1.14.2_AGA.adf) |
-| **`aura3d-aga-engine-v1.14.2-src.zip`** | **Kod źródłowy (M68020 ASM + Python)** — kompletne źródła silnika `engine/`, scen `demo_v1/` oraz konwerterów `tools/` | [Download Source .ZIP](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.2/aura3d-aga-engine-v1.14.2-src.zip) |
+| **`aura3d_demo_v1.14.2_AGA.lha`** | **WHDLoad / THEA1200 / RetroArch (PUAE) / Amiga 1200 + Fast RAM** — ready-to-run directory with `.info` icons, WHDLoad Slave, and executable | [Download .LHA](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.2/aura3d_demo_v1.14.2_AGA.lha) |
+| **`aura3d_demo_v1.14.2_AGA_FSUAE.zip`** | **FS-UAE Launcher / WinUAE** — pre-configured package for Amiga 1200 AGA emulators (`68020` + `8 MB Fast RAM`) | [Download FS-UAE .ZIP](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.2/aura3d_demo_v1.14.2_AGA_FSUAE.zip) |
+| **`aura3d_demo_v1.14.2_AGA.adf`** | **Floppy Drive `DF0:` / Gotek FlashFloppy** — bootable 880 KB floppy disk image for real Amiga 1200 hardware | [Download .ADF](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.2/aura3d_demo_v1.14.2_AGA.adf) |
+| **`aura3d-aga-engine-v1.14.2-src.zip`** | **Source Code (M68020 ASM + Python)** — complete `engine/` modules, `demo_v1/` scenes, and `tools/` asset converters | [Download Source .ZIP](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.2/aura3d-aga-engine-v1.14.2-src.zip) |
 
 ---
 
@@ -29,16 +29,16 @@
 
 <table>
   <tr>
-    <td align="center"><img src="docs/shot_v114_1.png" width="240" /><br/><sub><b>1. Plansza Startowa AGA</b> (8-bitplan RLE)</sub></td>
-    <td align="center"><img src="docs/shot_v114_2.png" width="240" /><br/><sub><b>2. Vertex Morphing</b> (1008 trojkatow)</sub></td>
-    <td align="center"><img src="docs/shot_v114_3.png" width="240" /><br/><sub><b>3. Wahadlowiec + Flara 3D</b> (576 tris)</sub></td>
-    <td align="center"><img src="docs/shot_v114_4.png" width="240" /><br/><sub><b>4. System Planetarny</b> (1008-tri Chrom)</sub></td>
+    <td align="center"><img src="docs/shot_v114_1.png" width="240" /><br/><sub><b>1. AGA Title Screen</b> (8-Bitplane RLE)</sub></td>
+    <td align="center"><img src="docs/shot_v114_2.png" width="240" /><br/><sub><b>2. 3D Vertex Morphing</b> (1008 Triangles)</sub></td>
+    <td align="center"><img src="docs/shot_v114_3.png" width="240" /><br/><sub><b>3. 3D Shuttle + Lens Flare</b> (576 Tris)</sub></td>
+    <td align="center"><img src="docs/shot_v114_4.png" width="240" /><br/><sub><b>4. Planetary System</b> (1008-Tri Chrome + UV)</sub></td>
   </tr>
   <tr>
-    <td align="center"><img src="docs/shot_v114_5.png" width="240" /><br/><sub><b>5. Przelot przez Torus</b> (Kamera 6DOF)</sub></td>
-    <td align="center"><img src="docs/shot_v114_6.png" width="240" /><br/><sub><b>6. Model .OBJ Suzanne</b> (968 trojkatow)</sub></td>
-    <td align="center"><img src="docs/shot_v114_7.png" width="240" /><br/><sub><b>7. Teren 3D Heightmap</b> (Kanion + Woda)</sub></td>
-    <td align="center"><img src="docs/shot_v114_8.png" width="240" /><br/><sub><b>8. Final 3D &amp; Orbita</b> (Postac Wektorowa)</sub></td>
+    <td align="center"><img src="docs/shot_v114_5.png" width="240" /><br/><sub><b>5. Torus Flythrough</b> (6DOF Camera)</sub></td>
+    <td align="center"><img src="docs/shot_v114_6.png" width="240" /><br/><sub><b>6. Wavefront .OBJ Suzanne</b> (968 Triangles)</sub></td>
+    <td align="center"><img src="docs/shot_v114_7.png" width="240" /><br/><sub><b>7. 3D Heightmap Terrain</b> (Point Light + Z-Fog)</sub></td>
+    <td align="center"><img src="docs/shot_v114_8.png" width="240" /><br/><sub><b>8. 3D Finale &amp; Orbit</b> (Vector Character)</sub></td>
   </tr>
 </table>
 
@@ -46,13 +46,13 @@
 
 ## Engine Features (v1.14.2)
 
-- **8-Bitplanowy Ekran Startowy AGA (`320x256`, 256 kolorow):** konwertowany z pliku `.png` przez `tools/png_to_aga.py` ze strumieniowa dekompresja RLE.
-- **Falujaca Tafla Wody i Lustrzane Odbicia (`M`):** perspektywiczna woda z modulacja sinusoidalna oraz odbicia obiektow sortowane w 16-bitowym Z-Bufferze.
-- **Rozblyski Soczewkowe 3D / Lens Flare (`K`):** promienie anamorficzne oraz 3 krazki dyfrakcyjne z testem zasloniecia w Z-Bufferze.
-- **Blyski Lustrzane (Specular Highlights):** ostre refleksy swietlne na krzywiznie metalu (`transform_normals_envmap` z optymalizacja `bfextu` na M68020).
-- **Teren 3D z Mapy Wysokosci (`engine/terrain_3d.i`):** proceduralny kanion `64x64` z kierunkowym cieniowaniem zboczy, blekitnymi jeziorami i osniezonymi szczytami.
-- **Wielomaterialowe Siatki 3D + Konwerter `.obj` / `.png`:** obsluga do 4 tekstur `64x64` na jedna bryle (`tools/mesh_conv.py` oraz `tools/png_to_aga.py`).
-- **24-bitowe Niebo Coppera (`1`-`4`), Cienie Rzucane (`C`), Mgla Glebi (`F`) i Phong + Fresnel Rim Glow (`P`), Animated UV, Dynamic Point Light & Bilingual HUD (`H`, `L`, `I`).
+- **8-Bitplane AGA Title Screen (`320x256`, 256 Colors):** converted from `.png` via `tools/png_to_aga.py` with streaming RLE decompression.
+- **Waving Water Surface & Planar Reflections (`M`):** perspective water scanlines with sinusoidal wave modulation and 16-bit Z-Buffer sorted reflections.
+- **3D Lens Flare (`K`):** anamorphic light streaks and 3 diffraction discs with Z-Buffer occlusion testing.
+- **Specular Highlights:** sharp metallic light reflections (`transform_normals_envmap` optimized with M68020 `bfextu`).
+- **3D Heightmap Terrain (`engine/terrain_3d.i`):** procedural `64x64` heightmap canyon with directional slope shading, dynamic point light, lakes, and peaks.
+- **Multi-Material 3D Meshes + `.obj` / `.png` Converters:** up to four `64x64` textures per mesh (`tools/mesh_conv.py` and `tools/png_to_aga.py`).
+- **24-Bit Copper Sky (`1`-`4`), Planar Shadows (`C`), Depth Z-Fog (`F`), Phong + Fresnel Rim Glow (`P`), Animated UV, Dynamic Point Light & Bilingual HUD (`H`, `L`, `I`).
 
 ---
 
