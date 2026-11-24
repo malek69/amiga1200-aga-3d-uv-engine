@@ -598,7 +598,7 @@ draw_uv_tri:
     lea     chunky_buf,a2
     move.w  d6,d0
     mulu.w  #320,d0
-    add.w   d0,a2
+    add.l   d0,a2
 .ry_lp: move.w (a1),d0             ; xl
     move.w  2(a1),d1                ; xr
     cmp.w   d0,d1

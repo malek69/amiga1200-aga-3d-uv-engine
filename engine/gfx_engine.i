@@ -210,8 +210,8 @@ build_copper:
     move.l  #$000a8000,a0
     move.l  #(FMODE<<16)|$0000,(a0)+
     ifd FULL_RES
-    move.l  #(DIWSTRT<<16)|$2c81,(a0)+
-    move.l  #(DIWSTOP<<16)|$2cc1,(a0)+
+    move.l  #(DIWSTRT<<16)|$2c91,(a0)+
+    move.l  #(DIWSTOP<<16)|$2cd1,(a0)+
     move.l  #(DDFSTRT<<16)|$0038,(a0)+
     move.l  #(DDFSTOP<<16)|$00d0,(a0)+
     else
