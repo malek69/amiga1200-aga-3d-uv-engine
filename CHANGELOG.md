@@ -87,5 +87,9 @@ Chronologiczny rejestr rozwoju silnika **AURA-3D AGA Engine** dla Commodore Amig
 ---
 
 ## v1.0 — Baseline Release
+
+<p>
+  <img src="docs/demo_v1_preview.jpg" width="360" />
+</p>
 - **Architektura M68020+ / AGA:** potok zablokowany na `50.00 Hz PAL` (`wait_vbl`), podwójne buforowanie ekranów, wypełnianie wielokątów z tablicą prefiksów XOR (`fill_lut`) oraz sprzętowy antyaliasing Blitterem (`BLTCON0=$1dfc`).
 - **Dźwięk Paula 4CH DMA i WHDLoad Slave v17:** odtwarzanie audio bez zależności od plików Kickstart ROM (`ws_KickSize=0`).

@@ -87,5 +87,9 @@ Chronological release history of the **AURA-3D AGA Engine** for Commodore Amiga 
 ---
 
 ## v1.0 — Baseline Release
+
+<p>
+  <img src="docs/demo_v1_preview.jpg" width="360" />
+</p>
 - **M68020+ / AGA Architecture:** locked `50.00 Hz PAL` frame pipeline (`wait_vbl`), double-buffered screens, XOR prefix polygon filler (`fill_lut`), and Blitter hardware anti-aliasing (`BLTCON0=$1dfc`).
 - **Paula 4CH DMA Audio & WHDLoad Slave v17:** Kickstart-free boot (`ws_KickSize=0`) relocating Hunk segments directly into Fast/Chip RAM.
