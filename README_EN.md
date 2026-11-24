@@ -2,26 +2,26 @@
 
 <div align="center">
   <img src="docs/logo.png" alt="AURA-3D AGA Engine" width="520" />
-  <h1>AURA-3D AGA Engine v1.14.3</h1>
+  <h1>AURA-3D AGA Engine v1.14.4</h1>
   <p><strong>Bare-metal 3D Software Engine for Commodore Amiga 1200 (M68020+ / AGA / 256 Colors)</strong></p>
   <p>
-    <a href="https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.3/aura3d_demo_v2_AGA_THEA1200.lha">Download .LHA</a> &bull;
-    <a href="https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.3/aura3d_demo_v2_AGA_THEA1200_FSUAE.zip">Download FS-UAE .ZIP</a> &bull;
-    <a href="https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.3/aura3d_demo_v1.14.3_AGA.adf">Download .ADF</a> &bull;
-    <a href="https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.3/aura3d-aga-engine-v1.14.3-src.zip">Source .ZIP</a>
+    <a href="https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.4/aura3d_demo_v2_AGA_THEA1200.lha">Download .LHA</a> &bull;
+    <a href="https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.4/aura3d_demo_v2_AGA_THEA1200_FSUAE.zip">Download FS-UAE .ZIP</a> &bull;
+    <a href="https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.4/aura3d_demo_v1.14.4_AGA.adf">Download .ADF</a> &bull;
+    <a href="https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.4/aura3d-aga-engine-v1.14.4-src.zip">Source .ZIP</a>
   </p>
 </div>
 
 ---
 
-## Downloads (v1.14.3 — 3 Target Profiles)
+## Downloads (v1.14.4 — 3 Target Profiles)
 
 | Target Profile (`--profile`) | Target Hardware | Download Packages |
 | :--- | :--- | :--- |
-| **1. Standard `020` (`--profile standard`)** | Stock **Amiga 1200 (`68EC020`)**, **RetroArch (Android)** — fast **`320×128`** mode | [.LHA](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.3/aura3d_demo_v2_AGA_020.lha) · [.ZIP (FS-UAE/WinUAE)](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.3/aura3d_demo_v2_AGA_020_FSUAE.zip) |
-| **2. THEA1200 (`--profile thea1200`)** | Console **THEA1200**, **Amiberry (PC)**, **FS-UAE** — full PAL **`320×256`** (`-DFULL_RES`, 2× scene pacing) | [.LHA](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.3/aura3d_demo_v2_AGA_THEA1200.lha) · [.ZIP (FS-UAE/WinUAE)](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.3/aura3d_demo_v2_AGA_THEA1200_FSUAE.zip) |
-| **3. Turbo `MC68060` (`--profile 060`)** | Turbo cards **`MC68060` (50+ MHz)** — full PAL **`320×256`** (`-DFULL_RES`, native `-m68060`, 50 Hz 1:1) | [.LHA](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.3/aura3d_demo_v2_AGA_060.lha) · [.ZIP (FS-UAE/WinUAE)](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.3/aura3d_demo_v2_AGA_060_FSUAE.zip) |
-| **Floppy `.ADF` & Source** | Floppy drive `DF0:` / Gotek & complete source code | [.ADF (880 KB)](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.3/aura3d_demo_v1.14.3_AGA.adf) · [Source .ZIP](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.3/aura3d-aga-engine-v1.14.3-src.zip) |
+| **1. Standard `020` (`--profile standard`)** | Stock **Amiga 1200 (`68EC020`)**, **RetroArch (Android)** — fast **`320×128`** mode | [.LHA](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.4/aura3d_demo_v2_AGA_020.lha) · [.ZIP (FS-UAE/WinUAE)](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.4/aura3d_demo_v2_AGA_020_FSUAE.zip) |
+| **2. THEA1200 (`--profile thea1200`)** | Console **THEA1200**, **Amiberry (PC)**, **FS-UAE** — full PAL **`320×256`** (`-DFULL_RES`, 2× scene pacing) | [.LHA](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.4/aura3d_demo_v2_AGA_THEA1200.lha) · [.ZIP (FS-UAE/WinUAE)](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.4/aura3d_demo_v2_AGA_THEA1200_FSUAE.zip) |
+| **3. Turbo `MC68060` (`--profile 060`)** | Turbo cards **`MC68060` (50+ MHz)** — full PAL **`320×256`** (`-DFULL_RES`, native `-m68060`, 50 Hz 1:1) | [.LHA](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.4/aura3d_demo_v2_AGA_060.lha) · [.ZIP (FS-UAE/WinUAE)](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.4/aura3d_demo_v2_AGA_060_FSUAE.zip) |
+| **Floppy `.ADF` & Source** | Floppy drive `DF0:` / Gotek & complete source code | [.ADF (880 KB)](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.4/aura3d_demo_v1.14.4_AGA.adf) · [Source .ZIP](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.4/aura3d-aga-engine-v1.14.4-src.zip) |
 
 ### Package Variants & Compatibility
 - **`.lha` (WHDLoad + zapasowy `S/startup-sequence`):** działa od strzała w **RetroArch (`PUAE`)**, **Amiberry** (nawet bez pliku `C:WHDLoad`), **THEA1200** oraz na prawdziwej **Amidze 1200**.
@@ -33,22 +33,22 @@
 
 <table>
   <tr>
-    <td align="center"><img src="docs/shot_v1143_1.png" width="240" /><br/><sub><b>1. AGA Title Screen</b> (8-Bitplane RLE)</sub></td>
-    <td align="center"><img src="docs/shot_v1143_2.png" width="240" /><br/><sub><b>2. 3D Vertex Morphing</b> (1008 Triangles)</sub></td>
-    <td align="center"><img src="docs/shot_v1143_3.png" width="240" /><br/><sub><b>3. 3D Shuttle + Lens Flare</b> (576 Tris)</sub></td>
-    <td align="center"><img src="docs/shot_v1143_4.png" width="240" /><br/><sub><b>4. Planetary System</b> (1008-Tri Chrome + UV)</sub></td>
+    <td align="center"><img src="docs/shot_v1144_1.png" width="240" /><br/><sub><b>1. AGA Title Screen</b> (8-Bitplane RLE)</sub></td>
+    <td align="center"><img src="docs/shot_v1144_2.png" width="240" /><br/><sub><b>2. 3D Vertex Morphing</b> (1008 Triangles)</sub></td>
+    <td align="center"><img src="docs/shot_v1144_3.png" width="240" /><br/><sub><b>3. 3D Shuttle + Lens Flare</b> (576 Tris)</sub></td>
+    <td align="center"><img src="docs/shot_v1144_4.png" width="240" /><br/><sub><b>4. Planetary System</b> (1008-Tri Chrome + UV)</sub></td>
   </tr>
   <tr>
-    <td align="center"><img src="docs/shot_v1143_5.png" width="240" /><br/><sub><b>5. Torus Flythrough</b> (6DOF Camera)</sub></td>
-    <td align="center"><img src="docs/shot_v1143_6.png" width="240" /><br/><sub><b>6. Wavefront .OBJ Suzanne</b> (968 Triangles)</sub></td>
-    <td align="center"><img src="docs/shot_v1143_7.png" width="240" /><br/><sub><b>7. 3D Heightmap Terrain</b> (Point Light + Z-Fog)</sub></td>
-    <td align="center"><img src="docs/shot_v1143_8.png" width="240" /><br/><sub><b>8. 3D Finale &amp; Orbit</b> (Vector Character)</sub></td>
+    <td align="center"><img src="docs/shot_v1144_5.png" width="240" /><br/><sub><b>5. Torus Flythrough</b> (6DOF Camera)</sub></td>
+    <td align="center"><img src="docs/shot_v1144_6.png" width="240" /><br/><sub><b>6. Wavefront .OBJ Suzanne</b> (968 Triangles)</sub></td>
+    <td align="center"><img src="docs/shot_v1144_7.png" width="240" /><br/><sub><b>7. 3D Heightmap Terrain</b> (Point Light + Z-Fog)</sub></td>
+    <td align="center"><img src="docs/shot_v1144_8.png" width="240" /><br/><sub><b>8. 3D Finale &amp; Orbit</b> (Vector Character)</sub></td>
   </tr>
 </table>
 
 ---
 
-## Engine Features (v1.14.3)
+## Engine Features (v1.14.4)
 
 - **8-Bitplane AGA Title Screen (`320x256`, 256 Colors):** converted from `.png` via `tools/png_to_aga.py` with streaming RLE decompression.
 - **Waving Water Surface & Planar Reflections (`M`):** perspective water scanlines with sinusoidal wave modulation and 16-bit Z-Buffer sorted reflections.

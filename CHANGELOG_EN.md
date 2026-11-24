@@ -2,6 +2,22 @@
 
 # Changelog
 
+## [v1.14.4] - 2026-11-24
+- **Full PAL `320×256` 256-Color AGA (`-DFULL_RES`) for `thea1200` and `060` Profiles:** 2× vertical C2P resolution (`81,920 B` Chunky + `163,840 B` 16-bit Z-Buffer, full horizontal framing `DIWSTRT=$2C91` / `DIWSTOP=$2CD1`, `DDFSTRT=$0038` / `DDFSTOP=$00D0` with zero letterboxing) across all 3D meshes, water, reflections, shadows, terrain, lens flare, starfield, and bottom HUD bar (`Y=246`), while retaining fast `320×128` for `standard` (`68EC020` / Android).
+- **16× Water Z-Buffer Precision, Horizon Fog & Symmetric Mirror Reflections (`FULL_RES`):** matched water depth scale (`rz << 4`) with 3D mesh rasterizers so objects float cleanly above the water, added distance-based horizon water fog (`214/206` → `204/198` → `196/192`), symmetric reflections across `shadow_ground_y`, and 32-bit row addressing (`add.l`) in `draw_uv_tri` for the full finale hero in `F8`.
+- **Full `320×256` Screenshot Gallery (`docs/shot_v1144_*.png`):** added native `THEA1200` full-PAL `320×256` captures to the documentation.
+
+<p>
+  <img src="docs/shot_v1144_1.png" width="180" />
+  <img src="docs/shot_v1144_2.png" width="180" />
+  <img src="docs/shot_v1144_3.png" width="180" />
+  <img src="docs/shot_v1144_4.png" width="180" /><br/>
+  <img src="docs/shot_v1144_5.png" width="180" />
+  <img src="docs/shot_v1144_6.png" width="180" />
+  <img src="docs/shot_v1144_7.png" width="180" />
+  <img src="docs/shot_v1144_8.png" width="180" />
+</p>
+
 ## [v1.14.3] - 2026-11-24
 - **Full PAL `320×256` 256-Color AGA (`-DFULL_RES`) for `thea1200` and `060` Profiles:** 2× vertical C2P resolution (`81,920 B` Chunky + `163,840 B` 16-bit Z-Buffer, full horizontal framing `DIWSTRT=$2C91` / `DIWSTOP=$2CD1`, `DDFSTRT=$0038` / `DDFSTOP=$00D0` with zero letterboxing) across all 3D meshes, water, reflections, shadows, terrain, lens flare, starfield, and bottom HUD bar (`Y=246`), while retaining fast `320×128` for `standard` (`68EC020` / Android).
 - **16× Water Z-Buffer Precision, Horizon Fog & Symmetric Mirror Reflections (`FULL_RES`):** matched water depth scale (`rz << 4`) with 3D mesh rasterizers so objects float cleanly above the water, added distance-based horizon water fog (`214/206` → `204/198` → `196/192`), symmetric reflections across `shadow_ground_y`, and 32-bit row addressing (`add.l`) in `draw_uv_tri` for the full finale hero in `F8`.
