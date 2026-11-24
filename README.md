@@ -5,8 +5,8 @@
   <h1>AURA-3D AGA Engine v1.14.3</h1>
   <p><strong>Bare-metalowy silnik graficzny 3D dla Commodore Amiga 1200 (M68020+ / AGA / 256 Colors)</strong></p>
   <p>
-    <a href="https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.3/aura3d_demo_v1.14.3_AGA.lha">Pobierz .LHA</a> &bull;
-    <a href="https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.3/aura3d_demo_v1.14.3_AGA_FSUAE.zip">Pobierz FS-UAE .ZIP</a> &bull;
+    <a href="https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.3/aura3d_demo_v2_AGA_THEA1200.lha">Pobierz .LHA</a> &bull;
+    <a href="https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.3/aura3d_demo_v2_AGA_THEA1200_FSUAE.zip">Pobierz FS-UAE .ZIP</a> &bull;
     <a href="https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.3/aura3d_demo_v1.14.3_AGA.adf">Pobierz .ADF</a> &bull;
     <a href="https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.3/aura3d-aga-engine-v1.14.3-src.zip">Zrodla .ZIP</a> &bull; <a href="CHANGELOG.md">Changelog</a>
   </p>
