@@ -42,8 +42,8 @@ draw_3d_ground_grid:
     moveq   #66,d7
     lea     chunky_buf,a0
     lea     zbuf_3d,a1
-    adda.l  #66*160,a0
-    adda.l  #66*320,a1
+    adda.l  #66*320,a0
+    adda.l  #66*640,a1
 
 .fy_lp:
     ; dy = py - 64 (>= 2)
@@ -112,7 +112,7 @@ draw_3d_ground_grid:
     ; Przyrosty na 1 piksel ekranu w 8.8 fixed point:
     ; dwx = (rz * cos) >> 7
     move.l  a2,d0
-    asr.l   #7,d0                       ; dwx (8.8)
+    asr.l   #8,d0                       ; dwx (8.8)
     ; dwz = -(rz * sin) >> 7
     neg.l   d3                          ; uwaga: zachowaj wx_center!
     neg.l   d3                          ; przywroc wx_center
@@ -121,14 +121,14 @@ draw_3d_ground_grid:
     move.w  d2,-(sp)
     muls.w  floor_sin(pc),d2
     neg.l   d2
-    asr.l   #7,d2                       ; d2.l = dwz (8.8)
+    asr.l   #8,d2                       ; d2.l = dwz (8.8)
 
     ; Cofnij o 80 pikseli od srodka ekranu do lewej krawedzi (px = 0):
     ; cur_wx (8.8) = (wx_center << 8) - 80 * dwx
     ext.l   d3
     lsl.l   #8,d3
     move.l  d0,a4
-    muls.l  #80,d0
+    muls.l  #160,d0
     sub.l   d0,d3                       ; d3.l = cur_wx (8.8)
     move.l  a4,d0                       ; d0.l = dwx (8.8)
 
@@ -136,7 +136,7 @@ draw_3d_ground_grid:
     ext.l   d1
     lsl.l   #8,d1
     move.l  d2,a4
-    muls.l  #80,d2
+    muls.l  #160,d2
     sub.l   d2,d1                       ; d1.l = cur_wz (8.8)
     move.l  a4,d2                       ; d2.l = dwz (8.8)
 
@@ -147,7 +147,7 @@ draw_3d_ground_grid:
     move.l  a0,a4                       ; wskaznik chunky w wierszu
     move.l  a1,a5                       ; wskaznik zbuf w wierszu
     move.w  a3,a6                       ; a6.w = rz + 3
-    move.w  #159,d7                     ; szybki licznik petli dbf (160 px)
+    move.w  #319,d7                     ; szybki licznik petli dbf (320 px)
 
 .fx_lp:
     move.w  a6,d4
@@ -187,8 +187,8 @@ draw_3d_ground_grid:
     lsl.l   #7,d4
 
 .fnext_y:
-    lea     160(a0),a0
-    lea     320(a1),a1
+    lea     320(a0),a0
+    lea     640(a1),a1
     addq.w  #1,d7
     cmp.w   #128,d7
     blo.w   .fy_lp

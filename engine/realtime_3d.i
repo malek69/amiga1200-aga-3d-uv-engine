@@ -3,18 +3,21 @@ render_realtime_3d:
     move.l  vbl_tick(pc),d7
     cmp.l   #150,d7
     bhs.s   .after_splash
+    cmp.b   #2,pal_loaded
+    beq.s   .sp_cached
+    move.b  #2,pal_loaded
     lea     splash_pal_data,a0
     bsr.w   load_aga_256_palette
     bsr.w   decode_splash_to_draw_bpl
-    jsr     hud_draw_scene_info
-    clr.b   pal_loaded
+    bsr.w   copy_draw_to_disp_bpl
+.sp_cached:
     movem.l (sp)+,d0-d7/a0-a5
     rts
 
 .after_splash:
     sub.l   #150,d7
-    tst.b   pal_loaded
-    bne.s   .pal_ok
+    cmp.b   #1,pal_loaded
+    beq.s   .pal_ok
     move.b  #1,pal_loaded
     lea     aga_pal256,a0
     bsr.w   load_aga_256_palette
@@ -70,4 +73,22 @@ decode_splash_to_draw_bpl:
 .ds_next:
     dbf     d7,.ds_bpl
     movem.l (sp)+,d0-d1/d5/d7/a0-a2
+    rts
+
+copy_draw_to_disp_bpl:
+    movem.l d0-d1/a0-a3,-(sp)
+    lea     draw_bpl1(pc),a2
+    lea     disp_bpl1(pc),a3
+    moveq   #7,d1
+.cb_p:
+    move.l  (a2),a0
+    move.l  (a3),a1
+    addq.l  #8,a2
+    addq.l  #8,a3
+    move.w  #2560-1,d0
+.cb_l:
+    move.l  (a0)+,(a1)+
+    dbf     d0,.cb_l
+    dbf     d1,.cb_p
+    movem.l (sp)+,d0-d1/a0-a3
     rts

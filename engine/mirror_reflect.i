@@ -149,10 +149,9 @@ project_mirror_verts_3d:
     muls.l  d2,d3
     muls.l  d2,d1
     asr.l   #8,d3
-    asr.l   #1,d3
     asr.l   #8,d1
     asr.l   #1,d1
-    add.w   #80,d3
+    add.w   #160,d3
     add.w   #64,d1
     move.w  d3,(a1)+
     move.w  d1,(a1)+

@@ -14,25 +14,25 @@ terrain_3d_init:
     moveq   #0,d4
 .ti_x:
     move.w  d4,d0
-    muls.w  #12,d0
+    muls.w  #5,d0
     and.w   #$ff,d0
     move.w  (a1,d0.w*2),d1
 
     move.w  d5,d0
-    muls.w  #10,d0
+    muls.w  #4,d0
     add.w   #64,d0
     and.w   #$ff,d0
     add.w   (a1,d0.w*2),d1
 
     move.w  d4,d0
     sub.w   d5,d0
-    lsl.w   #3,d0
+    lsl.w   #2,d0
     and.w   #$ff,d0
     move.w  (a1,d0.w*2),d2
     asr.w   #1,d2
     add.w   d2,d1
 
-    asr.w   #3,d1
+    asr.w   #4,d1
     move.b  d1,(a0)+
 
     addq.w  #1,d4
@@ -82,7 +82,7 @@ render_3d_terrain_flyover:
 .tr_z_lp:
     move.w  d7,d5
     lsl.w   #4,d5
-    add.w   #48,d5
+    add.w   #76,d5
     sub.w   ter_sub_z(pc),d5
 
     move.w  d7,d3
@@ -94,7 +94,7 @@ render_3d_terrain_flyover:
 .tr_x_lp:
     move.w  d6,d4
     subq.w  #7,d4
-    muls.w  #18,d4
+    muls.w  #20,d4
 
     move.w  d6,d0
     and.w   #63,d0
@@ -111,7 +111,7 @@ render_3d_terrain_flyover:
     sub.w   d1,d2
     move.w  d2,ter_slope_dh
 
-    move.w  #58,d2
+    move.w  #68,d2
     sub.w   d1,d2
 
     move.w  d5,d0
@@ -137,10 +137,9 @@ render_3d_terrain_flyover:
     muls.l  d6,d3
     muls.l  d6,d2
     asr.l   #8,d3
-    asr.l   #1,d3
     asr.l   #8,d2
     asr.l   #1,d2
-    add.w   #80,d3
+    add.w   #160,d3
     add.w   #64,d2
     move.w  d3,(a1)+
     move.w  d2,(a1)+
@@ -186,7 +185,7 @@ render_3d_terrain_flyover:
     bge.s   .tc_f
     move.w  #108,d3
 .tc_f:
-    cmp.w   #160,d0
+    cmp.w   #320,d0
     ble.s   .tc_st
     subq.w  #4,d3
 .tc_st:
@@ -202,7 +201,7 @@ render_3d_terrain_flyover:
     blo.w   .tr_z_lp
 
     lea     ter_proj_buf,a1
-    moveq   #0,d7
+    moveq   #1,d7
 .tm_r_lp:
     moveq   #0,d6
 .tm_c_lp:
@@ -236,6 +235,15 @@ render_3d_terrain_flyover:
     rts
 
 .draw_ter_tri_a:
+    cmp.w   #132,2(a2)
+    bgt.s   .dta_skip
+    cmp.w   #132,2(a5)
+    bgt.s   .dta_skip
+    cmp.w   #132,2(a4)
+    ble.s   .dta_ok
+.dta_skip:
+    rts
+.dta_ok:
     lea     ter_tri_pkt(pc),a0
     move.w  (a2),(a0)+
     move.w  2(a2),(a0)+
@@ -253,6 +261,15 @@ render_3d_terrain_flyover:
     rts
 
 .draw_ter_tri_b:
+    cmp.w   #132,2(a2)
+    bgt.s   .dtb_skip
+    cmp.w   #132,2(a4)
+    bgt.s   .dtb_skip
+    cmp.w   #132,2(a3)
+    ble.s   .dtb_ok
+.dtb_skip:
+    rts
+.dtb_ok:
     lea     ter_tri_pkt(pc),a0
     move.w  (a2),(a0)+
     move.w  2(a2),(a0)+

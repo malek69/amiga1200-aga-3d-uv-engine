@@ -238,9 +238,9 @@ transform_and_project_verts:
     move.l  (sp)+,d4
 .cam_done:
 
-    cmp.w   #24,d2
+    cmp.w   #12,d2
     bge.s   .z_clip_ok
-    move.w  #24,d2
+    move.w  #12,d2
 .z_clip_ok:
     move.w  d2,-(sp)                ; zapisz sz (glebokosc Z do Z-Buffera)
     cmp.w   #2048,d2
@@ -256,14 +256,15 @@ transform_and_project_verts:
     muls.l  d2,d3
     muls.l  d2,d1
     asr.l   #8,d3
-    asr.l   #1,d3
     asr.l   #8,d1
     asr.l   #1,d1
-    add.w   #80,d3                  ; srodek X = 80 (ekran 160x128)
+    add.w   #160,d3                  ; srodek X = 80 (ekran 160x128)
     add.w   #64,d1                  ; srodek Y = 64
     move.w  d3,(a1)+                ; sx
     move.w  d1,(a1)+                ; sy
-    move.w  (sp)+,(a1)+             ; sz
+    move.w  (sp)+,d0
+    lsl.w   #4,d0
+    move.w  d0,(a1)+                ; sz (16x precyzja Z-Buffera)
 
     dbf     d7,.tp_lp
 .tp_done:
@@ -476,7 +477,7 @@ draw_uv_z_tri:
     lea     chunky_buf,a1
     lea     zbuf_3d,a2
     move.w  d6,d0
-    mulu.w  #160,d0
+    mulu.w  #320,d0
     add.l   d0,a1
     add.l   d0,d0
     add.l   d0,a2
@@ -551,9 +552,9 @@ draw_uv_z_tri:
     clr.w   d6
     add.l   d6,d5
 .xr_clip:
-    cmp.w   #159,d1
+    cmp.w   #319,d1
     ble.s   .xr_clip_ok
-    move.w  #159,d1
+    move.w  #319,d1
 .xr_clip_ok:
     sub.w   d0,d1
     bmi.w   .next_y
@@ -599,8 +600,8 @@ draw_uv_z_tri:
     addq.w  #1,d6
     move.w  d6,v2_cur_y
     lea     32(a0),a0
-    lea     160(a1),a1
-    lea     320(a2),a2
+    lea     320(a1),a1
+    lea     640(a2),a2
     cmp.w   d7,d6
     ble.w   .span_y
 
@@ -875,6 +876,14 @@ draw_env_mesh_v2:
     mulu.w  #6,d0
     lea     (a1,d0.w),a6            ; proj v2
 
+    ; Near-plane guard (sz >= 26 dla wszystkich 3 wierzcholkow)
+    cmp.w   #12,4(a4)
+    blt.w   .dem_skip
+    cmp.w   #12,4(a5)
+    blt.w   .dem_skip
+    cmp.w   #12,4(a6)
+    blt.w   .dem_skip
+
     ; Backface culling
     move.w  (a5),d0
     sub.w   (a4),d0
@@ -1001,7 +1010,7 @@ shade_lut_v2:
     incbin  "shade_lut_v2.bin"
 
     section fastram_bss,bss_p
-zbuf_3d:      ds.w 160*128
+zbuf_3d:      ds.w 320*128
 v2_edge_buf:  ds.b 128*32
 v2_proj_buf:  ds.w 2048*3
 v2_env_buf:   ds.l 2048
@@ -1041,6 +1050,14 @@ draw_gouraud_env_mesh_v2:
     move.w  d6,d0
     mulu.w  #6,d0
     lea     (a1,d0.w),a6            ; proj v2
+
+    ; Near-plane guard (sz >= 26 dla wszystkich 3 wierzcholkow)
+    cmp.w   #12,4(a4)
+    blt.w   .dgem_skip
+    cmp.w   #12,4(a5)
+    blt.w   .dgem_skip
+    cmp.w   #12,4(a6)
+    blt.w   .dgem_skip
 
     ; Backface culling
     move.w  (a5),d0
@@ -1225,7 +1242,7 @@ draw_uv_gouraud_z_tri:
     lea     chunky_buf,a1
     lea     zbuf_3d,a2
     move.w  d6,d0
-    mulu.w  #160,d0
+    mulu.w  #320,d0
     add.l   d0,a1
     add.l   d0,d0
     add.l   d0,a2
@@ -1300,9 +1317,9 @@ draw_uv_gouraud_z_tri:
     add.l   d6,d2
     moveq   #0,d0
 .gxl_ok:
-    cmp.w   #159,d1
+    cmp.w   #319,d1
     ble.s   .gxr_ok
-    move.w  #159,d1
+    move.w  #319,d1
 .gxr_ok:
     sub.w   d0,d1
     bmi.w   .gnext_y
@@ -1353,8 +1370,8 @@ draw_uv_gouraud_z_tri:
     addq.w  #1,d6
     move.w  d6,g_cur_y
     lea     40(a0),a0
-    lea     160(a1),a1
-    lea     320(a2),a2
+    lea     320(a1),a1
+    lea     640(a2),a2
     cmp.w   d7,d6
     ble.w   .gspan_y
 
@@ -1536,11 +1553,11 @@ draw_z_orb_v2:
     ext.l   d4
     ext.l   d1
     ext.l   d2
-    muls.l  #128,d4
+    muls.l  #256,d4
     muls.l  #128,d1
     divs.l  d2,d4
     divs.l  d2,d1
-    add.w   #80,d4                  ; cx
+    add.w   #160,d4                  ; cx
     add.w   #64,d1                  ; cy
     move.w  d4,orb_cx
     move.w  d1,orb_cy
@@ -1586,7 +1603,7 @@ draw_z_orb_v2:
     lea     chunky_buf,a1
     lea     zbuf_3d,a2
     move.w  d5,d0
-    mulu.w  #160,d0
+    mulu.w  #320,d0
     add.l   d0,a1
     add.l   d0,d0
     add.l   d0,a2
@@ -1601,12 +1618,13 @@ draw_z_orb_v2:
     move.w  orb_cx(pc),d5
     add.w   d6,d5                   ; px = cx + dx
     bmi.s   .ox_next
-    cmp.w   #159,d5
+    cmp.w   #319,d5
     bgt.s   .oy_next
 
     move.w  d6,d0
+    asr.w   #1,d0
     muls.w  d0,d0
-    add.w   d4,d0                   ; dist2 = dx^2 + dy^2
+    add.w   d4,d0                   ; dist2 = (dx/2)^2 + dy^2 (idealne kolo w 320x128)
     cmp.w   d2,d0
     bgt.s   .ox_next
 

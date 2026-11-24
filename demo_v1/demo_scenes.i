@@ -67,10 +67,10 @@ draw_256_starfield:
     moveq   #31,d6
 .st_lp: move.w (a1)+,d0
     add.w   d5,d0
-    and.w   #127,d0
-    add.w   #16,d0
+    and.w   #255,d0
+    add.w   #32,d0
     move.w  (a1)+,d1
-    mulu.w  #160,d1
+    mulu.w  #320,d1
     add.w   d0,d1
     move.b  #246,(a0,d1.w)
     dbf     d6,.st_lp
@@ -264,38 +264,38 @@ proj_uv_160:
     ext.l   d0
     ext.l   d1
     ext.l   d2
-    muls.l  #140,d0
+    muls.l  #280,d0
     muls.l  #140,d1
     divs.l  d2,d0
     divs.l  d2,d1
-    add.w   #80,d0
+    add.w   #160,d0
     add.w   #64,d1
     rts
 draw_256_firefly:
     cmp.w   #8,d0
     blo.s   .fe
-    cmp.w   #151,d0
+    cmp.w   #311,d0
     bhi.s   .fe
     cmp.w   #8,d1
     blo.s   .fe
     cmp.w   #119,d1
     bhi.s   .fe
     lea     chunky_buf,a0
-    mulu.w  #160,d1
+    mulu.w  #320,d1
     add.w   d0,d1
     add.w   d1,a0
     move.b  d7,d2
-    move.b  d2,-324(a0)
-    move.b  d2,-316(a0)
-    move.b  d2,-161(a0)
-    move.b  d2,-160(a0)
-    move.b  d2,-159(a0)
+    move.b  d2,-644(a0)
+    move.b  d2,-636(a0)
+    move.b  d2,-321(a0)
+    move.b  d2,-320(a0)
+    move.b  d2,-319(a0)
     move.b  d2,-2(a0)
     move.b  d2,-1(a0)
     move.b  #255,(a0)
     move.b  d2,1(a0)
     move.b  d2,2(a0)
-    move.b  d2,160(a0)
+    move.b  d2,320(a0)
 .fe: rts
     even
 zsort_cnt: dc.w 0

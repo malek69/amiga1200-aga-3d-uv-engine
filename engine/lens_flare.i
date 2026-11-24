@@ -71,16 +71,16 @@ draw_3d_lens_flare:
     ext.l   d0
     ext.l   d1
     ext.l   d2
-    muls.l  #128,d0
+    muls.l  #256,d0
     muls.l  #128,d1
     divs.l  d2,d0
     divs.l  d2,d1
-    add.w   #80,d0
+    add.w   #160,d0
     add.w   #64,d1
 
     tst.w   d0
     bmi.w   .lf_done
-    cmp.w   #159,d0
+    cmp.w   #319,d0
     bgt.w   .lf_done
     tst.w   d1
     bmi.w   .lf_done
@@ -89,7 +89,7 @@ draw_3d_lens_flare:
 
     ; Test zasloniecia w 16-bitowym Z-Bufferze
     move.w  d1,d6
-    mulu.w  #160,d6
+    mulu.w  #320,d6
     add.w   d0,d6
     lea     zbuf_3d,a1
     move.w  (a1,d6.l*2),d3
@@ -103,17 +103,17 @@ draw_3d_lens_flare:
 
     ; Poziomy promien anamorficzny
     move.w  d4,d0
-    sub.w   #22,d0
+    sub.w   #42,d0
     move.w  d4,d1
-    add.w   #22,d1
+    add.w   #42,d1
     move.w  d5,d2
     move.b  #124,d3
     bsr.w   .lf_hline
 
     move.w  d4,d0
-    sub.w   #10,d0
+    sub.w   #18,d0
     move.w  d4,d1
-    add.w   #10,d1
+    add.w   #18,d1
     move.w  d5,d2
     move.b  #255,d3
     bsr.w   .lf_hline
@@ -132,7 +132,7 @@ draw_3d_lens_flare:
     ble.s   .lf_vy
 
     ; 3 wtorne krazki dyfrakcyjne wzdluz osi (swiatlo -> srodek ekranu)
-    move.w  #80,d6
+    move.w  #160,d6
     sub.w   d4,d6
     move.w  #64,d7
     sub.w   d5,d7
@@ -149,7 +149,7 @@ draw_3d_lens_flare:
 
     move.w  d6,d0
     asr.w   #1,d0
-    add.w   #80,d0
+    add.w   #160,d0
     move.w  d7,d1
     asr.w   #1,d1
     add.w   #64,d1
@@ -157,7 +157,7 @@ draw_3d_lens_flare:
     move.b  #122,d3
     bsr.s   .lf_disc
 
-    move.w  #80,d0
+    move.w  #160,d0
     add.w   d6,d0
     move.w  #64,d1
     add.w   d7,d1
@@ -206,14 +206,14 @@ draw_3d_lens_flare:
     bpl.s   .lh_x0
     moveq   #0,d0
 .lh_x0:
-    cmp.w   #159,d1
+    cmp.w   #319,d1
     ble.s   .lh_x1
-    move.w  #159,d1
+    move.w  #319,d1
 .lh_x1:
     sub.w   d0,d1
     bmi.s   .lh_r
     movem.l d2/a1,-(sp)
-    mulu.w  #160,d2
+    mulu.w  #320,d2
     add.w   d0,d2
     lea     (a0,d2.l),a1
 .lh_lp:

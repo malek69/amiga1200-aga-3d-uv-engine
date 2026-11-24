@@ -2,26 +2,26 @@
 
 <div align="center">
   <img src="docs/logo_aura3d.png" alt="AURA-3D AGA Engine" width="520" />
-  <h1>AURA-3D AGA Engine v1.14.2</h1>
+  <h1>AURA-3D AGA Engine v1.14.3</h1>
   <p><strong>Bare-metalowy silnik graficzny 3D dla Commodore Amiga 1200 (M68020+ / AGA / 256 Colors)</strong></p>
   <p>
-    <a href="https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.2/aura3d_demo_v1.14.2_AGA.lha">Pobierz .LHA</a> &bull;
-    <a href="https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.2/aura3d_demo_v1.14.2_AGA_FSUAE.zip">Pobierz FS-UAE .ZIP</a> &bull;
-    <a href="https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.2/aura3d_demo_v1.14.2_AGA.adf">Pobierz .ADF</a> &bull;
-    <a href="https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.2/aura3d-aga-engine-v1.14.2-src.zip">Zrodla .ZIP</a> &bull; <a href="CHANGELOG.md">Changelog</a>
+    <a href="https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.3/aura3d_demo_v1.14.3_AGA.lha">Pobierz .LHA</a> &bull;
+    <a href="https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.3/aura3d_demo_v1.14.3_AGA_FSUAE.zip">Pobierz FS-UAE .ZIP</a> &bull;
+    <a href="https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.3/aura3d_demo_v1.14.3_AGA.adf">Pobierz .ADF</a> &bull;
+    <a href="https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.3/aura3d-aga-engine-v1.14.3-src.zip">Zrodla .ZIP</a> &bull; <a href="CHANGELOG.md">Changelog</a>
   </p>
 </div>
 
 ---
 
-## Pobieranie (v1.14.2 Latest)
+## Pobieranie (v1.14.3 Latest)
 
 | Pakiet | Przeznaczenie i platforma | Link |
 | :--- | :--- | :--- |
-| **`aura3d_demo_v1.14.2_AGA.lha`** | **WHDLoad / THEA1200 / RetroArch (PUAE) / Amiga 1200 + Fast RAM** — gotowy katalog z ikonami `.info`, WHDLoad Slave i plikiem wykonywalnym | [Pobierz .LHA](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.2/aura3d_demo_v1.14.2_AGA.lha) |
-| **`aura3d_demo_v1.14.2_AGA_FSUAE.zip`** | **FS-UAE Launcher / WinUAE** — paczka skonfigurowana pod emulatory Amigi 1200 AGA (`68020` + `8 MB Fast RAM`) | [Pobierz FS-UAE .ZIP](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.2/aura3d_demo_v1.14.2_AGA_FSUAE.zip) |
-| **`aura3d_demo_v1.14.2_AGA.adf`** | **Stacja dyskietek `DF0:` / Gotek FlashFloppy** — samostartujący obraz dyskietki 880 KB dla prawdziwej Amigi 1200 | [Pobierz .ADF](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.2/aura3d_demo_v1.14.2_AGA.adf) |
-| **`aura3d-aga-engine-v1.14.2-src.zip`** | **Kod źródłowy (M68020 ASM + Python)** — kompletne źródła silnika `engine/`, scen `demo_v1/` oraz konwerterów `tools/` | [Pobierz Zrodla .ZIP](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.2/aura3d-aga-engine-v1.14.2-src.zip) |
+| **`aura3d_demo_v1.14.3_AGA.lha`** | **WHDLoad / THEA1200 / RetroArch (PUAE) / Amiga 1200 + Fast RAM** — gotowy katalog z ikonami `.info`, WHDLoad Slave i plikiem wykonywalnym | [Pobierz .LHA](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.3/aura3d_demo_v1.14.3_AGA.lha) |
+| **`aura3d_demo_v1.14.3_AGA_FSUAE.zip`** | **FS-UAE Launcher / WinUAE** — paczka skonfigurowana pod emulatory Amigi 1200 AGA (`68020` + `8 MB Fast RAM`) | [Pobierz FS-UAE .ZIP](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.3/aura3d_demo_v1.14.3_AGA_FSUAE.zip) |
+| **`aura3d_demo_v1.14.3_AGA.adf`** | **Stacja dyskietek `DF0:` / Gotek FlashFloppy** — samostartujący obraz dyskietki 880 KB dla prawdziwej Amigi 1200 | [Pobierz .ADF](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.3/aura3d_demo_v1.14.3_AGA.adf) |
+| **`aura3d-aga-engine-v1.14.3-src.zip`** | **Kod źródłowy (M68020 ASM + Python)** — kompletne źródła silnika `engine/`, scen `demo_v1/` oraz konwerterów `tools/` | [Pobierz Zrodla .ZIP](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.3/aura3d-aga-engine-v1.14.3-src.zip) |
 
 ---
 
@@ -44,7 +44,7 @@
 
 ---
 
-## Co mamy w wersji v1.14.2
+## Co mamy w wersji v1.14.3
 
 - **8-Bitplanowy Ekran Startowy AGA (`320x256`, 256 kolorow):** konwertowany z pliku `.png` przez `tools/png_to_aga.py` ze strumieniowa dekompresja RLE.
 - **Falujaca Tafla Wody i Lustrzane Odbicia (`M`):** perspektywiczna woda z modulacja sinusoidalna oraz odbicia obiektow sortowane w 16-bitowym Z-Bufferze.
@@ -99,7 +99,7 @@
 | Modul | Rola w silniku | Mechanizmy sprzetowe i algorytmy |
 | :--- | :--- | :--- |
 | **`gfx_engine.i`** | Inicjalizacja AGA i Coppera | Przejecie systemu (`sys_takeover`), 8 bitplanow (`320x256`, 256 kolorow), podwojne buforowanie VBL `50 Hz`, 24-bitowe niebo Coppera (`1`-`4`) |
-| **`c2p_chunky.i`** | Konwersja Chunky-to-Planar | Przeliczanie bufora `160x128` (8-bit) na 8 bitplanow AGA (`320x256`) w czasie rzeczywistym na M68020+ |
+| **`c2p_chunky.i`** | Konwersja Chunky-to-Planar | Przeliczanie bufora `320x128` (8-bit) na 8 bitplanow AGA (`320x256`) w czasie rzeczywistym na M68020+ |
 | **`aura3d_v2.i`** | Glowny potok 3D i rasteryzer | Transformacje macierzowe 3D, rzutowanie perspektywiczne, cieniowanie Gourauda + UV (`bfextu`), Specular Highlights, `Z-Fog`, 16-bitowy **Z-Buffer** |
 | **`ground_grid.i`** | Falujaca tafla wody 3D | Perspektywiczne skanowanie wierszy tafli z modulacja sinusoidalna (`sin_tab`), przewijaniem wzdłuż `Z` i zapisem do Z-Buffera (`G`) |
 | **`mirror_reflect.i`** | Lustrzane odbicia 3D na wodzie | Symetryczne odbicie wierzcholkow pod tafla wody z falowaniem poziomym i sortowaniem glebi w Z-Bufferze (`M`) |

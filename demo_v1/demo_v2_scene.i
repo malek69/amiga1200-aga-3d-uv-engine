@@ -337,9 +337,18 @@ demo_act0c_v2_planetary:
     add.w   d0,d0
     and.w   #$ff,d0
     move.w  (a2,d0.w*2),d4
-    asr.w   #2,d4                   ; tx = sin(2t)*64
+    asr.w   #2,d4
+    move.w  d4,d0
+    asr.w   #1,d0
+    add.w   d0,d4                   ; tx = sin(2t)*96
+    move.w  d7,d0
+    add.w   d0,d0
+    and.w   #$ff,d0
     move.w  128(a2,d0.w*2),d6
-    asr.w   #2,d6                   ; tz = cos(2t)*64
+    asr.w   #2,d6
+    move.w  d6,d0
+    asr.w   #1,d0
+    add.w   d0,d6                   ; tz = cos(2t)*96
     moveq   #0,d5
 
     lea     v2_sat_verts(pc),a0
@@ -377,9 +386,19 @@ demo_act0c_v2_planetary:
     and.w   #$ff,d0
     moveq   #0,d4
     move.w  (a2,d0.w*2),d5
-    asr.w   #2,d5                   ; ty = sin(2t+pi)*64
+    asr.w   #2,d5
+    move.w  d5,d0
+    asr.w   #1,d0
+    add.w   d0,d5                   ; ty = sin(2t+pi)*96
+    move.w  d7,d0
+    add.w   d0,d0
+    add.w   #128,d0
+    and.w   #$ff,d0
     move.w  128(a2,d0.w*2),d6
-    asr.w   #2,d6                   ; tz = cos(2t+pi)*64
+    asr.w   #2,d6
+    move.w  d6,d0
+    asr.w   #1,d0
+    add.w   d0,d6                   ; tz = cos(2t+pi)*96
 
     lea     v2_sat_verts(pc),a0
     lea     v2_proj_buf,a1

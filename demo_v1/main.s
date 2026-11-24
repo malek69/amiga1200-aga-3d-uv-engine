@@ -152,7 +152,7 @@ mod_data:    incbin "demo_tune.mod"
 
     section fastram_bss,bss
     even
-chunky_buf:  ds.b 160*128
+chunky_buf:  ds.b 320*128
 edge_buf:    ds.b 256*8
 
 

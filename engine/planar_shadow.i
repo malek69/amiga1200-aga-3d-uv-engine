@@ -150,11 +150,11 @@ project_planar_shadows_3d:
     ext.l   d3
     ext.l   d1
     ext.l   d2
-    muls.l  #128,d3
+    muls.l  #256,d3
     muls.l  #128,d1
     divs.l  d2,d3
     divs.l  d2,d1
-    add.w   #80,d3
+    add.w   #160,d3
     add.w   #64,d1
     move.w  d3,(a1)+
     move.w  d1,(a1)+
@@ -323,7 +323,7 @@ draw_shadow_z_tri:
     lea     chunky_buf,a1
     lea     zbuf_3d,a2
     move.w  d6,d0
-    mulu.w  #160,d0
+    mulu.w  #320,d0
     add.l   d0,a1
     add.l   d0,d0
     add.l   d0,a2
@@ -360,9 +360,9 @@ draw_shadow_z_tri:
     add.l   d0,d3
     moveq   #0,d0
 .sxl_ok:
-    cmp.w   #159,d1
+    cmp.w   #319,d1
     ble.s   .sxr_ok
-    move.w  #159,d1
+    move.w  #319,d1
 .sxr_ok:
     sub.w   d0,d1
     bmi.s   .snext_y
@@ -388,8 +388,8 @@ draw_shadow_z_tri:
     addq.w  #1,d6
     move.w  d6,shd_cur_y
     lea     16(a0),a0
-    lea     160(a1),a1
-    lea     320(a2),a2
+    lea     320(a1),a1
+    lea     640(a2),a2
     cmp.w   d7,d6
     ble.w   .sspan_y
 

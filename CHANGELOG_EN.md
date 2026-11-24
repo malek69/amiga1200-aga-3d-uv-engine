@@ -6,6 +6,11 @@ Chronological release history of the **AURA-3D AGA Engine** for Commodore Amiga 
 
 ---
 
+## v1.14.3 — Experimental Hi-Res 320x128 (2026-11-24)
+- **3D Rendering Resolution Upgrade to `320x128` (1x2):** 2x horizontal sharpness across all 3D meshes, waving water, shadows, lens flare, and heightmap terrain with a native 32-bit C2P converter (`32 px/step`) and expanded Chunky (`40 KB`) and Z-Buffer (`80 KB`) buffers.
+- **16x Higher Z-Buffer Depth Precision (`sz << 4`):** eliminated depth rounding artifacts on curved Torus segments in the Planetary System (`F4`) and Torus Flythrough (`F5`) scenes.
+- **2:1 Aspect Ratio Compensation & Clean Title Screen:** preserved circular 3D particles, wide anamorphic lens flare streaks, balanced terrain heightmap scaling, and crisp title screen typography (`F1`).
+
 ## v1.14.2 (2026-11-24)
 
 <p>

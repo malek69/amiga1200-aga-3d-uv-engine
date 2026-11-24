@@ -412,8 +412,7 @@ hud_draw_scene_info:
     move.l  vbl_tick(pc),d7
     cmp.l   #150,d7
     bhs.s   .si_sc
-    moveq   #0,d2
-    bra.s   .si_chk
+    bra.w   .si_exit
 .si_sc:
     sub.l   #150,d7
     lea     scene_timeline_table,a0
