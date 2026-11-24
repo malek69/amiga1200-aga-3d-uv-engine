@@ -25,6 +25,7 @@ copper_set_sky_theme:
     move.l  d1,a0
 
     and.w   #3,d0
+    move.w  d0,sky_current_theme
     lea     sky_themes_table(pc),a1
     lsl.w   #4,d0                       ; 16 bajtow na motyw (4 kolory x 4B)
     adda.w  d0,a1                       ; a1 -> [C_TOP, C_HORIZ, C_GROUND, C_BOT]
@@ -222,3 +223,6 @@ sky_themes_table:
     dc.l    $00021010, $00104842, $00051c1a, $00010808
     ; Motyw 3: Pure Black
     dc.l    $00000000, $00000000, $00000000, $00000000
+
+    even
+sky_current_theme: dc.w 0

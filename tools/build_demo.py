@@ -41,6 +41,8 @@ def build_profile(root, profile):
     slv = os.path.join(pkg, f"{pkg_name}.slave")
     cpu = "-m68060" if profile == "060" else "-m68020"
     defs = ["-DFULL_RES"] if profile in ("thea1200", "060") else []
+    if profile == "060":
+        defs.append("-DM68060")
     subprocess.run(["vasmm68k_mot", cpu, *defs, "-Fhunkexe", *([] if profile in ("thea1200", "060") else ["-kick1hunks"]), "-nosym", "-I.", "-I../engine", "main.s", "-o", exe], cwd=dd, check=True)
     subprocess.run(["vasmm68k_mot", cpu, *defs, "-Fhunkexe", "-nosym", "-I.", "whdload_slave.s", "-o", slv], cwd=ed, check=True)
     os.chmod(exe, 0o755)
@@ -51,7 +53,7 @@ def build_profile(root, profile):
     with open(os.path.join(stage, "S", "startup-sequence"), "w") as f:
         f.write(f"cd {pkg_name}\nAURA3D_DEMO\n")
     with open(os.path.join(pkg, "README.txt"), "w") as f:
-        f.write(f"AURA-3D AGA ENGINE v1.14.4 [{profile}] (2026)\nEngine & Code: malek69 & Gemini AI\nMusic (.MOD): 1991-Not A Number\nExit: LMB, Joy2 Fire or ESC\n")
+        f.write(f"AURA-3D AGA ENGINE v1.14.4.1 [{profile}] (2026)\nEngine & Code: malek69 & Gemini AI\nMusic (.MOD): 1991-Not A Number\nExit: LMB, Joy2 Fire or ESC\n")
     lha_bin = shutil.which("lha") or "/usr/bin/lha"
     lha_path = os.path.join(rd, f"aura3d_demo_v2_AGA{sfx}.lha")
     if os.path.exists(lha_path): os.remove(lha_path)

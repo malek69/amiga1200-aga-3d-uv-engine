@@ -1,5 +1,10 @@
 # Changelog
 
+## [v1.14.4.1] - 2026-11-24
+- **Poprawki zgodności dla profilu `standard` / `020` (`320×128`):** wyrównano poziome kadrowanie DMA/Copper (`DIWSTRT=$3891`, `DIWSTOP=$1CD1`, `DDFSTRT=$0038`, `DDFSTOP=$00D0` — pełny napis na dolnym pasku HUD bez przycięcia z lewej) oraz włączono 16× precyzję Z-Buffera tafli wody (`rz << 4`) w trybie `320×128`.
+- **Superskalarny konwerter C2P dla `MC68060` (`-DM68060` w `engine/c2p_chunky.i`):** rozpleciony potok `pOEP/sOEP` z parowaniem rejestrów (`a6 = $0f0f0f0f`), eliminacją hazardów RAW i wyrównanymi zapisami 32-bitowymi do Chip RAM w trybie `320×256` dla profilu `060`.
+- **Rozbudowany teren 3D (`F7` w `engine/terrain_3d.i`):** zwiększona siatka kanionu `20×16` (`532` trójkąty w trybie `FULL_RES`) oraz dynamiczne odbicia motywu nieba Coppera (`1–4`) w jeziorach z falowaniem lustrzanym.
+
 ## [v1.14.4] - 2026-11-24
 - **Pełny ekran PAL `320×256` 256 kolorów AGA (`-DFULL_RES`) dla profili `thea1200` i `060`:** 2× wyższa rozdzielczość pionowa C2P (`81 920 B` Chunky + `163 840 B` 16-bit Z-Buffer, pełne kadrowanie `DIWSTRT=$2C91` / `DIWSTOP=$2CD1`, `DDFSTRT=$0038` / `DDFSTOP=$00D0` bez czarnych pasów) dla wszystkich scen 3D, wody, odbić, cieni, terenu, flar, gwiazd i dolnego paska HUD (`Y=246`), przy zachowaniu szybkiego `320×128` dla profilu `standard` (`68EC020` / Android).
 - **16× precyzja Z-Buffera tafli wody, mgła horyzontu i symetryczne odbicia (`FULL_RES`):** zrównano skalę głębi wody (`rz << 4`) z rasteryzerem brył 3D (bryły unoszą się wyraźnie nad wodą), dodano zanikanie kafelków we mgle przy horyzoncie (`214/206` → `204/198` → `196/192`), symetryczne odbicia względem `shadow_ground_y` oraz 32-bitowe adresowanie wierszy (`add.l`) w `draw_uv_tri` dla pełnej postaci w scenie finałowej `F8`.

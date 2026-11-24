@@ -2,6 +2,11 @@
 
 # Changelog
 
+## [v1.14.4.1] - 2026-11-24
+- **Stock `020` (`standard`, `320×128`) Framing & Water Z-Buffer Fixes:** aligned `DIWSTRT=$3891` / `DIWSTOP=$1CD1`, `DDFSTRT=$0038` / `DDFSTOP=$00D0` (preventing left-edge HUD text clipping) and enabled 16× water Z-buffer precision (`rz << 4`) in `320×128`.
+- **Superscalar `MC68060` C2P Pipeline (`-DM68060` in `engine/c2p_chunky.i`):** interleaved `pOEP/sOEP` dual-issue pipeline (`a6 = $0f0f0f0f`) eliminating RAW register stalls with aligned 32-bit Chip RAM writes in `320×256` for the `060` profile.
+- **Expanded 3D Heightmap Terrain (`F7` in `engine/terrain_3d.i`):** increased canyon mesh density to `20×16` (`532` triangles in `FULL_RES`) with dynamic Copper sky theme reflections (`1–4`) and animated water shimmer in valley lakes.
+
 ## [v1.14.4] - 2026-11-24
 - **Full PAL `320×256` 256-Color AGA (`-DFULL_RES`) for `thea1200` and `060` Profiles:** 2× vertical C2P resolution (`81,920 B` Chunky + `163,840 B` 16-bit Z-Buffer, full horizontal framing `DIWSTRT=$2C91` / `DIWSTOP=$2CD1`, `DDFSTRT=$0038` / `DDFSTOP=$00D0` with zero letterboxing) across all 3D meshes, water, reflections, shadows, terrain, lens flare, starfield, and bottom HUD bar (`Y=246`), while retaining fast `320×128` for `standard` (`68EC020` / Android).
 - **16× Water Z-Buffer Precision, Horizon Fog & Symmetric Mirror Reflections (`FULL_RES`):** matched water depth scale (`rz << 4`) with 3D mesh rasterizers so objects float cleanly above the water, added distance-based horizon water fog (`214/206` → `204/198` → `196/192`), symmetric reflections across `shadow_ground_y`, and 32-bit row addressing (`add.l`) in `draw_uv_tri` for the full finale hero in `F8`.

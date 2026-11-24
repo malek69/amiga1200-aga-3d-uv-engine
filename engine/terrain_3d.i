@@ -2,8 +2,13 @@
 ; AURA-3D AGA Engine v1.14 - Teren 3D z mapy wysokosci i cieniowaniem stokow
 ; ============================================================================
 
+    ifd FULL_RES
+TER_COLS    equ 20
+TER_ROWS    equ 16
+    else
 TER_COLS    equ 16
 TER_ROWS    equ 13
+    endif
 
 terrain_3d_init:
     movem.l d0-d5/a0-a1,-(sp)
@@ -93,8 +98,13 @@ render_3d_terrain_flyover:
     moveq   #0,d6
 .tr_x_lp:
     move.w  d6,d4
+    ifd FULL_RES
+    sub.w   #9,d4
+    muls.w  #22,d4
+    else
     subq.w  #7,d4
     muls.w  #20,d4
+    endif
 
     move.w  d6,d0
     and.w   #63,d0
@@ -152,8 +162,19 @@ render_3d_terrain_flyover:
 
     cmp.w   #12,d1
     bge.s   .tc_mid
-    move.w  #212,d3
-    bra.s   .tc_slope
+    ; Odbicie motywu nieba Coppera w jeziorach (0=Blekit, 1=Zachod slonca, 2=Zorza, 3=Mglawica)
+    move.w  sky_current_theme(pc),d2
+    and.w   #3,d2
+    lea     ter_lake_sky_cols(pc),a0
+    moveq   #0,d3
+    move.b  (a0,d2.w),d3
+    lea     terrain_hmap,a0
+    move.l  vbl_tick(pc),d2
+    lsr.l   #3,d2
+    add.w   d7,d2
+    and.w   #1,d2
+    add.w   d2,d3
+    bra.s   .tc_lake_done
 .tc_mid:
     cmp.w   #20,d1
     bge.s   .tc_top
@@ -165,6 +186,7 @@ render_3d_terrain_flyover:
     move.w  ter_slope_dh(pc),d2
     asr.w   #2,d2
     add.w   d2,d3
+.tc_lake_done:
 
     ; Dodaj jasnosc od dynamicznego swiatla punktowego (promien ~72 jednostki)
     move.w  d4,d2
@@ -318,6 +340,7 @@ ter_scroll_z:   dc.w 0
 ter_sub_z:      dc.w 0
 ter_slope_dh:   dc.w 0
 ter_tri_pkt:    ds.w 9
+ter_lake_sky_cols: dc.b 214,118,218,184
 
     section fastram_bss,bss_p
 terrain_hmap:   ds.b 64*64

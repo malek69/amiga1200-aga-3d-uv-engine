@@ -215,10 +215,10 @@ build_copper:
     move.l  #(DDFSTRT<<16)|$0038,(a0)+
     move.l  #(DDFSTOP<<16)|$00d0,(a0)+
     else
-    move.l  #(DIWSTRT<<16)|$3881,(a0)+
-    move.l  #(DIWSTOP<<16)|$1cc1,(a0)+
-    move.l  #(DDFSTRT<<16)|$002c,(a0)+
-    move.l  #(DDFSTOP<<16)|$00c4,(a0)+
+    move.l  #(DIWSTRT<<16)|$3891,(a0)+
+    move.l  #(DIWSTOP<<16)|$1cd1,(a0)+
+    move.l  #(DDFSTRT<<16)|$0038,(a0)+
+    move.l  #(DDFSTOP<<16)|$00d0,(a0)+
     endif
     move.l  #(BPLCON0<<16)|$0210,(a0)+    ; 8 bitplanow AGA = 256 kolorow!
     move.l  #(BPLCON1<<16)|$0000,(a0)+

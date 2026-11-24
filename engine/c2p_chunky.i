@@ -1,5 +1,490 @@
     include "fast_clear.i"
 
+
+    ifd M68060
+; ============================================================================
+; c2p_160x128_to_aga (v1.14.5 - Superskalarny potok MC68060 pOEP/sOEP, 320x256)
+; ============================================================================
+c2p_160x128_to_aga:
+    movem.l d0-d7/a0-a5,-(sp)
+    lea     c2p_exp(pc),a5
+    move.l  #$0f0f0f0f,a6               ; stala maska w rejestrze adresowym (zero hazardow)
+
+    ; PRZEBIEG 1: Low nibbles (bity 0..3) -> BPL1..BPL4
+    lea     chunky_buf,a0
+    move.l  draw_bpl1(pc),a1
+    move.l  draw_bpl2(pc),a2
+    move.l  draw_bpl3(pc),a3
+    move.l  draw_bpl4(pc),a4
+    move.w  #255,d7
+.p1_row_060:
+    moveq   #9,d6                       ; 10 blokow po 32 piksele = 320 px
+.p1_col_060:
+    moveq   #0,d2
+    move.l  a6,d0
+
+    ; --- Bajt 0 (px 0..7) -> d1 ---
+    and.l   (a0)+,d0                    ; pOEP: fetch + maska 4 pikseli
+    move.b  d0,d2                       ; sOEP: indeks px0
+    move.l  (a5,d2.w*4),d1              ; px0 -> bity 0
+    lsr.w   #8,d0                       ; px1 w dolnym bajcie
+    lsl.l   #4,d1                       ; px0 -> bity 4
+    move.l  (a5,d0.w*4),d2              ; px1
+    swap    d0                          ; px2/px3 do dolnego slowa
+    lsl.l   #5,d2                       ; px1 -> bity 5
+    or.l    d2,d1
+    moveq   #0,d2
+    move.b  d0,d2                       ; px2
+    lsr.w   #8,d0                       ; px3
+    move.l  (a5,d2.w*4),d2
+    lsl.l   #6,d2
+    or.l    d2,d1
+    move.l  (a5,d0.w*4),d2
+    move.l  a6,d0                       ; przeladuj maske do nastepnych 4 px
+    lsl.l   #7,d2
+    or.l    d2,d1
+
+    and.l   (a0)+,d0                    ; px 4..7
+    moveq   #0,d2
+    move.b  d0,d2
+    lsr.w   #8,d0
+    or.l    (a5,d2.w*4),d1              ; px4 -> bity 0
+    move.l  (a5,d0.w*4),d2              ; px5
+    swap    d0
+    lsl.l   #1,d2                       ; px5 -> bity 1
+    or.l    d2,d1
+    moveq   #0,d2
+    move.b  d0,d2                       ; px6
+    lsr.w   #8,d0                       ; px7
+    move.l  (a5,d2.w*4),d2
+    lsl.l   #2,d2
+    or.l    d2,d1
+    move.l  (a5,d0.w*4),d2
+    move.l  a6,d0
+    lsl.l   #3,d2
+    or.l    d2,d1
+
+    ; --- Bajt 1 (px 8..15) -> d3 ---
+    and.l   (a0)+,d0
+    moveq   #0,d2
+    move.b  d0,d2
+    move.l  (a5,d2.w*4),d3
+    lsr.w   #8,d0
+    lsl.l   #4,d3
+    move.l  (a5,d0.w*4),d2
+    swap    d0
+    lsl.l   #5,d2
+    or.l    d2,d3
+    moveq   #0,d2
+    move.b  d0,d2
+    lsr.w   #8,d0
+    move.l  (a5,d2.w*4),d2
+    lsl.l   #6,d2
+    or.l    d2,d3
+    move.l  (a5,d0.w*4),d2
+    move.l  a6,d0
+    lsl.l   #7,d2
+    or.l    d2,d3
+
+    and.l   (a0)+,d0
+    moveq   #0,d2
+    move.b  d0,d2
+    lsr.w   #8,d0
+    or.l    (a5,d2.w*4),d3
+    move.l  (a5,d0.w*4),d2
+    swap    d0
+    lsl.l   #1,d2
+    or.l    d2,d3
+    moveq   #0,d2
+    move.b  d0,d2
+    lsr.w   #8,d0
+    move.l  (a5,d2.w*4),d2
+    lsl.l   #2,d2
+    or.l    d2,d3
+    move.l  (a5,d0.w*4),d2
+    move.l  a6,d0
+    lsl.l   #3,d2
+    or.l    d2,d3
+
+    ; --- Bajt 2 (px 16..23) -> d4 ---
+    and.l   (a0)+,d0
+    moveq   #0,d2
+    move.b  d0,d2
+    move.l  (a5,d2.w*4),d4
+    lsr.w   #8,d0
+    lsl.l   #4,d4
+    move.l  (a5,d0.w*4),d2
+    swap    d0
+    lsl.l   #5,d2
+    or.l    d2,d4
+    moveq   #0,d2
+    move.b  d0,d2
+    lsr.w   #8,d0
+    move.l  (a5,d2.w*4),d2
+    lsl.l   #6,d2
+    or.l    d2,d4
+    move.l  (a5,d0.w*4),d2
+    move.l  a6,d0
+    lsl.l   #7,d2
+    or.l    d2,d4
+
+    and.l   (a0)+,d0
+    moveq   #0,d2
+    move.b  d0,d2
+    lsr.w   #8,d0
+    or.l    (a5,d2.w*4),d4
+    move.l  (a5,d0.w*4),d2
+    swap    d0
+    lsl.l   #1,d2
+    or.l    d2,d4
+    moveq   #0,d2
+    move.b  d0,d2
+    lsr.w   #8,d0
+    move.l  (a5,d2.w*4),d2
+    lsl.l   #2,d2
+    or.l    d2,d4
+    move.l  (a5,d0.w*4),d2
+    move.l  a6,d0
+    lsl.l   #3,d2
+    or.l    d2,d4
+
+    ; --- Bajt 3 (px 24..31) -> d5 ---
+    and.l   (a0)+,d0
+    moveq   #0,d2
+    move.b  d0,d2
+    move.l  (a5,d2.w*4),d5
+    lsr.w   #8,d0
+    lsl.l   #4,d5
+    move.l  (a5,d0.w*4),d2
+    swap    d0
+    lsl.l   #5,d2
+    or.l    d2,d5
+    moveq   #0,d2
+    move.b  d0,d2
+    lsr.w   #8,d0
+    move.l  (a5,d2.w*4),d2
+    lsl.l   #6,d2
+    or.l    d2,d5
+    move.l  (a5,d0.w*4),d2
+    move.l  a6,d0
+    lsl.l   #7,d2
+    or.l    d2,d5
+
+    and.l   (a0)+,d0
+    moveq   #0,d2
+    move.b  d0,d2
+    lsr.w   #8,d0
+    or.l    (a5,d2.w*4),d5
+    move.l  (a5,d0.w*4),d2
+    swap    d0
+    lsl.l   #1,d2
+    or.l    d2,d5
+    moveq   #0,d2
+    move.b  d0,d2
+    lsr.w   #8,d0
+    move.l  (a5,d2.w*4),d2
+    lsl.l   #2,d2
+    or.l    d2,d5
+    move.l  (a5,d0.w*4),d2
+    lsl.l   #3,d2
+    or.l    d2,d5
+
+    ; Zapis 32-bitowy do BPL4..BPL1 z parowaniem ALU
+    move.b  d1,d0
+    lsl.w   #8,d0
+    move.b  d3,d0
+    swap    d0
+    move.b  d4,d0
+    lsl.w   #8,d0
+    move.b  d5,d0
+    move.l  d0,(a4)+
+
+    lsr.l   #8,d1
+    lsr.l   #8,d3
+    lsr.l   #8,d4
+    lsr.l   #8,d5
+    move.b  d1,d0
+    lsl.w   #8,d0
+    move.b  d3,d0
+    swap    d0
+    move.b  d4,d0
+    lsl.w   #8,d0
+    move.b  d5,d0
+    move.l  d0,(a3)+
+
+    lsr.l   #8,d1
+    lsr.l   #8,d3
+    lsr.l   #8,d4
+    lsr.l   #8,d5
+    move.b  d1,d0
+    lsl.w   #8,d0
+    move.b  d3,d0
+    swap    d0
+    move.b  d4,d0
+    lsl.w   #8,d0
+    move.b  d5,d0
+    move.l  d0,(a2)+
+
+    lsr.l   #8,d1
+    lsr.l   #8,d3
+    lsr.l   #8,d4
+    lsr.l   #8,d5
+    move.b  d1,d0
+    lsl.w   #8,d0
+    move.b  d3,d0
+    swap    d0
+    move.b  d4,d0
+    lsl.w   #8,d0
+    move.b  d5,d0
+    move.l  d0,(a1)+
+
+    dbf     d6,.p1_col_060
+    dbf     d7,.p1_row_060
+
+    ; PRZEBIEG 2: High nibbles (bity 4..7) -> BPL5..BPL8
+    lea     chunky_buf,a0
+    move.l  draw_bpl5(pc),a1
+    move.l  draw_bpl6(pc),a2
+    move.l  draw_bpl7(pc),a3
+    move.l  draw_bpl8(pc),a4
+    move.w  #255,d7
+.p2_row_060:
+    moveq   #9,d6
+.p2_col_060:
+    move.l  (a0)+,d0
+    move.l  a6,d2
+    lsr.l   #4,d0
+    and.l   d2,d0
+    moveq   #0,d2
+    move.b  d0,d2
+    move.l  (a5,d2.w*4),d1
+    lsr.w   #8,d0
+    lsl.l   #4,d1
+    move.l  (a5,d0.w*4),d2
+    swap    d0
+    lsl.l   #5,d2
+    or.l    d2,d1
+    moveq   #0,d2
+    move.b  d0,d2
+    lsr.w   #8,d0
+    move.l  (a5,d2.w*4),d2
+    lsl.l   #6,d2
+    or.l    d2,d1
+    move.l  (a5,d0.w*4),d2
+    lsl.l   #7,d2
+    or.l    d2,d1
+
+    move.l  (a0)+,d0
+    move.l  a6,d2
+    lsr.l   #4,d0
+    and.l   d2,d0
+    moveq   #0,d2
+    move.b  d0,d2
+    lsr.w   #8,d0
+    or.l    (a5,d2.w*4),d1
+    move.l  (a5,d0.w*4),d2
+    swap    d0
+    lsl.l   #1,d2
+    or.l    d2,d1
+    moveq   #0,d2
+    move.b  d0,d2
+    lsr.w   #8,d0
+    move.l  (a5,d2.w*4),d2
+    lsl.l   #2,d2
+    or.l    d2,d1
+    move.l  (a5,d0.w*4),d2
+    lsl.l   #3,d2
+    or.l    d2,d1
+
+    move.l  (a0)+,d0
+    move.l  a6,d2
+    lsr.l   #4,d0
+    and.l   d2,d0
+    moveq   #0,d2
+    move.b  d0,d2
+    move.l  (a5,d2.w*4),d3
+    lsr.w   #8,d0
+    lsl.l   #4,d3
+    move.l  (a5,d0.w*4),d2
+    swap    d0
+    lsl.l   #5,d2
+    or.l    d2,d3
+    moveq   #0,d2
+    move.b  d0,d2
+    lsr.w   #8,d0
+    move.l  (a5,d2.w*4),d2
+    lsl.l   #6,d2
+    or.l    d2,d3
+    move.l  (a5,d0.w*4),d2
+    lsl.l   #7,d2
+    or.l    d2,d3
+
+    move.l  (a0)+,d0
+    move.l  a6,d2
+    lsr.l   #4,d0
+    and.l   d2,d0
+    moveq   #0,d2
+    move.b  d0,d2
+    lsr.w   #8,d0
+    or.l    (a5,d2.w*4),d3
+    move.l  (a5,d0.w*4),d2
+    swap    d0
+    lsl.l   #1,d2
+    or.l    d2,d3
+    moveq   #0,d2
+    move.b  d0,d2
+    lsr.w   #8,d0
+    move.l  (a5,d2.w*4),d2
+    lsl.l   #2,d2
+    or.l    d2,d3
+    move.l  (a5,d0.w*4),d2
+    lsl.l   #3,d2
+    or.l    d2,d3
+
+    move.l  (a0)+,d0
+    move.l  a6,d2
+    lsr.l   #4,d0
+    and.l   d2,d0
+    moveq   #0,d2
+    move.b  d0,d2
+    move.l  (a5,d2.w*4),d4
+    lsr.w   #8,d0
+    lsl.l   #4,d4
+    move.l  (a5,d0.w*4),d2
+    swap    d0
+    lsl.l   #5,d2
+    or.l    d2,d4
+    moveq   #0,d2
+    move.b  d0,d2
+    lsr.w   #8,d0
+    move.l  (a5,d2.w*4),d2
+    lsl.l   #6,d2
+    or.l    d2,d4
+    move.l  (a5,d0.w*4),d2
+    lsl.l   #7,d2
+    or.l    d2,d4
+
+    move.l  (a0)+,d0
+    move.l  a6,d2
+    lsr.l   #4,d0
+    and.l   d2,d0
+    moveq   #0,d2
+    move.b  d0,d2
+    lsr.w   #8,d0
+    or.l    (a5,d2.w*4),d4
+    move.l  (a5,d0.w*4),d2
+    swap    d0
+    lsl.l   #1,d2
+    or.l    d2,d4
+    moveq   #0,d2
+    move.b  d0,d2
+    lsr.w   #8,d0
+    move.l  (a5,d2.w*4),d2
+    lsl.l   #2,d2
+    or.l    d2,d4
+    move.l  (a5,d0.w*4),d2
+    lsl.l   #3,d2
+    or.l    d2,d4
+
+    move.l  (a0)+,d0
+    move.l  a6,d2
+    lsr.l   #4,d0
+    and.l   d2,d0
+    moveq   #0,d2
+    move.b  d0,d2
+    move.l  (a5,d2.w*4),d5
+    lsr.w   #8,d0
+    lsl.l   #4,d5
+    move.l  (a5,d0.w*4),d2
+    swap    d0
+    lsl.l   #5,d2
+    or.l    d2,d5
+    moveq   #0,d2
+    move.b  d0,d2
+    lsr.w   #8,d0
+    move.l  (a5,d2.w*4),d2
+    lsl.l   #6,d2
+    or.l    d2,d5
+    move.l  (a5,d0.w*4),d2
+    lsl.l   #7,d2
+    or.l    d2,d5
+
+    move.l  (a0)+,d0
+    move.l  a6,d2
+    lsr.l   #4,d0
+    and.l   d2,d0
+    moveq   #0,d2
+    move.b  d0,d2
+    lsr.w   #8,d0
+    or.l    (a5,d2.w*4),d5
+    move.l  (a5,d0.w*4),d2
+    swap    d0
+    lsl.l   #1,d2
+    or.l    d2,d5
+    moveq   #0,d2
+    move.b  d0,d2
+    lsr.w   #8,d0
+    move.l  (a5,d2.w*4),d2
+    lsl.l   #2,d2
+    or.l    d2,d5
+    move.l  (a5,d0.w*4),d2
+    lsl.l   #3,d2
+    or.l    d2,d5
+
+    move.b  d1,d0
+    lsl.w   #8,d0
+    move.b  d3,d0
+    swap    d0
+    move.b  d4,d0
+    lsl.w   #8,d0
+    move.b  d5,d0
+    move.l  d0,(a4)+
+
+    lsr.l   #8,d1
+    lsr.l   #8,d3
+    lsr.l   #8,d4
+    lsr.l   #8,d5
+    move.b  d1,d0
+    lsl.w   #8,d0
+    move.b  d3,d0
+    swap    d0
+    move.b  d4,d0
+    lsl.w   #8,d0
+    move.b  d5,d0
+    move.l  d0,(a3)+
+
+    lsr.l   #8,d1
+    lsr.l   #8,d3
+    lsr.l   #8,d4
+    lsr.l   #8,d5
+    move.b  d1,d0
+    lsl.w   #8,d0
+    move.b  d3,d0
+    swap    d0
+    move.b  d4,d0
+    lsl.w   #8,d0
+    move.b  d5,d0
+    move.l  d0,(a2)+
+
+    lsr.l   #8,d1
+    lsr.l   #8,d3
+    lsr.l   #8,d4
+    lsr.l   #8,d5
+    move.b  d1,d0
+    lsl.w   #8,d0
+    move.b  d3,d0
+    swap    d0
+    move.b  d4,d0
+    lsl.w   #8,d0
+    move.b  d5,d0
+    move.l  d0,(a1)+
+
+    dbf     d6,.p2_col_060
+    dbf     d7,.p2_row_060
+
+    movem.l (sp)+,d0-d7/a0-a5
+    rts
+    else
 ; ============================================================================
 ; c2p_160x128_to_aga (v1.14.3 - Tryb 320x128 1x2, 32 px/krok, 32-bit move.l)
 ; ============================================================================
@@ -512,6 +997,7 @@ c2p_160x128_to_aga:
     movem.l (sp)+,d0-d7/a0-a5
     rts
 
+    endif
 draw_uv_tri:
     ; Trojkat 3D z prawdziwa tekstura UV 64x64: a4 -> 3x(sx,sy,u,v), d6=tex_id (0..3), d7=light (0..7)
     movem.l d0-d7/a0-a5,-(sp)

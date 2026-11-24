@@ -68,11 +68,7 @@ draw_3d_ground_grid:
     divs.w  d1,d2                       ; d2.w = rz
     cmp.w   #12,d2
     blt.w   .fnext_y
-    ifd FULL_RES
     cmp.w   #1600,d2
-    else
-    cmp.w   #340,d2
-    endif
     bgt.w   .fnext_y                    ; za daleko za horyzontem -> zostaw tlo Coppera
 
     ; Dobierz pare kolorow kafelkow (jasny / ciemny) zaleznie od odleglosci rz
@@ -158,9 +154,7 @@ draw_3d_ground_grid:
     move.l  a4,d2                       ; d2.l = dwz (8.8)
 
     move.w  (sp)+,d4                    ; d4.w = rz (glebokosc Z do Z-Buffera)
-    ifd FULL_RES
     lsl.w   #4,d4                       ; 16x precyzja Z-Buffera (zgodna z aura3d_v2.i)
-    endif
     addq.w  #6,d4                       ; bias Z (+3), aby cienie lezaly na podlodze
     move.w  d4,a3
 
