@@ -22,6 +22,17 @@ Chronologiczny rejestr rozwoju silnika **AURA-3D AGA Engine** dla Commodore Amig
 ---
 
 ## v1.14
+
+<p>
+  <img src="docs/shot_v114_1.png" width="180" />
+  <img src="docs/shot_v114_2.png" width="180" />
+  <img src="docs/shot_v114_3.png" width="180" />
+  <img src="docs/shot_v114_4.png" width="180" /><br/>
+  <img src="docs/shot_v114_5.png" width="180" />
+  <img src="docs/shot_v114_6.png" width="180" />
+  <img src="docs/shot_v114_7.png" width="180" />
+  <img src="docs/shot_v114_8.png" width="180" />
+</p>
 - **8-Bitplanowy Ekran Startowy AGA (`320x256`, 256 kolorów):** strumieniowa dekompresja RLE planszy tytułowej (`F1`).
 - **Falująca Tafla Wody i Lustrzane Odbicia (`M`):** perspektywiczna woda z modulacją sinusoidalną oraz odbicia obiektów sortowane w 16-bitowym Z-Bufferze.
 - **Rozbłyski Soczewkowe 3D / Lens Flare (`L`):** promienie anamorficzne i 3 krążki dyfrakcyjne z testem zasłonięcia w Z-Bufferze + błyski lustrzane (Specular Highlights).
@@ -32,6 +43,13 @@ Chronologiczny rejestr rozwoju silnika **AURA-3D AGA Engine** dla Commodore Amig
 ---
 
 ## v1.13
+
+<p>
+  <img src="docs/shot_v113_1.png" width="180" />
+  <img src="docs/shot_v113_2.png" width="180" />
+  <img src="docs/shot_v113_3.png" width="180" />
+  <img src="docs/shot_v113_4.png" width="180" />
+</p>
 - Pełnoekranowa perspektywiczna podłoga szachownicowa 3D z Z-Bufferem i optymalizacją pętli `dbf` na M68020.
 - Wielomateriałowy wahadłowiec (`576` trójkątów) oraz potok siatek `1008` trójkątów (Torus / Vertex Morphing).
 - Konwerter `tools/png_to_aga.py` dla tekstur UV `64x64` oraz pełnoekranowych obrazów 8-bitplanowych AGA.
@@ -40,6 +58,13 @@ Chronologiczny rejestr rozwoju silnika **AURA-3D AGA Engine** dla Commodore Amig
 ---
 
 ## v1.3
+
+<p>
+  <img src="docs/shot_v13_1.png" width="180" />
+  <img src="docs/shot_v13_2.png" width="180" />
+  <img src="docs/shot_v13_3.png" width="180" />
+  <img src="docs/shot_v13_4.png" width="180" />
+</p>
 - **Perspektywiczna Podłoga 3D (`engine/ground_grid.i`):** raycasting płaszczyzny na `Y=62` z pełnym sortowaniem głębi w 16-bitowym Z-Bufferze, cieniowaniem horyzontu i przełącznikiem `G`.
 - **Siatki High-Poly i Potok 2048 Wierzchołków (`engine/aura3d_v2.i`, `tools/mesh_conv.py`):** powiększenie buforów wierzchołków do 2048 oraz generowanie siatek Torus/Morph (`1008` tris) i wahadłowca (`576` tris).
 - **Konwerter PNG do Amiga AGA (`tools/png_to_aga.py`):** konwersja plików `.png` na tekstury UV `64x64`, 24-bitowe palety 256 kolorów + 16-poziomową tablicę `shade_lut_v2.bin` oraz surowe bitplany `320x256`.

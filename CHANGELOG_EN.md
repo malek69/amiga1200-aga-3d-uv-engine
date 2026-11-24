@@ -22,6 +22,17 @@ Chronological release history of the **AURA-3D AGA Engine** for Commodore Amiga 
 ---
 
 ## v1.14
+
+<p>
+  <img src="docs/shot_v114_1.png" width="180" />
+  <img src="docs/shot_v114_2.png" width="180" />
+  <img src="docs/shot_v114_3.png" width="180" />
+  <img src="docs/shot_v114_4.png" width="180" /><br/>
+  <img src="docs/shot_v114_5.png" width="180" />
+  <img src="docs/shot_v114_6.png" width="180" />
+  <img src="docs/shot_v114_7.png" width="180" />
+  <img src="docs/shot_v114_8.png" width="180" />
+</p>
 - **8-Bitplane AGA Title Splash Screen (`320x256`, 256 colors):** streaming RLE decompression on startup (`F1`).
 - **Real-Time Wavy Ocean Water Floor & Planar Mirror Reflections (`M`):** perspective water modulation with 16-bit Z-Buffer sorted object reflections.
 - **3D Optical Lens Flare & Corona (`L`):** anamorphic rays and 3 diffraction discs with 16-bit Z-Buffer occlusion + Specular Highlights.
@@ -32,6 +43,13 @@ Chronological release history of the **AURA-3D AGA Engine** for Commodore Amiga 
 ---
 
 ## v1.13
+
+<p>
+  <img src="docs/shot_v113_1.png" width="180" />
+  <img src="docs/shot_v113_2.png" width="180" />
+  <img src="docs/shot_v113_3.png" width="180" />
+  <img src="docs/shot_v113_4.png" width="180" />
+</p>
 - Full-screen 3D perspective checkered floor with Z-Buffer & M68020 `dbf` loop optimization.
 - Multi-material high-poly Space Shuttle (`576` tris) & `1008`-tri Torus/Morphing pipeline.
 - PNG to Amiga AGA converter (`tools/png_to_aga.py`) for `64x64` UV textures and 8-bitplane screens.
@@ -40,6 +58,13 @@ Chronological release history of the **AURA-3D AGA Engine** for Commodore Amiga 
 ---
 
 ## v1.3
+
+<p>
+  <img src="docs/shot_v13_1.png" width="180" />
+  <img src="docs/shot_v13_2.png" width="180" />
+  <img src="docs/shot_v13_3.png" width="180" />
+  <img src="docs/shot_v13_4.png" width="180" />
+</p>
 - **3D Perspective Checkered Floor Plane (`engine/ground_grid.i`):** raycasted ground plane at `Y=62` with full 16-bit Z-Buffer depth sorting, horizon distance shading, and key `G` toggle.
 - **High-Polygon 3D Meshes & 2048-Vertex Pipeline (`engine/aura3d_v2.i`, `tools/mesh_conv.py`):** upgraded vertex buffers to 2048 vertices and generated `1008`-triangle Torus/Morph meshes plus a `576`-triangle Space Shuttle.
 - **PNG to Amiga AGA Converter (`tools/png_to_aga.py`):** converts `.png` images into `64x64` UV textures, 24-bit 256-color palettes + 16-level `shade_lut_v2.bin`, and raw 8-bitplane (`320x256`) AGA screens.
