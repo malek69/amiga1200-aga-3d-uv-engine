@@ -151,11 +151,19 @@ project_planar_shadows_3d:
     ext.l   d1
     ext.l   d2
     muls.l  #256,d3
+    ifd FULL_RES
+    muls.l  #256,d1
+    divs.l  d2,d3
+    divs.l  d2,d1
+    add.w   #160,d3
+    add.w   #128,d1
+    else
     muls.l  #128,d1
     divs.l  d2,d3
     divs.l  d2,d1
     add.w   #160,d3
     add.w   #64,d1
+    endif
     move.w  d3,(a1)+
     move.w  d1,(a1)+
     move.w  (sp)+,(a1)+
@@ -279,9 +287,15 @@ draw_shadow_z_tri:
     bpl.s   .syc1
     moveq   #0,d6
 .syc1:
+    ifd FULL_RES
+    cmp.w   #255,d7
+    ble.s   .syc2
+    move.w  #255,d7
+    else
     cmp.w   #127,d7
     ble.s   .syc2
     move.w  #127,d7
+    endif
 .syc2:
     cmp.w   d6,d7
     ble.w   .szt_done
@@ -438,9 +452,15 @@ draw_shadow_z_tri:
 
     lea     v2_edge_buf,a0
 .sse_lp:
+    ifd FULL_RES
+    cmp.w   #255,d3
+    ble.s   .sse_ylim
+    move.w  #255,d3
+    else
     cmp.w   #127,d3
     ble.s   .sse_ylim
     move.w  #127,d3
+    endif
 .sse_ylim:
     tst.w   d1
     bmi.s   .sse_adv

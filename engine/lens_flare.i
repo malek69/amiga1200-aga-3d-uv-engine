@@ -72,11 +72,19 @@ draw_3d_lens_flare:
     ext.l   d1
     ext.l   d2
     muls.l  #256,d0
+    ifd FULL_RES
+    muls.l  #256,d1
+    divs.l  d2,d0
+    divs.l  d2,d1
+    add.w   #160,d0
+    add.w   #128,d1
+    else
     muls.l  #128,d1
     divs.l  d2,d0
     divs.l  d2,d1
     add.w   #160,d0
     add.w   #64,d1
+    endif
 
     tst.w   d0
     bmi.w   .lf_done
@@ -84,7 +92,11 @@ draw_3d_lens_flare:
     bgt.w   .lf_done
     tst.w   d1
     bmi.w   .lf_done
+    ifd FULL_RES
+    cmp.w   #255,d1
+    else
     cmp.w   #127,d1
+    endif
     bgt.w   .lf_done
 
     ; Test zasloniecia w 16-bitowym Z-Bufferze
@@ -134,7 +146,11 @@ draw_3d_lens_flare:
     ; 3 wtorne krazki dyfrakcyjne wzdluz osi (swiatlo -> srodek ekranu)
     move.w  #160,d6
     sub.w   d4,d6
+    ifd FULL_RES
+    move.w  #128,d7
+    else
     move.w  #64,d7
+    endif
     sub.w   d5,d7
 
     move.w  d6,d0
@@ -152,14 +168,22 @@ draw_3d_lens_flare:
     add.w   #160,d0
     move.w  d7,d1
     asr.w   #1,d1
+    ifd FULL_RES
+    add.w   #128,d1
+    else
     add.w   #64,d1
+    endif
     moveq   #6,d2
     move.b  #122,d3
     bsr.s   .lf_disc
 
     move.w  #160,d0
     add.w   d6,d0
+    ifd FULL_RES
+    move.w  #128,d1
+    else
     move.w  #64,d1
+    endif
     add.w   d7,d1
     moveq   #3,d2
     move.b  #28,d3
@@ -200,7 +224,11 @@ draw_3d_lens_flare:
 .lf_hline:
     tst.w   d2
     bmi.s   .lh_r
+    ifd FULL_RES
+    cmp.w   #255,d2
+    else
     cmp.w   #127,d2
+    endif
     bgt.s   .lh_r
     tst.w   d0
     bpl.s   .lh_x0

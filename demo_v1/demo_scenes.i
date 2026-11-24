@@ -265,11 +265,19 @@ proj_uv_160:
     ext.l   d1
     ext.l   d2
     muls.l  #280,d0
+    ifd FULL_RES
+    muls.l  #280,d1
+    divs.l  d2,d0
+    divs.l  d2,d1
+    add.w   #160,d0
+    add.w   #128,d1
+    else
     muls.l  #140,d1
     divs.l  d2,d0
     divs.l  d2,d1
     add.w   #160,d0
     add.w   #64,d1
+    endif
     rts
 draw_256_firefly:
     cmp.w   #8,d0
@@ -278,7 +286,11 @@ draw_256_firefly:
     bhi.s   .fe
     cmp.w   #8,d1
     blo.s   .fe
+    ifd FULL_RES
+    cmp.w   #247,d1
+    else
     cmp.w   #119,d1
+    endif
     bhi.s   .fe
     lea     chunky_buf,a0
     mulu.w  #320,d1

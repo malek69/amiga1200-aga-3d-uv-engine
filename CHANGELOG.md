@@ -1,6 +1,7 @@
 # Changelog
 
 ## [v1.14.3] - 2026-11-24
+- **Pełny ekran PAL `320×256` 256 kolorów AGA (`-DFULL_RES`) dla profili `thea1200` i `060`:** 2× wyższa rozdzielczość pionowa C2P (`81 920 B` Chunky + `163 840 B` 16-bit Z-Buffer, okno `DIWSTRT=$2C81` / `DIWSTOP=$2CC1` bez czarnych pasów) dla wszystkich scen 3D, wody, odbić, cieni, terenu, flar, gwiazd i HUD-a, przy zachowaniu szybkiego `320×128` dla profilu `standard` (`68EC020` / Android).
 - **Trzy obozy wydawnicze (`--profile standard|thea1200|060`):** dedykowane paczki `.lha` i `*_FSUAE.zip` dla bazowej A1200 (`020`), konsoli THEA1200 oraz kart turbo `MC68060`, z hybrydowym startem WHDLoad + `S/startup-sequence`.
 
 <p align="right"><a href="README.md">Polski</a> | <a href="README_EN.md">English</a> | <strong>Historia Zmian (PL)</strong> | <a href="CHANGELOG_EN.md">Changelog (EN)</a></p>

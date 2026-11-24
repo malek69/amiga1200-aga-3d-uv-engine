@@ -40,8 +40,9 @@ def build_profile(root, profile):
     exe = os.path.join(pkg, "AURA3D_DEMO")
     slv = os.path.join(pkg, f"{pkg_name}.slave")
     cpu = "-m68060" if profile == "060" else "-m68020"
-    subprocess.run(("vasmm68k_mot", cpu, "-Fhunkexe", "-kick1hunks", "-nosym", "-I.", "-I../engine", "main.s", "-o", exe), cwd=dd, check=True)
-    subprocess.run(("vasmm68k_mot", cpu, "-Fhunkexe", "-nosym", "-I.", "whdload_slave.s", "-o", slv), cwd=ed, check=True)
+    defs = ["-DFULL_RES"] if profile in ("thea1200", "060") else []
+    subprocess.run(["vasmm68k_mot", cpu, *defs, "-Fhunkexe", *([] if profile in ("thea1200", "060") else ["-kick1hunks"]), "-nosym", "-I.", "-I../engine", "main.s", "-o", exe], cwd=dd, check=True)
+    subprocess.run(["vasmm68k_mot", cpu, *defs, "-Fhunkexe", "-nosym", "-I.", "whdload_slave.s", "-o", slv], cwd=ed, check=True)
     os.chmod(exe, 0o755)
     tt = (f"SLAVE={pkg_name}.slave", "NoMMU")
     write_whdload_info(os.path.join(pkg, f"{pkg_name}.info"), tt)

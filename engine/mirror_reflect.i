@@ -150,9 +150,14 @@ project_mirror_verts_3d:
     muls.l  d2,d1
     asr.l   #8,d3
     asr.l   #8,d1
+    ifd FULL_RES
+    add.w   #160,d3
+    add.w   #128,d1
+    else
     asr.l   #1,d1
     add.w   #160,d3
     add.w   #64,d1
+    endif
     move.w  d3,(a1)+
     move.w  d1,(a1)+
     move.w  (sp)+,(a1)+
@@ -189,6 +194,21 @@ draw_mirror_env_mesh_v2:
     mulu.w  #6,d1
     lea     (a1,d1.w),a6
 
+    ifd FULL_RES
+    cmp.w   #130,2(a4)
+    blt.w   .dmem_next
+    cmp.w   #130,2(a5)
+    blt.w   .dmem_next
+    cmp.w   #130,2(a6)
+    blt.w   .dmem_next
+
+    cmp.w   #255,2(a4)
+    bgt.w   .dmem_next
+    cmp.w   #255,2(a5)
+    bgt.w   .dmem_next
+    cmp.w   #255,2(a6)
+    bgt.w   .dmem_next
+    else
     cmp.w   #66,2(a4)
     blt.w   .dmem_next
     cmp.w   #66,2(a5)
@@ -202,6 +222,7 @@ draw_mirror_env_mesh_v2:
     bgt.w   .dmem_next
     cmp.w   #127,2(a6)
     bgt.w   .dmem_next
+    endif
 
     cmp.w   #-40,(a4)
     blt.w   .dmem_next

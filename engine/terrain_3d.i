@@ -138,9 +138,14 @@ render_3d_terrain_flyover:
     muls.l  d6,d2
     asr.l   #8,d3
     asr.l   #8,d2
+    ifd FULL_RES
+    add.w   #160,d3
+    add.w   #128,d2
+    else
     asr.l   #1,d2
     add.w   #160,d3
     add.w   #64,d2
+    endif
     move.w  d3,(a1)+
     move.w  d2,(a1)+
     move.w  d0,(a1)+

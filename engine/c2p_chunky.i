@@ -13,7 +13,11 @@ c2p_160x128_to_aga:
     move.l  draw_bpl2(pc),a2
     move.l  draw_bpl3(pc),a3
     move.l  draw_bpl4(pc),a4
+    ifd FULL_RES
+    move.w  #255,d7
+    else
     move.w  #127,d7
+    endif
 .p1_row:
     moveq   #9,d6                   ; 10 blokow po 32 piksele = 320 px
 .p1_col:
@@ -188,7 +192,9 @@ c2p_160x128_to_aga:
     move.b  d4,d0
     lsl.w   #8,d0
     move.b  d5,d0
+    ifnd FULL_RES
     move.l  d0,40(a4)
+    endif
     move.l  d0,(a4)+
 
     lsr.l   #8,d1
@@ -202,7 +208,9 @@ c2p_160x128_to_aga:
     move.b  d4,d0
     lsl.w   #8,d0
     move.b  d5,d0
+    ifnd FULL_RES
     move.l  d0,40(a3)
+    endif
     move.l  d0,(a3)+
 
     lsr.l   #8,d1
@@ -216,7 +224,9 @@ c2p_160x128_to_aga:
     move.b  d4,d0
     lsl.w   #8,d0
     move.b  d5,d0
+    ifnd FULL_RES
     move.l  d0,40(a2)
+    endif
     move.l  d0,(a2)+
 
     lsr.l   #8,d1
@@ -230,14 +240,18 @@ c2p_160x128_to_aga:
     move.b  d4,d0
     lsl.w   #8,d0
     move.b  d5,d0
+    ifnd FULL_RES
     move.l  d0,40(a1)
+    endif
     move.l  d0,(a1)+
 
     dbf     d6,.p1_col
+    ifnd FULL_RES
     lea     40(a1),a1
     lea     40(a2),a2
     lea     40(a3),a3
     lea     40(a4),a4
+    endif
     dbf     d7,.p1_row
 
     ; PRZEBIEG 2: High nibbles (bity 4..7) -> BPL5..BPL8
@@ -246,7 +260,11 @@ c2p_160x128_to_aga:
     move.l  draw_bpl6(pc),a2
     move.l  draw_bpl7(pc),a3
     move.l  draw_bpl8(pc),a4
+    ifd FULL_RES
+    move.w  #255,d7
+    else
     move.w  #127,d7
+    endif
 .p2_row:
     moveq   #9,d6
 .p2_col:
@@ -429,7 +447,9 @@ c2p_160x128_to_aga:
     move.b  d4,d0
     lsl.w   #8,d0
     move.b  d5,d0
+    ifnd FULL_RES
     move.l  d0,40(a4)
+    endif
     move.l  d0,(a4)+
 
     lsr.l   #8,d1
@@ -443,7 +463,9 @@ c2p_160x128_to_aga:
     move.b  d4,d0
     lsl.w   #8,d0
     move.b  d5,d0
+    ifnd FULL_RES
     move.l  d0,40(a3)
+    endif
     move.l  d0,(a3)+
 
     lsr.l   #8,d1
@@ -457,7 +479,9 @@ c2p_160x128_to_aga:
     move.b  d4,d0
     lsl.w   #8,d0
     move.b  d5,d0
+    ifnd FULL_RES
     move.l  d0,40(a2)
+    endif
     move.l  d0,(a2)+
 
     lsr.l   #8,d1
@@ -471,14 +495,18 @@ c2p_160x128_to_aga:
     move.b  d4,d0
     lsl.w   #8,d0
     move.b  d5,d0
+    ifnd FULL_RES
     move.l  d0,40(a1)
+    endif
     move.l  d0,(a1)+
 
     dbf     d6,.p2_col
+    ifnd FULL_RES
     lea     40(a1),a1
     lea     40(a2),a2
     lea     40(a3),a3
     lea     40(a4),a4
+    endif
     dbf     d7,.p2_row
 
     movem.l (sp)+,d0-d7/a0-a5
@@ -521,9 +549,15 @@ draw_uv_tri:
 .y4: tst.w d6
     bpl.s   .c1
     moveq   #0,d6
+    ifd FULL_RES
+.c1: cmp.w #255,d7
+    ble.s   .c2
+    move.w  #255,d7
+    else
 .c1: cmp.w #127,d7
     ble.s   .c2
     move.w  #127,d7
+    endif
 .c2: cmp.w d6,d7
     ble.w   .uv_ex
     move.w  d6,uv_ymin
@@ -656,7 +690,11 @@ scan_uv_edge:
     move.w  a4,d1
 .se_lp: tst.w d1
     bmi.s   .se_st
+    ifd FULL_RES
+    cmp.w   #255,d1
+    else
     cmp.w   #127,d1
+    endif
     bgt.w   .se_ex
     move.l  d5,a4
     swap    d5
@@ -697,7 +735,11 @@ uv_x2:    dc.w 0
 uv_y2:    dc.w 0
 uv_u2:    dc.w 0
 uv_v2:    dc.w 0
+    ifd FULL_RES
+uv_edges: ds.b 256*12
+    else
 uv_edges: ds.b 128*12
+    endif
 c2p_exp:
     dc.l $00000000,$01000000,$00010000,$01010000
     dc.l $00000100,$01000100,$00010100,$01010100

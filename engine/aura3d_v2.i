@@ -257,9 +257,14 @@ transform_and_project_verts:
     muls.l  d2,d1
     asr.l   #8,d3
     asr.l   #8,d1
+    ifd FULL_RES
+    add.w   #160,d3
+    add.w   #128,d1
+    else
     asr.l   #1,d1
     add.w   #160,d3                  ; srodek X = 80 (ekran 160x128)
     add.w   #64,d1                  ; srodek Y = 64
+    endif
     move.w  d3,(a1)+                ; sx
     move.w  d1,(a1)+                ; sy
     move.w  (sp)+,d0
@@ -433,9 +438,15 @@ draw_uv_z_tri:
     bpl.s   .yc1
     moveq   #0,d6
 .yc1:
+    ifd FULL_RES
+    cmp.w   #255,d7
+    ble.s   .yc2
+    move.w  #255,d7
+    else
     cmp.w   #127,d7
     ble.s   .yc2
     move.w  #127,d7
+    endif
 .yc2:
     cmp.w   d6,d7
     ble.w   .uvz_done
@@ -673,9 +684,15 @@ scan_uvz_edge:
     lea     v2_edge_buf,a2
 
 .se_step:
+    ifd FULL_RES
+    cmp.w   #255,d3
+    ble.s   .se_ylim_ok
+    move.w  #255,d3
+    else
     cmp.w   #127,d3
     ble.s   .se_ylim_ok
     move.w  #127,d3
+    endif
 .se_ylim_ok:
     tst.w   d1
     bmi.s   .se_adv
@@ -1010,8 +1027,13 @@ shade_lut_v2:
     incbin  "shade_lut_v2.bin"
 
     section fastram_bss,bss_p
+    ifd FULL_RES
+zbuf_3d:      ds.w 320*256
+v2_edge_buf:  ds.b 256*32
+    else
 zbuf_3d:      ds.w 320*128
 v2_edge_buf:  ds.b 128*32
+    endif
 v2_proj_buf:  ds.w 2048*3
 v2_env_buf:   ds.l 2048
 
@@ -1197,9 +1219,15 @@ draw_uv_gouraud_z_tri:
     bpl.s   .gyc1
     moveq   #0,d6
 .gyc1:
+    ifd FULL_RES
+    cmp.w   #255,d7
+    ble.s   .gyc2
+    move.w  #255,d7
+    else
     cmp.w   #127,d7
     ble.s   .gyc2
     move.w  #127,d7
+    endif
 .gyc2:
     cmp.w   d6,d7
     ble.w   .guvz_done
@@ -1451,9 +1479,15 @@ scan_gouraud_edge:
     lea     v2_g_edge_buf,a2
 
 .gse_lp:
+    ifd FULL_RES
+    cmp.w   #255,d3
+    ble.s   .gse_ylim
+    move.w  #255,d3
+    else
     cmp.w   #127,d3
     ble.s   .gse_ylim
     move.w  #127,d3
+    endif
 .gse_ylim:
     tst.w   d1
     bmi.s   .gse_adv
@@ -1514,7 +1548,11 @@ g_verts:    ds.w 18
 v2_g_pkt:   ds.w 18
 
     section fastram_bss,bss_p
+    ifd FULL_RES
+v2_g_edge_buf: ds.b 256*40
+    else
 v2_g_edge_buf: ds.b 128*40
+    endif
 
     section code,code
 
@@ -1554,11 +1592,19 @@ draw_z_orb_v2:
     ext.l   d1
     ext.l   d2
     muls.l  #256,d4
+    ifd FULL_RES
+    muls.l  #256,d1
+    divs.l  d2,d4
+    divs.l  d2,d1
+    add.w   #160,d4                  ; cx
+    add.w   #128,d1                  ; cy
+    else
     muls.l  #128,d1
     divs.l  d2,d4
     divs.l  d2,d1
     add.w   #160,d4                  ; cx
     add.w   #64,d1                  ; cy
+    endif
     move.w  d4,orb_cx
     move.w  d1,orb_cy
 
@@ -1594,7 +1640,11 @@ draw_z_orb_v2:
     move.w  orb_cy(pc),d5
     add.w   d7,d5                   ; py = cy + dy
     bmi.s   .oy_next
+    ifd FULL_RES
+    cmp.w   #255,d5
+    else
     cmp.w   #127,d5
+    endif
     bgt.w   .orb_done
 
     move.w  d7,d4

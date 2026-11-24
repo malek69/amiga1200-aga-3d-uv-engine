@@ -34,6 +34,18 @@ draw_3d_ground_grid:
     move.w  cam_sin,floor_sin
 .cam_ready:
 
+    ifd FULL_RES
+    ext.l   d4
+    lsl.l   #8,d4                       ; d4.l = (ground_y - cam_oy) * 256
+    move.w  #130,d7
+    lea     chunky_buf,a0
+    lea     zbuf_3d,a1
+    adda.l  #130*320,a0
+    adda.l  #130*640,a1
+.fy_lp:
+    move.w  d7,d1
+    sub.w   #128,d1
+    else
     ; Skala h_cam * 128
     ext.l   d4
     lsl.l   #7,d4                       ; d4.l = (ground_y - cam_oy) * 128
@@ -49,6 +61,7 @@ draw_3d_ground_grid:
     ; dy = py - 64 (>= 2)
     move.w  d7,d1
     sub.w   #64,d1
+    endif
 
     ; Glebokosc w ukladzie kamery: rz = (h_cam * 128) / dy
     move.l  d4,d2
@@ -184,13 +197,21 @@ draw_3d_ground_grid:
     move.w  shadow_ground_y,d4
     sub.w   cam_oy,d4
     ext.l   d4
+    ifd FULL_RES
+    lsl.l   #8,d4
+    else
     lsl.l   #7,d4
+    endif
 
 .fnext_y:
     lea     320(a0),a0
     lea     640(a1),a1
     addq.w  #1,d7
+    ifd FULL_RES
+    cmp.w   #256,d7
+    else
     cmp.w   #128,d7
+    endif
     blo.w   .fy_lp
 
 .flr_done:

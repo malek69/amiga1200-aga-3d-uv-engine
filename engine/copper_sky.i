@@ -6,7 +6,13 @@
 ; za 0 cykli CPU podczas wyswietlania ramki.
 ; ============================================================================
 
+    ifd FULL_RES
+SKY_LINES       equ 256                 ; pelne 256 linii PAL od $2c (44) do $12b (299)
+SKY_VSTART      equ $2c
+    else
 SKY_LINES       equ 228                 ; od $38 (56) do $11b (283)
+SKY_VSTART      equ $38
+    endif
 
 ; ----------------------------------------------------------------------------
 ; copper_set_sky_theme
@@ -23,9 +29,44 @@ copper_set_sky_theme:
     lsl.w   #4,d0                       ; 16 bajtow na motyw (4 kolory x 4B)
     adda.w  d0,a1                       ; a1 -> [C_TOP, C_HORIZ, C_GROUND, C_BOT]
 
-    moveq   #0,d7                       ; indeks linii 0..227
+    moveq   #0,d7                       ; indeks linii
 
 .sky_line_lp:
+    ifd FULL_RES
+    ; Odcinki gradientu dla 256 linii:
+    ;   0..167   (168 linii): C_TOP    -> C_HORIZ   (niebo az do linii horyzontu)
+    ;   168..176 (9 linii):   C_HORIZ  -> C_GROUND  (ostre przejscie horyzontu)
+    ;   177..255 (79 linii):  C_GROUND -> C_BOT     (powierzchnia / glebia pod horyzontem)
+    cmp.w   #168,d7
+    bge.s   .seg_horiz
+
+    move.l  (a1),d0
+    move.l  4(a1),d1
+    move.w  d7,d2
+    move.w  #168,d3
+    bsr.w   .lerp_rgb24
+    bra.s   .emit_cop_line
+
+.seg_horiz:
+    cmp.w   #177,d7
+    bge.s   .seg_ground
+
+    move.l  4(a1),d0
+    move.l  8(a1),d1
+    move.w  d7,d2
+    sub.w   #168,d2
+    moveq   #9,d3
+    bsr.w   .lerp_rgb24
+    bra.s   .emit_cop_line
+
+.seg_ground:
+    move.l  8(a1),d0
+    move.l  12(a1),d1
+    move.w  d7,d2
+    sub.w   #177,d2
+    move.w  #79,d3
+    bsr.w   .lerp_rgb24
+    else
     ; Odcinki gradientu dla 228 linii:
     ;   0..149   (150 linii): C_TOP    -> C_HORIZ   (niebo az do linii horyzontu)
     ;   150..157 (8 linii):   C_HORIZ  -> C_GROUND  (ostre przejscie horyzontu)
@@ -59,10 +100,11 @@ copper_set_sky_theme:
     sub.w   #158,d2
     move.w  #70,d3
     bsr.w   .lerp_rgb24
+    endif
 
 .emit_cop_line:
-    ; Pozycja Y wiazki PAL: y_beam = $38 + d7
-    move.w  #$38,d5
+    ; Pozycja Y wiazki PAL: y_beam = SKY_VSTART + d7
+    move.w  #SKY_VSTART,d5
     add.w   d7,d5
 
     ; Jesli y_beam == $100 (256), wstaw Copper wraparound WAIT $ffdffffe
