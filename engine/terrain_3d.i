@@ -240,12 +240,21 @@ render_3d_terrain_flyover:
     rts
 
 .draw_ter_tri_a:
+    ifd FULL_RES
+    cmp.w   #264,2(a2)
+    bgt.s   .dta_skip
+    cmp.w   #264,2(a5)
+    bgt.s   .dta_skip
+    cmp.w   #264,2(a4)
+    ble.s   .dta_ok
+    else
     cmp.w   #132,2(a2)
     bgt.s   .dta_skip
     cmp.w   #132,2(a5)
     bgt.s   .dta_skip
     cmp.w   #132,2(a4)
     ble.s   .dta_ok
+    endif
 .dta_skip:
     rts
 .dta_ok:
@@ -266,12 +275,21 @@ render_3d_terrain_flyover:
     rts
 
 .draw_ter_tri_b:
+    ifd FULL_RES
+    cmp.w   #264,2(a2)
+    bgt.s   .dtb_skip
+    cmp.w   #264,2(a4)
+    bgt.s   .dtb_skip
+    cmp.w   #264,2(a3)
+    ble.s   .dtb_ok
+    else
     cmp.w   #132,2(a2)
     bgt.s   .dtb_skip
     cmp.w   #132,2(a4)
     bgt.s   .dtb_skip
     cmp.w   #132,2(a3)
     ble.s   .dtb_ok
+    endif
 .dtb_skip:
     rts
 .dtb_ok:

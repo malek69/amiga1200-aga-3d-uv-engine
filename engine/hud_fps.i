@@ -441,7 +441,11 @@ hud_draw_scene_info:
 .si_bpl:
     move.l  (a0),a1
     addq.l  #8,a0
+    ifd FULL_RES
+    lea     246*40(a1),a1
+    else
     lea     216*40(a1),a1
+    endif
 
     ; Gorny czarny margines 1 px (Y=246)
     moveq   #0,d0

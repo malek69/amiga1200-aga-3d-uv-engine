@@ -19,7 +19,11 @@ demo_act1_flyin:
     move.w  (a2,d0.w*2),cam_sin
     move.w  128(a2,d0.w*2),cam_cos
     clr.w   cam_ox
+    ifd FULL_RES
+    move.w  #14,cam_oy
+    else
     move.w  #-18,cam_oy
+    endif
     move.w  #380,d1
     sub.w   d7,d1
     lsr.w   #1,d1
@@ -39,7 +43,11 @@ demo_act2_orbit_zsort:
     move.w  (a2,d0.w*2),cam_sin
     move.w  128(a2,d0.w*2),cam_cos
     clr.w   cam_ox
+    ifd FULL_RES
+    move.w  #18,cam_oy
+    else
     move.w  #-14,cam_oy
+    endif
     move.w  #-185,cam_oz
     jsr     render_zsorted_hero
     jsr     draw_orbiting_lights
@@ -54,7 +62,11 @@ demo_act3_hero_closeup:
     move.w  (a2,d0.w*2),cam_sin
     move.w  128(a2,d0.w*2),cam_cos
     clr.w   cam_ox
+    ifd FULL_RES
+    move.w  #44,cam_oy
+    else
     move.w  #12,cam_oy
+    endif
     move.w  #-142,cam_oz
     jsr     render_zsorted_hero
     jsr     draw_orbiting_lights
