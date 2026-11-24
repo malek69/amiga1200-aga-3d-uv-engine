@@ -1,5 +1,10 @@
 # Changelog
 
+## [v1.14.4.2] - 2026-11-24
+- **Nowa plansza startowa `320×256` AGA (`F1` w `assets_raw/splash_v114.png` -> `demo_v1/splash_bpl.rle`):** odświeżona grafika tytułowa z Boing Ballem i aktualnym opisem silnika `v1.14.4.2` (`PAL 320x256 + 060 C2P + PHONG`).
+- **Naprawa hierarchii Z-Buffera cieni i odbić lustrzanych (`planar_shadow.i`, `mirror_reflect.i`, `ground_grid.i`):** zrównano skalę głębi (`rz << 4`) dla cieni (`+4`), odbić (`+5`) i tafli wody (`+8`) oraz dopasowano perspektywiczny skrót odbić względem `shadow_ground_y`.
+- **96-gwiazdowe wielowarstwowe niebo (`draw_256_starfield` w `demo_v1/demo_scenes.i`):** 3× więcej gwiazd na pełnej szerokości ekranu (`320 px`) z 3 prędkościami paralaksy i 3 poziomami jasności.
+
 ## [v1.14.4.1] - 2026-11-24
 - **Poprawki zgodności dla profilu `standard` / `020` (`320×128`):** wyrównano poziome kadrowanie DMA/Copper (`DIWSTRT=$3891`, `DIWSTOP=$1CD1`, `DDFSTRT=$0038`, `DDFSTOP=$00D0` — pełny napis na dolnym pasku HUD bez przycięcia z lewej) oraz włączono 16× precyzję Z-Buffera tafli wody (`rz << 4`) w trybie `320×128`.
 - **Superskalarny konwerter C2P dla `MC68060` (`-DM68060` w `engine/c2p_chunky.i`):** rozpleciony potok `pOEP/sOEP` z parowaniem rejestrów (`a6 = $0f0f0f0f`), eliminacją hazardów RAW i wyrównanymi zapisami 32-bitowymi do Chip RAM w trybie `320×256` dla profilu `060`.

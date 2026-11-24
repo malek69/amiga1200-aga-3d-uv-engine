@@ -53,7 +53,7 @@ def build_profile(root, profile):
     with open(os.path.join(stage, "S", "startup-sequence"), "w") as f:
         f.write(f"cd {pkg_name}\nAURA3D_DEMO\n")
     with open(os.path.join(pkg, "README.txt"), "w") as f:
-        f.write(f"AURA-3D AGA ENGINE v1.14.4.1 [{profile}] (2026)\nEngine & Code: malek69 & Gemini AI\nMusic (.MOD): 1991-Not A Number\nExit: LMB, Joy2 Fire or ESC\n")
+        f.write(f"AURA-3D AGA ENGINE v1.14.4.2 [{profile}] (2026)\nEngine & Code: malek69 & Gemini AI\nMusic (.MOD): 1991-Not A Number\nExit: LMB, Joy2 Fire or ESC\n")
     lha_bin = shutil.which("lha") or "/usr/bin/lha"
     lha_path = os.path.join(rd, f"aura3d_demo_v2_AGA{sfx}.lha")
     if os.path.exists(lha_path): os.remove(lha_path)

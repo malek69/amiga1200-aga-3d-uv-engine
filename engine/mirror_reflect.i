@@ -53,12 +53,12 @@ project_mirror_verts_3d:
     move.w  (sp)+,d0
 
     ; Symetryczne odbicie lustrzane wzgledem tafli wody (shadow_ground_y = 62):
-    ; wy_mirror = shadow_ground_y + (shadow_ground_y - wy)
     move.w  shadow_ground_y,d3
     sub.w   d1,d3
     bpl.s   .m_ab
     moveq   #0,d3
 .m_ab:
+    asr.w   #1,d3
     add.w   shadow_ground_y,d3
     move.w  d3,d1
 
@@ -133,7 +133,8 @@ project_mirror_verts_3d:
     move.w  #24,d2
 .mz_ok:
     move.w  d2,d0
-    addq.w  #4,d0
+    lsl.w   #4,d0
+    addq.w  #5,d0
     move.w  d0,-(sp)
 
     cmp.w   #2048,d2

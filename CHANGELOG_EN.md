@@ -2,6 +2,11 @@
 
 # Changelog
 
+## [v1.14.4.2] - 2026-11-24
+- **Redesigned `320×256` AGA Title Screen (`F1` in `assets_raw/splash_v114.png` -> `demo_v1/splash_bpl.rle`):** refreshed 256-color Boing Ball title artwork updated for `v1.14.4.2` (`PAL 320x256 + 060 C2P + PHONG`).
+- **Fixed Shadow & Mirror Reflection Z-Buffer Hierarchy (`planar_shadow.i`, `mirror_reflect.i`, `ground_grid.i`):** unified 16× depth scaling (`rz << 4`) across planar shadows (`+4`), mirror reflections (`+5`), and water surface (`+8`) with foreshortened reflection geometry across `shadow_ground_y`.
+- **96-Star Multi-Layer Parallax Starfield (`draw_256_starfield` in `demo_v1/demo_scenes.i`):** tripled star density across the full `320 px` screen width with 3 parallax speeds and 3 brightness tiers.
+
 ## [v1.14.4.1] - 2026-11-24
 - **Stock `020` (`standard`, `320×128`) Framing & Water Z-Buffer Fixes:** aligned `DIWSTRT=$3891` / `DIWSTOP=$1CD1`, `DDFSTRT=$0038` / `DDFSTOP=$00D0` (preventing left-edge HUD text clipping) and enabled 16× water Z-buffer precision (`rz << 4`) in `320×128`.
 - **Superscalar `MC68060` C2P Pipeline (`-DM68060` in `engine/c2p_chunky.i`):** interleaved `pOEP/sOEP` dual-issue pipeline (`a6 = $0f0f0f0f`) eliminating RAW register stalls with aligned 32-bit Chip RAM writes in `320×256` for the `060` profile.

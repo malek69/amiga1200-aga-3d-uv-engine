@@ -75,17 +75,74 @@ demo_act3_hero_closeup:
 draw_256_starfield:
     lea     chunky_buf,a0
     move.l  vbl_tick(pc),d5
+    ; Warstwa 1 (32 jasne gwiazdy z przodu, szybsza paralaksa, pelna szerokosc 320 px)
     lea     hero_stars(pc),a1
     moveq   #31,d6
-.st_lp: move.w (a1)+,d0
+.st_lp1:
+    move.w  (a1)+,d0
     add.w   d5,d0
-    and.w   #255,d0
-    add.w   #32,d0
+    and.w   #511,d0
+    cmp.w   #320,d0
+    blo.s   .st1_x
+    sub.w   #320,d0
+.st1_x:
     move.w  (a1)+,d1
+    ifnd FULL_RES
+    lsr.w   #1,d1
+    endif
+    mulu.w  #320,d1
+    add.w   d0,d1
+    move.b  #255,(a0,d1.w)
+    dbf     d6,.st_lp1
+
+    ; Warstwa 2 (32 srednie gwiazdy blekitne, predkosc 0.5x)
+    move.l  d5,d4
+    lsr.l   #1,d4
+    lea     hero_stars(pc),a1
+    moveq   #31,d6
+.st_lp2:
+    move.w  (a1)+,d0
+    add.w   #107,d0
+    add.w   d4,d0
+    and.w   #511,d0
+    cmp.w   #320,d0
+    blo.s   .st2_x
+    sub.w   #320,d0
+.st2_x:
+    move.w  (a1)+,d1
+    add.w   #23,d1
+    and.w   #127,d1
+    ifnd FULL_RES
+    lsr.w   #1,d1
+    endif
     mulu.w  #320,d1
     add.w   d0,d1
     move.b  #246,(a0,d1.w)
-    dbf     d6,.st_lp
+    dbf     d6,.st_lp2
+
+    ; Warstwa 3 (32 odlegle gwiazdy w tle, predkosc 0.25x)
+    lsr.l   #1,d4
+    lea     hero_stars(pc),a1
+    moveq   #31,d6
+.st_lp3:
+    move.w  (a1)+,d0
+    add.w   #219,d0
+    add.w   d4,d0
+    and.w   #511,d0
+    cmp.w   #320,d0
+    blo.s   .st3_x
+    sub.w   #320,d0
+.st3_x:
+    move.w  (a1)+,d1
+    add.w   #59,d1
+    and.w   #127,d1
+    ifnd FULL_RES
+    lsr.w   #1,d1
+    endif
+    mulu.w  #320,d1
+    add.w   d0,d1
+    move.b  #238,(a0,d1.w)
+    dbf     d6,.st_lp3
     rts
 
 draw_orbiting_lights:

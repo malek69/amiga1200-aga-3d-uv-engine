@@ -155,7 +155,7 @@ draw_3d_ground_grid:
 
     move.w  (sp)+,d4                    ; d4.w = rz (glebokosc Z do Z-Buffera)
     lsl.w   #4,d4                       ; 16x precyzja Z-Buffera (zgodna z aura3d_v2.i)
-    addq.w  #6,d4                       ; bias Z (+3), aby cienie lezaly na podlodze
+    addq.w  #8,d4                       ; bias Z (+8), aby cienie i odbicia lezaly na tafli
     move.w  d4,a3
 
     move.w  d7,-(sp)                    ; zachowaj licznik wierszy py

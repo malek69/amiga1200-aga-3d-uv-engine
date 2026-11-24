@@ -146,7 +146,10 @@ project_planar_shadows_3d:
     bge.s   .sz_ok
     move.w  #24,d2
 .sz_ok:
-    move.w  d2,-(sp)
+    move.w  d2,d0
+    lsl.w   #4,d0
+    addq.w  #4,d0
+    move.w  d0,-(sp)
     ext.l   d3
     ext.l   d1
     ext.l   d2
