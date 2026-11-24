@@ -80,12 +80,12 @@ draw_3d_ground_grid:
 .f_col_mid:
     cmp.w   #185,d2
     bge.s   .f_col_far
-    move.b  #214,d5                     ; sredni turkus
-    move.b  #206,d6                      ; gleboki granat
+    move.b  #204,d5                     ; sredni przygaszony turkus (#478c91)
+    move.b  #198,d6                     ; ciemny morski granat (#2b636c)
     bra.s   .f_col_ok
 .f_col_far:
-    move.b  #214,d5                      ; przygaszony stalowy blekit przy horyzoncie
-    move.b  #206,d6                       ; niemal stapia sie z horyzontem Coppera
+    move.b  #196,d5                     ; mgla przy horyzoncie (#20545e)
+    move.b  #192,d6                     ; gleboki granat horyzontu (#08303e)
 .f_col_ok:
 
     ; Wspolczynnik skali poziomej: step_cam = rz / 128 (8.8 fixed point = rz << 1)

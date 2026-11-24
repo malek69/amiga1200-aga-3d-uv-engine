@@ -52,14 +52,14 @@ project_mirror_verts_3d:
     move.w  d3,d1
     move.w  (sp)+,d0
 
-    ; Odbicie na tafli podlogi: wy_m = 42 + ((32 - wy) >> 2) -> rzutuje sie w sy = 88..120
-    move.w  #32,d3
+    ; Symetryczne odbicie lustrzane wzgledem tafli wody (shadow_ground_y = 62):
+    ; wy_mirror = shadow_ground_y + (shadow_ground_y - wy)
+    move.w  shadow_ground_y,d3
     sub.w   d1,d3
     bpl.s   .m_ab
     moveq   #0,d3
 .m_ab:
-    asr.w   #2,d3
-    add.w   #42,d3
+    add.w   shadow_ground_y,d3
     move.w  d3,d1
 
     ; Falowanie wody w poziomie
@@ -226,15 +226,15 @@ draw_mirror_env_mesh_v2:
 
     cmp.w   #-40,(a4)
     blt.w   .dmem_next
-    cmp.w   #200,(a4)
+    cmp.w   #360,(a4)
     bgt.w   .dmem_next
     cmp.w   #-40,(a5)
     blt.w   .dmem_next
-    cmp.w   #200,(a5)
+    cmp.w   #360,(a5)
     bgt.w   .dmem_next
     cmp.w   #-40,(a6)
     blt.w   .dmem_next
-    cmp.w   #200,(a6)
+    cmp.w   #360,(a6)
     bgt.w   .dmem_next
 
     move.w  (a5),d1

@@ -212,12 +212,14 @@ build_copper:
     ifd FULL_RES
     move.l  #(DIWSTRT<<16)|$2c81,(a0)+
     move.l  #(DIWSTOP<<16)|$2cc1,(a0)+
+    move.l  #(DDFSTRT<<16)|$0038,(a0)+
+    move.l  #(DDFSTOP<<16)|$00d0,(a0)+
     else
     move.l  #(DIWSTRT<<16)|$3881,(a0)+
     move.l  #(DIWSTOP<<16)|$1cc1,(a0)+
-    endif
     move.l  #(DDFSTRT<<16)|$002c,(a0)+
     move.l  #(DDFSTOP<<16)|$00c4,(a0)+
+    endif
     move.l  #(BPLCON0<<16)|$0210,(a0)+    ; 8 bitplanow AGA = 256 kolorow!
     move.l  #(BPLCON1<<16)|$0000,(a0)+
     move.l  #(BPLCON2<<16)|$0024,(a0)+
