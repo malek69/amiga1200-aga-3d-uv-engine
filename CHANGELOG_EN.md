@@ -43,13 +43,6 @@ Chronological release history of the **AURA-3D AGA Engine** for Commodore Amiga 
 ---
 
 ## v1.13
-
-<p>
-  <img src="docs/shot_v113_1.png" width="180" />
-  <img src="docs/shot_v113_2.png" width="180" />
-  <img src="docs/shot_v113_3.png" width="180" />
-  <img src="docs/shot_v113_4.png" width="180" />
-</p>
 - Full-screen 3D perspective checkered floor with Z-Buffer & M68020 `dbf` loop optimization.
 - Multi-material high-poly Space Shuttle (`576` tris) & `1008`-tri Torus/Morphing pipeline.
 - PNG to Amiga AGA converter (`tools/png_to_aga.py`) for `64x64` UV textures and 8-bitplane screens.

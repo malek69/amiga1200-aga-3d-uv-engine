@@ -43,13 +43,6 @@ Chronologiczny rejestr rozwoju silnika **AURA-3D AGA Engine** dla Commodore Amig
 ---
 
 ## v1.13
-
-<p>
-  <img src="docs/shot_v113_1.png" width="180" />
-  <img src="docs/shot_v113_2.png" width="180" />
-  <img src="docs/shot_v113_3.png" width="180" />
-  <img src="docs/shot_v113_4.png" width="180" />
-</p>
 - Pełnoekranowa perspektywiczna podłoga szachownicowa 3D z Z-Bufferem i optymalizacją pętli `dbf` na M68020.
 - Wielomateriałowy wahadłowiec (`576` trójkątów) oraz potok siatek `1008` trójkątów (Torus / Vertex Morphing).
 - Konwerter `tools/png_to_aga.py` dla tekstur UV `64x64` oraz pełnoekranowych obrazów 8-bitplanowych AGA.
