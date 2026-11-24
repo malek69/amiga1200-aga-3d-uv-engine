@@ -14,14 +14,18 @@
 
 ---
 
-## Pobieranie (v1.14.3 Latest)
+## Pobieranie (v1.14.3 — 3 Obozy Wydawnicze)
 
-| Pakiet | Przeznaczenie i platforma | Link |
+| Obóz / Profil (`--profile`) | Platforma docelowa | Paczki do pobrania |
 | :--- | :--- | :--- |
-| **`aura3d_demo_v1.14.3_AGA.lha`** | **WHDLoad / THEA1200 / RetroArch (PUAE) / Amiga 1200 + Fast RAM** — gotowy katalog z ikonami `.info`, WHDLoad Slave i plikiem wykonywalnym | [Pobierz .LHA](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.3/aura3d_demo_v1.14.3_AGA.lha) |
-| **`aura3d_demo_v1.14.3_AGA_FSUAE.zip`** | **FS-UAE Launcher / WinUAE** — paczka skonfigurowana pod emulatory Amigi 1200 AGA (`68020` + `8 MB Fast RAM`) | [Pobierz FS-UAE .ZIP](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.3/aura3d_demo_v1.14.3_AGA_FSUAE.zip) |
-| **`aura3d_demo_v1.14.3_AGA.adf`** | **Stacja dyskietek `DF0:` / Gotek FlashFloppy** — samostartujący obraz dyskietki 880 KB dla prawdziwej Amigi 1200 | [Pobierz .ADF](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.3/aura3d_demo_v1.14.3_AGA.adf) |
-| **`aura3d-aga-engine-v1.14.3-src.zip`** | **Kod źródłowy (M68020 ASM + Python)** — kompletne źródła silnika `engine/`, scen `demo_v1/` oraz konwerterów `tools/` | [Pobierz Zrodla .ZIP](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.3/aura3d-aga-engine-v1.14.3-src.zip) |
+| **1. Standard `020` (`--profile standard`)** | Bazowa **Amiga 1200 (`68020`)**, **RetroArch (Android)** | [.LHA](https://github.com/aura3d_demo_v2_AGA_020.lha) · [.ZIP (FS-UAE/WinUAE)](https://github.com/aura3d_demo_v2_AGA_020_FSUAE.zip) |
+| **2. THEA1200 (`--profile thea1200`)** | Konsola **THEA1200**, **Amiberry (PC)**, **FS-UAE** (2× szybsze tempo scen) | [.LHA](https://github.com/aura3d_demo_v2_AGA_THEA1200.lha) · [.ZIP (FS-UAE/WinUAE)](https://github.com/aura3d_demo_v2_AGA_THEA1200_FSUAE.zip) |
+| **3. Turbo `MC68060` (`--profile 060`)** | Karty turbo **`MC68060` (50+ MHz)** (natywne `-m68060`, 50 Hz 1:1) | [.LHA](https://github.com/aura3d_demo_v2_AGA_060.lha) · [.ZIP (FS-UAE/WinUAE)](https://github.com/aura3d_demo_v2_AGA_060_FSUAE.zip) |
+| **Dyskietka `.ADF` & Źródła** | Stacja `DF0:` / Gotek FlashFloppy oraz pełny kod źródłowy | [.ADF (880 KB)](https://github.com/aura3d_demo_v1.14.3_AGA.adf) · [Źródła .ZIP](https://github.com/aura3d-aga-engine-v1.14.3-src.zip) |
+
+### Warianty Paczek i Kompatybilność
+- **`.lha` (WHDLoad + zapasowy `S/startup-sequence`):** działa od strzała w **RetroArch (`PUAE`)**, **Amiberry** (nawet bez pliku `C:WHDLoad`), **THEA1200** oraz na prawdziwej **Amidze 1200**.
+- **`_FSUAE.zip`:** gotowy dysk twardy `DH0:` z auto-bootem dla **FS-UAE** i **WinUAE**.
 
 ---
 
