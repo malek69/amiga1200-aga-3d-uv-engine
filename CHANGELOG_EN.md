@@ -7,6 +7,17 @@ Chronological release history of the **AURA-3D AGA Engine** for Commodore Amiga 
 ---
 
 ## v1.14.2 (2026-11-24)
+
+<p>
+  <img src="docs/shot_v114_1.png" width="180" />
+  <img src="docs/shot_v114_2.png" width="180" />
+  <img src="docs/shot_v114_3.png" width="180" />
+  <img src="docs/shot_v114_4.png" width="180" /><br/>
+  <img src="docs/shot_v114_5.png" width="180" />
+  <img src="docs/shot_v114_6.png" width="180" />
+  <img src="docs/shot_v114_7.png" width="180" />
+  <img src="docs/shot_v114_8.png" width="180" />
+</p>
 - **New 3D Effect — Animated UV Textures (`v2_uv_anim_u/v`)**: scrolling energy textures on orbiting satellites in the Planetary System with zero per-pixel scanline overhead.
 - **New 3D Effect — Fresnel Rim-Edge Glow**: silhouette edge rim lighting integrated into the Phong + normal map shader.
 - **C2P Optimization (`c2p_chunky.i`)**: 32-bit nibble masking (`and.l #$0f0f0f0f`) across all 8 groups in the Chunky-to-Planar converter (boosting performance to 22–25 FPS).
@@ -22,17 +33,6 @@ Chronological release history of the **AURA-3D AGA Engine** for Commodore Amiga 
 ---
 
 ## v1.14
-
-<p>
-  <img src="docs/shot_v114_1.png" width="180" />
-  <img src="docs/shot_v114_2.png" width="180" />
-  <img src="docs/shot_v114_3.png" width="180" />
-  <img src="docs/shot_v114_4.png" width="180" /><br/>
-  <img src="docs/shot_v114_5.png" width="180" />
-  <img src="docs/shot_v114_6.png" width="180" />
-  <img src="docs/shot_v114_7.png" width="180" />
-  <img src="docs/shot_v114_8.png" width="180" />
-</p>
 - **8-Bitplane AGA Title Splash Screen (`320x256`, 256 colors):** streaming RLE decompression on startup (`F1`).
 - **Real-Time Wavy Ocean Water Floor & Planar Mirror Reflections (`M`):** perspective water modulation with 16-bit Z-Buffer sorted object reflections.
 - **3D Optical Lens Flare & Corona (`L`):** anamorphic rays and 3 diffraction discs with 16-bit Z-Buffer occlusion + Specular Highlights.

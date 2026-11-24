@@ -7,6 +7,17 @@ Chronologiczny rejestr rozwoju silnika **AURA-3D AGA Engine** dla Commodore Amig
 ---
 
 ## v1.14.2 (2026-11-24)
+
+<p>
+  <img src="docs/shot_v114_1.png" width="180" />
+  <img src="docs/shot_v114_2.png" width="180" />
+  <img src="docs/shot_v114_3.png" width="180" />
+  <img src="docs/shot_v114_4.png" width="180" /><br/>
+  <img src="docs/shot_v114_5.png" width="180" />
+  <img src="docs/shot_v114_6.png" width="180" />
+  <img src="docs/shot_v114_7.png" width="180" />
+  <img src="docs/shot_v114_8.png" width="180" />
+</p>
 - **Nowy efekt 3D — Animowane tekstury UV (`v2_uv_anim_u/v`)**: płynące tekstury energetyczne na satelitach w Systemie Planetarnym z zerowym narzutem w pętli pikseli scanline.
 - **Nowy efekt 3D — Fresnel Rim-Edge Glow**: poświata krawędziowa na sylwetkach modeli 3D zintegrowana z cieniowaniem Phonga i mapą normalnych.
 - **Optymalizacja C2P (`c2p_chunky.i`)**: 32-bitowe maskowanie półbajtów (`and.l #$0f0f0f0f`) we wszystkich 8 grupach konwersji Chunky-to-Planar (wzrost do 22–25 FPS).
@@ -22,17 +33,6 @@ Chronologiczny rejestr rozwoju silnika **AURA-3D AGA Engine** dla Commodore Amig
 ---
 
 ## v1.14
-
-<p>
-  <img src="docs/shot_v114_1.png" width="180" />
-  <img src="docs/shot_v114_2.png" width="180" />
-  <img src="docs/shot_v114_3.png" width="180" />
-  <img src="docs/shot_v114_4.png" width="180" /><br/>
-  <img src="docs/shot_v114_5.png" width="180" />
-  <img src="docs/shot_v114_6.png" width="180" />
-  <img src="docs/shot_v114_7.png" width="180" />
-  <img src="docs/shot_v114_8.png" width="180" />
-</p>
 - **8-Bitplanowy Ekran Startowy AGA (`320x256`, 256 kolorów):** strumieniowa dekompresja RLE planszy tytułowej (`F1`).
 - **Falująca Tafla Wody i Lustrzane Odbicia (`M`):** perspektywiczna woda z modulacją sinusoidalną oraz odbicia obiektów sortowane w 16-bitowym Z-Bufferze.
 - **Rozbłyski Soczewkowe 3D / Lens Flare (`L`):** promienie anamorficzne i 3 krążki dyfrakcyjne z testem zasłonięcia w Z-Bufferze + błyski lustrzane (Specular Highlights).
