@@ -1,7 +1,8 @@
 # Changelog
 
 ## [v1.14.3] - 2026-11-24
-- **Pełny ekran PAL `320×256` 256 kolorów AGA (`-DFULL_RES`) dla profili `thea1200` i `060`:** 2× wyższa rozdzielczość pionowa C2P (`81 920 B` Chunky + `163 840 B` 16-bit Z-Buffer, okno `DIWSTRT=$2C81` / `DIWSTOP=$2CC1` bez czarnych pasów) dla wszystkich scen 3D, wody, odbić, cieni, terenu, flar, gwiazd i HUD-a, przy zachowaniu szybkiego `320×128` dla profilu `standard` (`68EC020` / Android).
+- **Pełny ekran PAL `320×256` 256 kolorów AGA (`-DFULL_RES`) dla profili `thea1200` i `060`:** 2× wyższa rozdzielczość pionowa C2P (`81 920 B` Chunky + `163 840 B` 16-bit Z-Buffer, pełne kadrowanie `DIWSTRT=$2C91` / `DIWSTOP=$2CD1`, `DDFSTRT=$0038` / `DDFSTOP=$00D0` bez czarnych pasów) dla wszystkich scen 3D, wody, odbić, cieni, terenu, flar, gwiazd i dolnego paska HUD (`Y=246`), przy zachowaniu szybkiego `320×128` dla profilu `standard` (`68EC020` / Android).
+- **16× precyzja Z-Buffera tafli wody, mgła horyzontu i symetryczne odbicia (`FULL_RES`):** zrównano skalę głębi wody (`rz << 4`) z rasteryzerem brył 3D (bryły unoszą się wyraźnie nad wodą), dodano zanikanie kafelków we mgle przy horyzoncie (`214/206` → `204/198` → `196/192`), symetryczne odbicia względem `shadow_ground_y` oraz 32-bitowe adresowanie wierszy (`add.l`) w `draw_uv_tri` dla pełnej postaci w scenie finałowej `F8`.
 - **Trzy obozy wydawnicze (`--profile standard|thea1200|060`):** dedykowane paczki `.lha` i `*_FSUAE.zip` dla bazowej A1200 (`020`), konsoli THEA1200 oraz kart turbo `MC68060`, z hybrydowym startem WHDLoad + `S/startup-sequence`.
 
 <p align="right"><a href="README.md">Polski</a> | <a href="README_EN.md">English</a> | <strong>Historia Zmian (PL)</strong> | <a href="CHANGELOG_EN.md">Changelog (EN)</a></p>

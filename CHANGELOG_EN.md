@@ -3,7 +3,8 @@
 # Changelog
 
 ## [v1.14.3] - 2026-11-24
-- **Full PAL `320×256` 256-Color AGA (`-DFULL_RES`) for `thea1200` and `060` Profiles:** 2× vertical C2P resolution (`81,920 B` Chunky + `163,840 B` 16-bit Z-Buffer, fullscreen `DIWSTRT=$2C81` / `DIWSTOP=$2CC1` with zero letterboxing) across all 3D meshes, water, reflections, shadows, terrain, lens flare, starfield, and HUD, while retaining fast `320×128` for `standard` (`68EC020` / Android).
+- **Full PAL `320×256` 256-Color AGA (`-DFULL_RES`) for `thea1200` and `060` Profiles:** 2× vertical C2P resolution (`81,920 B` Chunky + `163,840 B` 16-bit Z-Buffer, full horizontal framing `DIWSTRT=$2C91` / `DIWSTOP=$2CD1`, `DDFSTRT=$0038` / `DDFSTOP=$00D0` with zero letterboxing) across all 3D meshes, water, reflections, shadows, terrain, lens flare, starfield, and bottom HUD bar (`Y=246`), while retaining fast `320×128` for `standard` (`68EC020` / Android).
+- **16× Water Z-Buffer Precision, Horizon Fog & Symmetric Mirror Reflections (`FULL_RES`):** matched water depth scale (`rz << 4`) with 3D mesh rasterizers so objects float cleanly above the water, added distance-based horizon water fog (`214/206` → `204/198` → `196/192`), symmetric reflections across `shadow_ground_y`, and 32-bit row addressing (`add.l`) in `draw_uv_tri` for the full finale hero in `F8`.
 - **Three Target Profiles (`--profile standard|thea1200|060`):** dedicated `.lha` and `*_FSUAE.zip` releases for stock A1200 (`020`), THEA1200, and `MC68060` turbo cards, with hybrid WHDLoad + `S/startup-sequence` boot.
 
  — AURA-3D AGA Engine
