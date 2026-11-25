@@ -16,6 +16,15 @@ render_realtime_3d:
 
 .after_splash:
     sub.l   #150,d7
+    cmp.b   #1,pal_loaded
+    beq.s   .pal_ok
+    move.b  #1,pal_loaded
+    bsr.w   clear_both_bpl_buffers
+    lea     aga_pal256,a0
+    bsr.w   load_aga_256_palette
+    moveq   #0,d0
+    jsr     copper_set_sky_theme
+.pal_ok:
     lea     scene_timeline_table(pc),a0
 .tl_lp:
     move.l  (a0)+,d0                ; start_tick
@@ -94,4 +103,18 @@ copy_draw_to_disp_bpl:
     dbf     d0,.cb_l
     dbf     d1,.cb_p
     movem.l (sp)+,d0-d1/a0-a3
+    rts
+
+clear_both_bpl_buffers:
+    movem.l d0-d1/a0-a1,-(sp)
+    lea     disp_bpl1(pc),a0
+    moveq   #15,d1
+.cbb_lp:
+    move.l  (a0)+,a1
+    move.w  #2560-1,d0
+.cbb_z:
+    clr.l   (a1)+
+    dbf     d0,.cbb_z
+    dbf     d1,.cbb_lp
+    movem.l (sp)+,d0-d1/a0-a1
     rts

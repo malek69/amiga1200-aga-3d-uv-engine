@@ -18,6 +18,7 @@ c2p_160x128_to_aga:
     move.l  draw_bpl4(pc),a4
     move.w  #255,d7
     CNOP 0,16
+    CNOP 0,16
 .p1_row_060:
     moveq   #9,d6                       ; 10 blokow po 32 piksele = 320 px
 .p1_col_060:
@@ -249,6 +250,7 @@ c2p_160x128_to_aga:
     move.l  draw_bpl7(pc),a3
     move.l  draw_bpl8(pc),a4
     move.w  #255,d7
+    CNOP 0,16
     CNOP 0,16
 .p2_row_060:
     moveq   #9,d6
@@ -506,6 +508,7 @@ c2p_160x128_to_aga:
     move.w  #127,d7
     endif
     CNOP 0,4
+    CNOP 0,4
 .p1_row:
     moveq   #9,d6                   ; 10 blokow po 32 piksele = 320 px
 .p1_col:
@@ -753,6 +756,7 @@ c2p_160x128_to_aga:
     else
     move.w  #127,d7
     endif
+    CNOP 0,4
     CNOP 0,4
 .p2_row:
     moveq   #9,d6

@@ -162,33 +162,76 @@ draw_3d_ground_grid:
     move.l  a0,a4                       ; wskaznik chunky w wierszu
     move.l  a1,a5                       ; wskaznik zbuf w wierszu
     move.w  a3,a6                       ; a6.w = rz + 3
-    move.w  #319,d7                     ; szybki licznik petli dbf (320 px)
+    moveq   #79,d7                      ; 80 blokow x 4 piksele = 320 px (4x mniej skokow dbf!)
 
+    CNOP    0,4
 .fx_lp:
-    move.w  a6,d4
-    cmp.w   (a5)+,d4
-    bge.s   .fx_skip
-    move.w  d4,-2(a5)
-
-    ; Rozmiar kafla = 32x32 (bit 13 w 8.8 fixed point)
+    cmp.w   (a5)+,a6
+    bge.s   .fxs0
+    move.w  a6,-2(a5)
     move.l  d3,d4
     eor.l   d1,d4
     btst    #13,d4
-    beq.s   .tile_a
+    beq.s   .fta0
     move.b  d5,(a4)+
-    add.l   d0,d3
-    add.l   d2,d1
-    dbf     d7,.fx_lp
-    bra.s   .fx_end
-.tile_a:
+    bra.s   .ftn0
+.fta0:
     move.b  d6,(a4)+
+    bra.s   .ftn0
+.fxs0:
+    addq.l  #1,a4
+.ftn0:
     add.l   d0,d3
     add.l   d2,d1
-    dbf     d7,.fx_lp
-    bra.s   .fx_end
-
-.fx_skip:
+    cmp.w   (a5)+,a6
+    bge.s   .fxs1
+    move.w  a6,-2(a5)
+    move.l  d3,d4
+    eor.l   d1,d4
+    btst    #13,d4
+    beq.s   .fta1
+    move.b  d5,(a4)+
+    bra.s   .ftn1
+.fta1:
+    move.b  d6,(a4)+
+    bra.s   .ftn1
+.fxs1:
     addq.l  #1,a4
+.ftn1:
+    add.l   d0,d3
+    add.l   d2,d1
+    cmp.w   (a5)+,a6
+    bge.s   .fxs2
+    move.w  a6,-2(a5)
+    move.l  d3,d4
+    eor.l   d1,d4
+    btst    #13,d4
+    beq.s   .fta2
+    move.b  d5,(a4)+
+    bra.s   .ftn2
+.fta2:
+    move.b  d6,(a4)+
+    bra.s   .ftn2
+.fxs2:
+    addq.l  #1,a4
+.ftn2:
+    add.l   d0,d3
+    add.l   d2,d1
+    cmp.w   (a5)+,a6
+    bge.s   .fxs3
+    move.w  a6,-2(a5)
+    move.l  d3,d4
+    eor.l   d1,d4
+    btst    #13,d4
+    beq.s   .fta3
+    move.b  d5,(a4)+
+    bra.s   .ftn3
+.fta3:
+    move.b  d6,(a4)+
+    bra.s   .ftn3
+.fxs3:
+    addq.l  #1,a4
+.ftn3:
     add.l   d0,d3
     add.l   d2,d1
     dbf     d7,.fx_lp
