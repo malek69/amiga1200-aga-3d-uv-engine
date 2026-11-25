@@ -2,6 +2,10 @@
 
 # Changelog
 
+## [v1.14.5] - 2026-11-25
+- **3D Voxel Space Terrain & Volumetric Clouds (`engine/voxel_space.i`):** Y-buffer column raycaster ported from *Aether Falcon: Vanguard* featuring 3 terrain biomes (archipelago, mountain canyon, volcanic citadel) and 16 3D cloud formations.
+- **Unified MC68060 WHDLoad Slave (`engine/whdload_slave.s`):** `$0026` flags, **7.5 MB Fast RAM** (`$00780000`), and 32-bit **`CACR = $A0808000`** (*Superscalar*, *Branch Target Cache*, *Instruction/Data Cache*).
+
 ## [v1.14.4.2] - 2026-11-24
 - **Redesigned `320×256` AGA Title Screen (`F1` in `assets_raw/splash_v114.png` -> `demo_v1/splash_bpl.rle`):** refreshed 256-color Boing Ball title artwork updated for `v1.14.4.2` (`PAL 320x256 + 060 C2P + PHONG`).
 - **Fixed Shadow & Mirror Reflection Z-Buffer Hierarchy (`planar_shadow.i`, `mirror_reflect.i`, `ground_grid.i`):** unified 16× depth scaling (`rz << 4`) across planar shadows (`+4`), mirror reflections (`+5`), and water surface (`+8`) with foreshortened reflection geometry across `shadow_ground_y`.

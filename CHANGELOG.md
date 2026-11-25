@@ -1,5 +1,9 @@
 # Changelog
 
+## [v1.14.5] - 2026-11-25
+- **Silnik Terenu Wokselowego 3D i Chmur Wolumetrycznych (`engine/voxel_space.i`):** raycaster *Voxel Space* (Y-buffer horyzontu) przeniesiony z *Aether Falcon: Vanguard* z 3 biomami (archipelag, kanion górski, cytadela wulkaniczna) oraz 16 formacjami chmur 3D.
+- **Zunifikowany WHDLoad Slave dla MC68060 (`engine/whdload_slave.s`):** flaga `$0026`, **7.5 MB Fast RAM** (`$00780000`) oraz 32-bitowy rejestr **`CACR = $A0808000`** (*Superscalar*, *Branch Target Cache*, *Instruction/Data Cache*).
+
 ## [v1.14.4.2] - 2026-11-24
 - **Nowa plansza startowa `320×256` AGA (`F1` w `assets_raw/splash_v114.png` -> `demo_v1/splash_bpl.rle`):** odświeżona grafika tytułowa z Boing Ballem i aktualnym opisem silnika `v1.14.4.2` (`PAL 320x256 + 060 C2P + PHONG`).
 - **Naprawa hierarchii Z-Buffera cieni i odbić lustrzanych (`planar_shadow.i`, `mirror_reflect.i`, `ground_grid.i`):** zrównano skalę głębi (`rz << 4`) dla cieni (`+4`), odbić (`+5`) i tafli wody (`+8`) oraz dopasowano perspektywiczny skrót odbić względem `shadow_ground_y`.
