@@ -3,11 +3,15 @@
 ws: moveq #-1,d0
     rts
     dc.b "WHDLOADS"
-    dc.w 17,$0024
+    dc.w 17,$0026
     dc.l $200000,0
     dc.w _start-ws,0,0
     dc.b 0,$59
+    ifd M68060
+    dc.l $00780000
+    else
     dc.l $00400000
+    endif
     dc.w _n-ws,_c-ws,_i-ws,0
     dc.l 0
     dc.w 0,0
@@ -125,9 +129,14 @@ _start:
     subq.l #1,d1
     bne.s .rl
     bra.s .dr
-.rn: movec cacr,d0
+.rn: ifd M68060
+    move.l #$a0808000,d0
+    movec d0,cacr
+    else
+    movec cacr,d0
     or.w #$0909,d0
     movec d0,cacr
+    endif
     move.l hb(pc),a0
     jsr (a0)
 .ex: pea -1.w
