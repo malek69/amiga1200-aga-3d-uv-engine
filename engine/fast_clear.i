@@ -2,6 +2,11 @@ clear_chunky:
     movem.l d0-d7/a0-a6,-(sp)
     ifd FULL_RES
     lea     chunky_buf+81920,a0
+    bsr.s   .cc_block
+    bsr.s   .cc_block
+    movem.l (sp)+,d0-d7/a0-a6
+    rts
+.cc_block:
     else
     lea     chunky_buf+40960,a0
     endif
@@ -19,14 +24,9 @@ clear_chunky:
     movea.l d0,a4
     movea.l d0,a5
     movea.l d0,a6
-    ifd FULL_RES
-    movem.l d0-d7/a1-a3,-(a0)
-    move.l  #292-1,-(sp)
-    else
     movem.l d0-d7/a1-a6,-(a0)
     movem.l d0-d5,-(a0)
     move.l  #146-1,-(sp)
-    endif
 .cc_lp:
     REPT 5
     movem.l d0-d7/a1-a6,-(a0)
@@ -34,13 +34,22 @@ clear_chunky:
     subq.l  #1,(sp)
     bpl.s   .cc_lp
     addq.l  #4,sp
+    ifd FULL_RES
+    rts
+    else
     movem.l (sp)+,d0-d7/a0-a6
     rts
+    endif
 
 clear_zbuffer_v2:
     movem.l d0-d7/a0-a6,-(sp)
     ifd FULL_RES
     lea     zbuf_3d+163840,a0
+    bsr.s   .cz_block
+    bsr.s   .cz_block
+    movem.l (sp)+,d0-d7/a0-a6
+    rts
+.cz_block:
     else
     lea     zbuf_3d+81920,a0
     endif
@@ -58,14 +67,8 @@ clear_zbuffer_v2:
     movea.l d0,a4
     movea.l d0,a5
     movea.l d0,a6
-    ifd FULL_RES
-    movem.l d0-d7/a1-a6,-(a0)
-    movem.l d0-d3,-(a0)
-    move.l  #172-1,-(sp)
-    else
     movem.l d0-d7/a1-a4,-(a0)
     move.l  #86-1,-(sp)
-    endif
 .cz_lp:
     REPT 17
     movem.l d0-d7/a1-a6,-(a0)
@@ -73,5 +76,9 @@ clear_zbuffer_v2:
     subq.l  #1,(sp)
     bpl.s   .cz_lp
     addq.l  #4,sp
+    ifd FULL_RES
+    rts
+    else
     movem.l (sp)+,d0-d7/a0-a6
     rts
+    endif

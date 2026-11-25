@@ -16,12 +16,6 @@ render_realtime_3d:
 
 .after_splash:
     sub.l   #150,d7
-    cmp.b   #1,pal_loaded
-    beq.s   .pal_ok
-    move.b  #1,pal_loaded
-    lea     aga_pal256,a0
-    bsr.w   load_aga_256_palette
-.pal_ok:
     lea     scene_timeline_table(pc),a0
 .tl_lp:
     move.l  (a0)+,d0                ; start_tick
@@ -36,6 +30,15 @@ render_realtime_3d:
     bsr.w   c2p_160x128_to_aga
     jsr     ground_fill_screen_margins
     jsr     hud_draw_overlay
+    cmp.b   #1,pal_loaded
+    beq.s   .pal_done
+    move.b  #1,pal_loaded
+    bsr.w   wait_vbl
+    lea     aga_pal256,a0
+    bsr.w   load_aga_256_palette
+    moveq   #0,d0
+    jsr     copper_set_sky_theme
+.pal_done:
     movem.l (sp)+,d0-d7/a0-a5
     rts
 pal_loaded: dc.b 0,0

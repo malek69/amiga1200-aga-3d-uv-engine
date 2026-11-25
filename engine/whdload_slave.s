@@ -53,10 +53,10 @@ _start:
     move.l a0,-268(a3)
     lea _e(pc),a0
     move.l ws+$20(pc),a1
-    add.l #$00080000,a1
+    add.l #$00280000,a1
     jsr 8(a2)
     move.l ws+$20(pc),a0
-    add.l #$00080000,a0
+    add.l #$00280000,a0
     cmp.l #$000003f3,(a0)+
     bne.w .ex
     addq.l #4,a0

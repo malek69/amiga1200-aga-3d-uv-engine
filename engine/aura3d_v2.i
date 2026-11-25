@@ -1026,7 +1026,8 @@ recip_table_32:
 shade_lut_v2:
     incbin  "shade_lut_v2.bin"
 
-    section fastram_bss,bss_p
+    section fastram_zbuf,bss_p
+    even
     ifd FULL_RES
 zbuf_3d:      ds.w 320*256
 v2_edge_buf:  ds.b 256*32

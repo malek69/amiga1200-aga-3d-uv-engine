@@ -86,7 +86,7 @@ input_update_controls:
     cmp.b   #$17,d0                     ; I = pokaz / ukryj HUD (FPS + Info)
     bne.s   .n_i
     eor.b   #1,hud_enabled
-    move.b  hud_enabled(pc),info_visible
+    move.b  hud_enabled,info_visible
     bra.w   .held_keys
 .n_i:
     cmp.b   #$19,d0                     ; P = wlacz / wylacz cieniowanie Phonga

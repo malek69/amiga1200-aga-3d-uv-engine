@@ -29,12 +29,6 @@ start:
 ;                   wygenerowany z PNG przez tools/png_to_aga.py (2.5s / skip)
 ; ----------------------------------------------------------------------------
 mainloop:
-    bsr.w   wait_vbl
-    bsr.w   clear_draw_bpl
-    move.l  draw_bpl3(pc),a0
-    bsr.w   blit_clear_full
-    bsr.w   wait_blitter
-
     ; Synchronizacja klatki z audio 16497 Hz: frame = (pcm_played * 10) / 5499
     move.l  vbl_tick(pc),d0
     mulu.l  #2,d0
@@ -49,6 +43,7 @@ mainloop:
     jsr     input_update_controls
     bsr.w   render_realtime_3d
     jsr     hud_fps_tick
+    bsr.w   wait_vbl
 
     btst    #6,CIAAPRA
     beq.s   shutdown
@@ -111,18 +106,15 @@ cop_bpl7_ptr:   dc.l 0
 cop_bpl8_ptr:   dc.l 0
 copper_ptr:     dc.l 0
 
-    section uv_data,data
+    section rom_p,data_p
     even
 uv_tex_bank: incbin "uv_textures.bin"
     even
 tunnel_lut:  incbin "tunnel_lut.bin"
     even
 aga_pal256:  incbin "pal256.bin"
-    even
-scroll_font: ds.b 1024
-    even
-ptrail_pool: ds.b 1024
 
+    section sintab_p,data_p
     even
 sin_tab:
     dc.w 0,6,13,19,25,31,38,44,50,56,62,68,74,80,86,92
@@ -150,7 +142,7 @@ sin_tab:
     even
 mod_data:    incbin "demo_tune.mod"
 
-    section fastram_bss,bss
+    section fastram_bss,bss_p
     even
     ifd FULL_RES
 chunky_buf:  ds.b 320*256
@@ -158,6 +150,8 @@ chunky_buf:  ds.b 320*256
 chunky_buf:  ds.b 320*128
     endif
 edge_buf:    ds.b 256*8
+scroll_font: ds.b 1024
+ptrail_pool: ds.b 1024
 
 
     section uv_data,data_p

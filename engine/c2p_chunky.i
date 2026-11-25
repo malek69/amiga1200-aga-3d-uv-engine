@@ -6,7 +6,7 @@
 ; c2p_160x128_to_aga (v1.14.5 - Superskalarny potok MC68060 pOEP/sOEP, 320x256)
 ; ============================================================================
 c2p_160x128_to_aga:
-    movem.l d0-d7/a0-a5,-(sp)
+    movem.l d0-d7/a0-a6,-(sp)
     lea     c2p_exp(pc),a5
     move.l  #$0f0f0f0f,a6               ; stala maska w rejestrze adresowym (zero hazardow)
 
@@ -17,6 +17,7 @@ c2p_160x128_to_aga:
     move.l  draw_bpl3(pc),a3
     move.l  draw_bpl4(pc),a4
     move.w  #255,d7
+    CNOP 0,16
 .p1_row_060:
     moveq   #9,d6                       ; 10 blokow po 32 piksele = 320 px
 .p1_col_060:
@@ -248,6 +249,7 @@ c2p_160x128_to_aga:
     move.l  draw_bpl7(pc),a3
     move.l  draw_bpl8(pc),a4
     move.w  #255,d7
+    CNOP 0,16
 .p2_row_060:
     moveq   #9,d6
 .p2_col_060:
@@ -482,14 +484,14 @@ c2p_160x128_to_aga:
     dbf     d6,.p2_col_060
     dbf     d7,.p2_row_060
 
-    movem.l (sp)+,d0-d7/a0-a5
+    movem.l (sp)+,d0-d7/a0-a6
     rts
     else
 ; ============================================================================
 ; c2p_160x128_to_aga (v1.14.3 - Tryb 320x128 1x2, 32 px/krok, 32-bit move.l)
 ; ============================================================================
 c2p_160x128_to_aga:
-    movem.l d0-d7/a0-a5,-(sp)
+    movem.l d0-d7/a0-a6,-(sp)
     lea     c2p_exp(pc),a5
 
     ; PRZEBIEG 1: Low nibbles (bity 0..3) -> BPL1..BPL4
@@ -503,6 +505,7 @@ c2p_160x128_to_aga:
     else
     move.w  #127,d7
     endif
+    CNOP 0,4
 .p1_row:
     moveq   #9,d6                   ; 10 blokow po 32 piksele = 320 px
 .p1_col:
@@ -750,6 +753,7 @@ c2p_160x128_to_aga:
     else
     move.w  #127,d7
     endif
+    CNOP 0,4
 .p2_row:
     moveq   #9,d6
 .p2_col:
@@ -994,13 +998,13 @@ c2p_160x128_to_aga:
     endif
     dbf     d7,.p2_row
 
-    movem.l (sp)+,d0-d7/a0-a5
+    movem.l (sp)+,d0-d7/a0-a6
     rts
 
     endif
 draw_uv_tri:
     ; Trojkat 3D z prawdziwa tekstura UV 64x64: a4 -> 3x(sx,sy,u,v), d6=tex_id (0..3), d7=light (0..7)
-    movem.l d0-d7/a0-a5,-(sp)
+    movem.l d0-d7/a0-a6,-(sp)
     move.w  d6,uv_tex
     move.w  d7,uv_shade
     move.w  (a4)+,uv_x0
@@ -1132,7 +1136,7 @@ draw_uv_tri:
     addq.w  #1,d6
     cmp.w   d7,d6
     ble.w   .ry_lp
-.uv_ex: movem.l (sp)+,d0-d7/a0-a5
+.uv_ex: movem.l (sp)+,d0-d7/a0-a6
     rts
 scan_uv_edge:
     move.w  2(a1),d1
@@ -1226,6 +1230,7 @@ uv_edges: ds.b 256*12
     else
 uv_edges: ds.b 128*12
     endif
+    CNOP 0,16
 c2p_exp:
     dc.l $00000000,$01000000,$00010000,$01010000
     dc.l $00000100,$01000100,$00010100,$01010100

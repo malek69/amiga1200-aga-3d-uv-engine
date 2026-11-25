@@ -2,3 +2,4 @@ releases/
 __pycache__/
 *.o
 /tmp/
+.aider*

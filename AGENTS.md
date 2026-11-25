@@ -1,0 +1,1 @@
+KRYTYCZNA ZASADA JĘZYKOWA: Zawsze myśl, analizuj, komentuj każdy krok i pisz wszystkie odpowiedzi wyłącznie w języku POLSKIM. Nigdy nie używaj języka angielskiego w odpowiedziach ani w wewnętrznym myśleniu (thinking).

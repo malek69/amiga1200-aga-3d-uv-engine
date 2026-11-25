@@ -105,7 +105,17 @@ sys_takeover:
     move.w  #$83cf,DMACON(a5)
     lea     mod_data,a0
     bsr.w   pt_init
-    move.l  #vbl_irq_handler,$6c.w
+    move.l  a5,-(sp)
+    lea     .get_vbr(pc),a5
+    jsr     _LVOSupervisor(a6)
+    move.l  (sp)+,a5
+    move.l  d0,a0
+    move.l  #vbl_irq_handler,$6c(a0)
+    bra.s   .vbr_ok
+.get_vbr:
+    movec   vbr,d0
+    rte
+.vbr_ok:
     move.w  #$c020,INTENA(a5)
     movem.l (sp)+,d0-d7/a0-a6
     moveq   #1,d0
@@ -141,54 +151,60 @@ swap_buffers:
 
 load_aga_256_palette:
     ; a0 -> 256 longwords ($00RRGGBB) -> laduje 8 bankow po 32 kolory 24-bitowe AGA!
-    movem.l d0-d5/a0-a2,-(sp)
+    movem.l d0-d6/a0-a2,-(sp)
     lea     $dff000,a2
+    move.w  #$0080,DMACON(a2)   ; Zatrzymaj Coppera na czas zapisu 8 bankow LOCT
     moveq   #0,d4
 .bk_lp:
     move.w  d4,d5
-    ror.w   #3,d5
+    ror.w   #3,d5               ; Bank (0..7) w bitach 15..13
+    or.w    #$0020,d5           ; LOCT=0, BRDRBLNK=1
     move.w  d5,$106(a2)
     lea     $180(a2),a1
     moveq   #31,d3
 .hi_lp:
-    move.l  (a0)+,d0
+    move.l  (a0)+,d0            ; d0 = $00RRGGBB
     move.l  d0,d1
     lsr.l   #4,d1
-    and.w   #$000f,d1
+    and.w   #$000f,d1           ; B7..4 -> bity 3..0
     move.l  d0,d2
     lsr.l   #8,d2
-    and.w   #$00f0,d2
+    and.w   #$00f0,d2           ; G7..4 -> bity 7..4
     or.w    d2,d1
     swap    d0
-    and.w   #$00f0,d0
-    lsl.w   #4,d0
+    and.w   #$00f0,d0           ; R7..4 -> bity 7..4
+    lsl.w   #4,d0               ; R7..4 -> bity 11..8
     or.w    d0,d1
     move.w  d1,(a1)+
     dbf     d3,.hi_lp
+
     lea     -128(a0),a0
-    or.w    #$0200,d5
+    or.w    #$0200,d5           ; LOCT=1 dla mlodszych polbajtow (R3..0, G3..0, B3..0)
     move.w  d5,$106(a2)
     lea     $180(a2),a1
     moveq   #31,d3
 .lo_lp:
-    move.l  (a0)+,d0
-    move.l  d0,d1
-    and.w   #$000f,d1
-    move.l  d0,d2
-    lsr.w   #4,d2
-    and.w   #$00f0,d2
+    move.l  (a0)+,d0            ; d0 = $00RRGGBB
+    move.w  d0,d1
+    and.w   #$000f,d1           ; B3..0 -> bity 3..0
+    move.w  d0,d2
+    lsr.w   #8,d2
+    and.w   #$000f,d2           ; G3..0 -> bity 3..0
+    lsl.w   #4,d2               ; G3..0 -> bity 7..4
     or.w    d2,d1
     swap    d0
-    lsl.w   #8,d0
-    and.w   #$0f00,d0
+    and.w   #$000f,d0           ; R3..0 -> bity 3..0
+    lsl.w   #8,d0               ; R3..0 -> bity 11..8
     or.w    d0,d1
     move.w  d1,(a1)+
     dbf     d3,.lo_lp
+
     addq.w  #1,d4
     cmp.w   #8,d4
     blo.s   .bk_lp
-    move.w  #$0c00,$106(a2)
-    movem.l (sp)+,d0-d5/a0-a2
+    move.w  #$0c20,$106(a2)     ; Przywroc BPLCON3 (LOCT=0, BANK=0, BRDRBLNK=1)
+    move.w  #$8080,DMACON(a2)   ; Wznow DMA Coppera
+    movem.l (sp)+,d0-d6/a0-a2
     rts
 wait_blitter:
     lea     $dff000,a5
@@ -210,8 +226,8 @@ build_copper:
     move.l  #$000a8000,a0
     move.l  #(FMODE<<16)|$0000,(a0)+
     ifd FULL_RES
-    move.l  #(DIWSTRT<<16)|$2c91,(a0)+
-    move.l  #(DIWSTOP<<16)|$2cd1,(a0)+
+    move.l  #(DIWSTRT<<16)|$2c81,(a0)+    ; HSTART=$81 (129) zgodne z DDFSTRT=$38
+    move.l  #(DIWSTOP<<16)|$2cc1,(a0)+    ; VSTOP=300, HSTOP=449 - centrowane 320x256
     move.l  #(DDFSTRT<<16)|$0038,(a0)+
     move.l  #(DDFSTOP<<16)|$00d0,(a0)+
     else
@@ -262,7 +278,7 @@ build_copper:
     dbf     d3,.cp_sp
     move.l  a0,cop_sky_ptr
     move.l  #$fffffffe,(a0)+
-    moveq   #0,d0
+    moveq   #3,d0
     jsr     copper_set_sky_theme
     rts
 cop_spr_ptr: dc.l 0

@@ -22,15 +22,14 @@ def build_profile(root, profile):
     shutil.copytree(os.path.join(root, "engine"), ed)
     ms_p = os.path.join(dd, "main.s")
     ms = open(ms_p).read()
-    if profile == "thea1200":
-        ms = ms.replace("mulu.l  #2,d0", "mulu.l  #4,d0")
-    elif profile == "060":
-        ms = ms.replace("    mulu.l  #2,d0\n    divu.l  #5,d0\n", "")
+    # Frame timing: keep original mulu.l/divu.l for all profiles (50 Hz PAL sync)
+    # thea1200 and 060 use the same VBL timing as standard 020
     open(ms_p, "w").write(ms)
     sl_p = os.path.join(ed, "whdload_slave.s")
     sl = open(sl_p).read().replace("dc.w 17,$0024", "dc.w 17,$0026")
-    if profile == "060":
-        sl = sl.replace("dc.l $00400000", "dc.l $00780000").replace("or.w #$0909,d0", "or.w #$0909,d0")
+    if profile in ("thea1200", "060"):
+        # FULL_RES needs more ExpMem for bss_p hunks (~320 KB chunky + zbuf + edges)
+        sl = sl.replace("dc.l $00400000", "dc.l $00780000")
     open(sl_p, "w").write(sl)
     sfx = {"standard": "_020", "thea1200": "_THEA1200", "060": "_060"}[profile]
     pkg_name = f"Aura3DDemo_AGA{sfx}"
@@ -43,7 +42,7 @@ def build_profile(root, profile):
     defs = ["-DFULL_RES"] if profile in ("thea1200", "060") else []
     if profile == "060":
         defs.append("-DM68060")
-    subprocess.run(["vasmm68k_mot", cpu, *defs, "-Fhunkexe", *([] if profile in ("thea1200", "060") else ["-kick1hunks"]), "-nosym", "-I.", "-I../engine", "main.s", "-o", exe], cwd=dd, check=True)
+    subprocess.run(["vasmm68k_mot", cpu, *defs, "-Fhunkexe", "-kick1hunks", "-nosym", "-I.", "-I../engine", "main.s", "-o", exe], cwd=dd, check=True)
     subprocess.run(["vasmm68k_mot", cpu, *defs, "-Fhunkexe", "-nosym", "-I.", "whdload_slave.s", "-o", slv], cwd=ed, check=True)
     os.chmod(exe, 0o755)
     tt = (f"SLAVE={pkg_name}.slave", "NoMMU")

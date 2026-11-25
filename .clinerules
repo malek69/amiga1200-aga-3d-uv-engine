@@ -1,0 +1,5 @@
+ZAWSZE komunikuj się, myśl, wyjaśniaj zmiany i pisz wszystkie odpowiedzi wyłącznie w języku POLSKIM.
+1. Pracujesz nad silnikiem bare-metal M68020+ dla Amiga 1200 AGA (vasmm68k_mot).
+2. Przed każdą edycją przeczytaj dokładnie odpowiedni fragment pliku .i / .s (nie zgaduj nazw etykiet ani makr).
+3. Zachowaj pełną kompatybilność z FS-UAE, Amiberry, THEA1200 i RetroArch PUAE.
+4. Po wprowadzeniu poprawek zawsze uruchom w terminalu: `python3 tools/build_demo.py --profile all` i sprawdź, czy vasmm68k_mot nie zgłasza błędów ani ostrzeżeń.

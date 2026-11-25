@@ -1,6 +1,6 @@
 ; [EN/PL] MODULE: pt_player.i | Universal 31-Sample ProTracker M.K. Player (50Hz PAL)
 pt_init:
-    movem.l d0-d4/a0-a3,-(sp)
+    movem.l d0-d4/a0-a6,-(sp)
     bset    #1,$bfe001
     lea     mod_data,a0
     moveq   #0,d0
@@ -51,7 +51,7 @@ pt_init:
     move.w  #6,pt_speed
     lea     $dff000,a5
     move.w  #$000f,$96(a5)
-    movem.l (sp)+,d0-d4/a0-a3
+    movem.l (sp)+,d0-d4/a0-a6
     rts
 
 pt_music:
@@ -203,7 +203,7 @@ pt_wait_raster:
     dbf     d1,.wr_lp
     rts
 vbl_irq_handler:
-    movem.l d0-d2/a0-a1/a5,-(sp)
+    movem.l d0-d7/a0-a6,-(sp)
     lea     $dff000,a5
     move.w  #$0020,$9c(a5)
     addq.l  #1,vbl_tick
@@ -213,5 +213,5 @@ vbl_irq_handler:
     clr.b   swap_ready
     bsr.w   swap_buffers
 .no_swap:
-    movem.l (sp)+,d0-d2/a0-a1/a5
+    movem.l (sp)+,d0-d7/a0-a6
     rte

@@ -22,12 +22,12 @@ hud_fps_tick:
     addq.w  #1,hud_frame_cnt
     move.l  vbl_tick(pc),d0
     move.l  d0,d1
-    sub.l   hud_last_vbl(pc),d1
+    sub.l   hud_last_vbl,d1
     cmp.l   #50,d1                      ; 50 VBL = 1.0 s (PAL)
     blo.s   .tick_done
 
     move.l  d0,hud_last_vbl
-    move.w  hud_frame_cnt(pc),d0
+    move.w  hud_frame_cnt,d0
     cmp.w   #50,d0
     ble.s   .fps_ok
     moveq   #50,d0
@@ -42,21 +42,21 @@ hud_fps_tick:
 ; Sklada 9 wierszy maski tekstu (64 bity = 2 longwordy na wiersz) raz na sekunde
 hud_bake_bitmap:
     movem.l d0-d7/a0-a3,-(sp)
-    lea     hud_chars(pc),a0
+    lea     hud_chars,a0
     move.b  #10,(a0)+                   ; F
     move.b  #11,(a0)+                   ; P
     move.b  #12,(a0)+                   ; S
     move.b  #13,(a0)+                   ; :
 
     moveq   #0,d0
-    move.w  hud_fps_val(pc),d0
+    move.w  hud_fps_val,d0
     divu.w  #10,d0
     move.b  d0,(a0)+
     swap    d0
     move.b  d0,(a0)+
 
-    lea     hud_bmp_fg(pc),a1
-    lea     hud_bmp_box(pc),a2
+    lea     hud_bmp_fg,a1
+    lea     hud_bmp_box,a2
     lea     hud_font_5x7(pc),a0
 
     moveq   #0,d7                       ; y = 0..8
@@ -72,7 +72,7 @@ hud_bake_bitmap:
     move.w  d7,d6
     subq.w  #1,d6                       ; wiersz glifu 0..6
 
-    lea     hud_chars(pc),a3
+    lea     hud_chars,a3
     ; Znak 0 (F) -> bit 26..30 w d4
     moveq   #0,d0
     move.b  (a3),d0
@@ -161,19 +161,22 @@ hud_bake_bitmap:
 ; ----------------------------------------------------------------------------
 hud_draw_overlay:
     movem.l d0-d7/a0-a4,-(sp)
-    tst.b   hud_enabled(pc)
+    tst.b   hud_enabled
     beq.w   .chk_km
 
-    ; Offset ekranowy: Y=6 * 40 bajtow + X=256/8 (32 bajty) = 272
     lea     draw_bpl1(pc),a0
     moveq   #7,d6                       ; 8 bitplanow (kolor 255 = bialy, 0 = czarne tlo ramki)
 .bpl_lp:
     move.l  (a0),a1
     addq.l  #8,a0                       ; nastepny draw_bplX
-    lea     272(a1),a1
+    ifd FULL_RES
+    lea     8*40+32(a1),a1              ; Y=8, X=256 (widoczne w DIWSTRT=$2c81)
+    else
+    lea     16*40+30(a1),a1             ; Y=16, X=240 (widoczne w DIWSTRT=$3891)
+    endif
 
-    lea     hud_bmp_fg(pc),a2
-    lea     hud_bmp_box(pc),a3
+    lea     hud_bmp_fg,a2
+    lea     hud_bmp_box,a3
     moveq   #8,d7                       ; 9 wierszy
 .y_lp:
     move.l  (a3)+,d0
@@ -198,7 +201,11 @@ hud_draw_overlay:
 .hb_lp:
     move.l  (a0),a1
     addq.l  #8,a0
-    lea     17*40+32(a1),a1
+    ifd FULL_RES
+    lea     19*40+32(a1),a1
+    else
+    lea     27*40+30(a1),a1
+    endif
     lea     hud_k_badge(pc),a2
     moveq   #13,d7
 .hb_y:
@@ -209,10 +216,10 @@ hud_draw_overlay:
     dbf     d6,.hb_lp
 
 .chk_km:
-    tst.b   keymap_visible(pc)
+    tst.b   keymap_visible
     beq.s   .hdo_done
-    move.b  hud_lang(pc),d0
-    cmp.b   hud_last_km_lang(pc),d0
+    move.b  hud_lang,d0
+    cmp.b   hud_last_km_lang,d0
     beq.s   .km_blit
     move.b  d0,hud_last_km_lang
     bsr.w   hud_bake_keymap
@@ -251,7 +258,7 @@ hud_bake_keymap:
     clr.l   (a1)+
     dbf     d0,.km_clr
     lea     keymap_lines(pc),a0
-    tst.b   hud_last_km_lang(pc)
+    tst.b   hud_last_km_lang
     beq.s   .km_src_ok
     lea     keymap_lines_eng(pc),a0
 .km_src_ok:
@@ -372,7 +379,7 @@ hud_ascii_5x7:
 
     section fastram_bss,bss_p
 keymap_bmp:     ds.b 54*32
-    section code,code
+    section hud_data_p,data_p
 
     even
 hud_fps_val:    dc.w 50
@@ -383,6 +390,8 @@ hud_enabled:    dc.b 1
 keymap_visible: dc.b 0
 hud_bmp_fg:     ds.l 18
 hud_bmp_box:    ds.l 18
+
+    section code,code
 
 hud_font_5x7:
     dc.b $0e,$11,$13,$15,$19,$11,$0e,0  ; 0
@@ -405,7 +414,7 @@ hud_font_5x7:
 ; ----------------------------------------------------------------------------
 hud_draw_scene_info:
     movem.l d0-d7/a0-a4,-(sp)
-    tst.b   info_visible(pc)
+    tst.b   info_visible
     beq.w   .si_exit
 
     ; Wyznacz numer aktualnej sceny (0 = F1 Splash, 1..7 = F2..F8)
@@ -429,8 +438,8 @@ hud_draw_scene_info:
 
 .si_chk:
     lsl.w   #8,d2
-    move.b  hud_lang(pc),d2
-    cmp.w   hud_last_scene(pc),d2
+    move.b  hud_lang,d2
+    cmp.w   hud_last_scene,d2
     beq.s   .si_blit
     move.w  d2,hud_last_scene
     bsr.w   hud_bake_scene_info
@@ -481,7 +490,7 @@ hud_bake_scene_info:
     clr.l   (a1)+
     dbf     d0,.sib_clr
 
-    move.w  hud_last_scene(pc),d0
+    move.w  hud_last_scene,d0
     move.b  d0,d1
     lsr.w   #8,d0
     cmp.w   #7,d0

@@ -209,24 +209,33 @@ draw_shadow_mesh_v2:
     cmp.w   #56,4(a6)
     blt.w   .dsm_next
 
+    ifd FULL_RES
+    cmp.w   #130,2(a4)
+    blt.w   .dsm_next
+    cmp.w   #130,2(a5)
+    blt.w   .dsm_next
+    cmp.w   #130,2(a6)
+    blt.w   .dsm_next
+    else
     cmp.w   #66,2(a4)
     blt.w   .dsm_next
     cmp.w   #66,2(a5)
     blt.w   .dsm_next
     cmp.w   #66,2(a6)
     blt.w   .dsm_next
+    endif
 
     cmp.w   #-40,(a4)
     blt.w   .dsm_next
-    cmp.w   #200,(a4)
+    cmp.w   #360,(a4)
     bgt.w   .dsm_next
     cmp.w   #-40,(a5)
     blt.w   .dsm_next
-    cmp.w   #200,(a5)
+    cmp.w   #360,(a5)
     bgt.w   .dsm_next
     cmp.w   #-40,(a6)
     blt.w   .dsm_next
-    cmp.w   #200,(a6)
+    cmp.w   #360,(a6)
     bgt.w   .dsm_next
 
     move.w  (a5),d0
