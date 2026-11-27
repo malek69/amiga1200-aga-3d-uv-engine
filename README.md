@@ -27,14 +27,14 @@ Od wersji **`v1.15.0`** nowe moduły silnika (`voxel_space.i`, `cinematic_fx.i`,
   - **Bazowa Amiga 1200 (`68EC020` bez Fast RAM):** obsługuje wyłącznie starszy, okrojony tryb demonstracyjny `320×128` (`--profile standard`) bez nowych modułów `v1.15.0`.
   - **Amiga 500 / 600 (`OCS/ECS`):** brak wsparcia (silnik wymaga 256-kolorowego chipsetu **AGA** oraz procesora **M68020+ / M68040**).
 
-## Pobieranie (v1.15.0 — 3 Obozy Wydawnicze)
+## Pobieranie (v1.15.0 — Konfiguracje Sprzętowe)
 
-| Obóz / Profil (`--profile`) | Platforma docelowa | Paczki do pobrania |
-| :--- | :--- | :--- |
-| **1. Standard `020` (`--profile standard`)** | Bazowa **Amiga 1200 (`68EC020`)**, **RetroArch (Android)** — szybki tryb **`320×128`** | [.LHA](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.15.0/aura3d_demo_v2_AGA_020.lha) · [.ZIP (FS-UAE/WinUAE)](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.15.0/aura3d_demo_v2_AGA_020_FSUAE.zip) |
-| **2. THEA1200 (`--profile thea1200`)** | Konsola **THEA1200**, **Amiberry (PC)**, **FS-UAE** — pełny ekran PAL **`320×256`** (`-DFULL_RES`, 2× tempo) | [.LHA](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.15.0/aura3d_demo_v2_AGA_THEA1200.lha) · [.ZIP (FS-UAE/WinUAE)](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.15.0/aura3d_demo_v2_AGA_THEA1200_FSUAE.zip) |
-| **3. Turbo `MC68060` (`--profile 060`)** | Karty turbo **`MC68060` (50+ MHz)** — pełny ekran PAL **`320×256`** (`-DFULL_RES`, `-m68060`, 50 Hz 1:1) | [.LHA](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.15.0/aura3d_demo_v2_AGA_060.lha) · [.ZIP (FS-UAE/WinUAE)](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.15.0/aura3d_demo_v2_AGA_060_FSUAE.zip) |
-| **Dyskietka `.ADF` & Źródła** | Stacja `DF0:` / Gotek FlashFloppy oraz pełny kod źródłowy | [.ADF (880 KB)](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.15.0/aura3d_demo_v1.15.0_AGA.adf) · [Źródła .ZIP](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.15.0/aura3d-aga-engine-v1.15.0-src.zip) |
+Profil (`--profile`) | Platforma docelowa | Zakres silnika | Paczki do pobrania
+---|---|---|---
+**THEA1200 (`--profile thea1200`)** *(główny)* | Konsola **THEA1200**, **A1200/A4000 + 68040**, **Amiberry**, **FS-UAE** (`320×256 AGA`) | **Pełny silnik `v1.15.0`** (Voxel Space 3D, Gouraud, Cinematics, 32-bit C2P) | [.LHA](docs/Aura3D_AGA_THEA1200.lha) · [.ZIP (FS-UAE/WinUAE)](docs/Aura3D_AGA_THEA1200_FSUAE.zip)
+**Turbo MC68060 (`--profile 060`)** | Amiga 1200/4000 z kartą **MC68060** (`320×256 AGA`, `-m68060`, 50 Hz) | **Pełny silnik `v1.15.0`** (zgodny z THEA1200 + tryb superskalarny `060`) | [.LHA](docs/Aura3D_AGA_060.lha) · [.ZIP (FS-UAE/WinUAE)](docs/Aura3D_AGA_060_FSUAE.zip)
+**Standard 020 (`--profile standard`)** *(legacy)* | Bazowa **Amiga 1200 (`68EC020`)**, **RetroArch** (`320×128`) | Tylko starsze sceny demo `F1–F8` (`v1.14.x`, bez modułów `v1.15.0`) | [.LHA](docs/Aura3D_AGA_020.lha) · [.ZIP](docs/Aura3D_AGA_020_FSUAE.zip) · [.ADF](docs/Aura3D_AGA_Demo.adf)
+
 
 ### Warianty Paczek i Kompatybilność
 - **`.lha` (WHDLoad + zapasowy `S/startup-sequence`):** działa od strzała w **RetroArch (`PUAE`)**, **Amiberry** (nawet bez pliku `C:WHDLoad`), **THEA1200** oraz na prawdziwej **Amidze 1200**.
