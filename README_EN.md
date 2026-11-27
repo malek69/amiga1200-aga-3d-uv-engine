@@ -60,6 +60,13 @@
 
 ---
 
+
+### Engine v1.15.0 Live Showcase (THEA1200 — 320×256 AGA)
+
+| <img src="docs/shot_v1150_1.png" width="240"> | <img src="docs/shot_v1150_2.png" width="240"> | <img src="docs/shot_v1150_3.png" width="240"> |
+|:---:|:---:|:---:|
+| **1. Cinema Letterbox & 24-Bit AGA Fade** | **2. Narrative & Portrait Engine (`cinematic_fx.i`)** | **3. 360° Voxel Space, Water & Gouraud 3D Meshes** |
+
 ## Scene Breakdown (`F1`–`F8` & `Tab`)
 
 | Key | Scene | Content & Active Effects |

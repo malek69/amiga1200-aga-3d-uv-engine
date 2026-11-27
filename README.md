@@ -64,6 +64,13 @@
 
 ---
 
+
+### Demo Silnika v1.15.0 w Akcji (THEA1200 — 320×256 AGA)
+
+| <img src="docs/shot_v1150_1.png" width="240"> | <img src="docs/shot_v1150_2.png" width="240"> | <img src="docs/shot_v1150_3.png" width="240"> |
+|:---:|:---:|:---:|
+| **1. Kinowy Letterbox & 24-Bit AGA Fade** | **2. Moduł Narracyjny & Portret (`cinematic_fx.i`)** | **3. Voxel Space 360°, Woda & Bryły 3D Gouraud** |
+
 ## Opis Wszystkich Scen (Klawisze `F1`–`F8` oraz `Tab`)
 
 | Klawisz | Scena | Zawartosc i aktywne efekty |
