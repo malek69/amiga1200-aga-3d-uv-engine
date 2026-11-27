@@ -2,26 +2,26 @@
 
 <div align="center">
   <img src="docs/logo.png" alt="AURA-3D AGA Engine" width="520" />
-  <h1>AURA-3D AGA Engine v1.14.5</h1>
+  <h1>AURA-3D AGA Engine v1.15.0</h1>
   <p><strong>Bare-metalowy silnik graficzny 3D dla Commodore Amiga 1200 (M68020+ / AGA / 256 Colors)</strong></p>
   <p>
-    <a href="https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.5/aura3d_demo_v2_AGA_THEA1200.lha">Pobierz .LHA</a> &bull;
-    <a href="https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.5/aura3d_demo_v2_AGA_THEA1200_FSUAE.zip">Pobierz FS-UAE .ZIP</a> &bull;
-    <a href="https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.5/aura3d_demo_v1.14.5_AGA.adf">Pobierz .ADF</a> &bull;
-    <a href="https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.5/aura3d-aga-engine-v1.14.5-src.zip">Zrodla .ZIP</a> &bull; <a href="CHANGELOG.md">Changelog</a>
+    <a href="https://github.com/malek69/aura3d-aga-engine/releases/download/v1.15.0/aura3d_demo_v2_AGA_THEA1200.lha">Pobierz .LHA</a> &bull;
+    <a href="https://github.com/malek69/aura3d-aga-engine/releases/download/v1.15.0/aura3d_demo_v2_AGA_THEA1200_FSUAE.zip">Pobierz FS-UAE .ZIP</a> &bull;
+    <a href="https://github.com/malek69/aura3d-aga-engine/releases/download/v1.15.0/aura3d_demo_v1.15.0_AGA.adf">Pobierz .ADF</a> &bull;
+    <a href="https://github.com/malek69/aura3d-aga-engine/releases/download/v1.15.0/aura3d-aga-engine-v1.15.0-src.zip">Zrodla .ZIP</a> &bull; <a href="CHANGELOG.md">Changelog</a>
   </p>
 </div>
 
 ---
 
-## Pobieranie (v1.14.5 — 3 Obozy Wydawnicze)
+## Pobieranie (v1.15.0 — 3 Obozy Wydawnicze)
 
 | Obóz / Profil (`--profile`) | Platforma docelowa | Paczki do pobrania |
 | :--- | :--- | :--- |
-| **1. Standard `020` (`--profile standard`)** | Bazowa **Amiga 1200 (`68EC020`)**, **RetroArch (Android)** — szybki tryb **`320×128`** | [.LHA](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.5/aura3d_demo_v2_AGA_020.lha) · [.ZIP (FS-UAE/WinUAE)](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.5/aura3d_demo_v2_AGA_020_FSUAE.zip) |
-| **2. THEA1200 (`--profile thea1200`)** | Konsola **THEA1200**, **Amiberry (PC)**, **FS-UAE** — pełny ekran PAL **`320×256`** (`-DFULL_RES`, 2× tempo) | [.LHA](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.5/aura3d_demo_v2_AGA_THEA1200.lha) · [.ZIP (FS-UAE/WinUAE)](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.5/aura3d_demo_v2_AGA_THEA1200_FSUAE.zip) |
-| **3. Turbo `MC68060` (`--profile 060`)** | Karty turbo **`MC68060` (50+ MHz)** — pełny ekran PAL **`320×256`** (`-DFULL_RES`, `-m68060`, 50 Hz 1:1) | [.LHA](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.5/aura3d_demo_v2_AGA_060.lha) · [.ZIP (FS-UAE/WinUAE)](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.5/aura3d_demo_v2_AGA_060_FSUAE.zip) |
-| **Dyskietka `.ADF` & Źródła** | Stacja `DF0:` / Gotek FlashFloppy oraz pełny kod źródłowy | [.ADF (880 KB)](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.5/aura3d_demo_v1.14.5_AGA.adf) · [Źródła .ZIP](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.14.5/aura3d-aga-engine-v1.14.5-src.zip) |
+| **1. Standard `020` (`--profile standard`)** | Bazowa **Amiga 1200 (`68EC020`)**, **RetroArch (Android)** — szybki tryb **`320×128`** | [.LHA](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.15.0/aura3d_demo_v2_AGA_020.lha) · [.ZIP (FS-UAE/WinUAE)](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.15.0/aura3d_demo_v2_AGA_020_FSUAE.zip) |
+| **2. THEA1200 (`--profile thea1200`)** | Konsola **THEA1200**, **Amiberry (PC)**, **FS-UAE** — pełny ekran PAL **`320×256`** (`-DFULL_RES`, 2× tempo) | [.LHA](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.15.0/aura3d_demo_v2_AGA_THEA1200.lha) · [.ZIP (FS-UAE/WinUAE)](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.15.0/aura3d_demo_v2_AGA_THEA1200_FSUAE.zip) |
+| **3. Turbo `MC68060` (`--profile 060`)** | Karty turbo **`MC68060` (50+ MHz)** — pełny ekran PAL **`320×256`** (`-DFULL_RES`, `-m68060`, 50 Hz 1:1) | [.LHA](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.15.0/aura3d_demo_v2_AGA_060.lha) · [.ZIP (FS-UAE/WinUAE)](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.15.0/aura3d_demo_v2_AGA_060_FSUAE.zip) |
+| **Dyskietka `.ADF` & Źródła** | Stacja `DF0:` / Gotek FlashFloppy oraz pełny kod źródłowy | [.ADF (880 KB)](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.15.0/aura3d_demo_v1.15.0_AGA.adf) · [Źródła .ZIP](https://github.com/malek69/aura3d-aga-engine/releases/download/v1.15.0/aura3d-aga-engine-v1.15.0-src.zip) |
 
 ### Warianty Paczek i Kompatybilność
 - **`.lha` (WHDLoad + zapasowy `S/startup-sequence`):** działa od strzała w **RetroArch (`PUAE`)**, **Amiberry** (nawet bez pliku `C:WHDLoad`), **THEA1200** oraz na prawdziwej **Amidze 1200**.
@@ -48,7 +48,9 @@
 
 ---
 
-## Co mamy w wersji v1.14.5
+## Co mamy w wersji v1.15.0
+
+- **Pakiet MC68040 / THEA1200 (`v1.15.0`):** przyrostowy silnik terenu 360° (`engine/voxel_space.i` z `vx_row_lut`, `cam_pitch` i odbiciami wody), moduł filmowo-narracyjny (`engine/cinematic_fx.i` — pasy letterbox, animowany portret i dialogi), warstwa sprzętowa THEA1200 (`engine/thea1200_hw.i` — 24-bitowy fader/oświetlenie AGA, hot-swap myszy `$DFF00A` i pada `$DFF016`), kontroler lotu 360° (`engine/flight_ctrl.i`) oraz 32-bitowy C2P dla `FULL_RES` (`engine/c2p_chunky.i`).
 
 - **Silnik Terenu Wokselowego 3D i Chmur Wolumetrycznych (`engine/voxel_space.i`):** raycaster *Voxel Space* (Y-buffer horyzontu) przeniesiony z *Aether Falcon: Vanguard* z 3 biomami terenu oraz 16 wielowarstwowymi formacjami chmur 3D.
 - **Natywna obsługa MC68060 w WHDLoad Slave (`engine/whdload_slave.s`):** flaga `$0026`, **7.5 MB Fast RAM** (`$00780000`) oraz 32-bitowy rejestr **`CACR = $A0808000`** (*Superscalar*, *Branch Target Cache*, *Instruction/Data Cache*).
