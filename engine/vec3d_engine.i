@@ -583,8 +583,9 @@ vec3d_draw_ground_shadow:
         blt.s   .sh_nx
         cmp.w   #315,d2
         bgt.s   .sh_nx
-        move.b  #128,(a1,d2.w)
-        move.b  #128,320(a1,d2.w)
+        clr.b   (a1,d2.w)
+        clr.b   320(a1,d2.w)
+        clr.b   640(a1,d2.w)
 .sh_nx: addq.w  #1,d2
         dbf     d5,.sh_lp
 .sh_end:movem.l (sp)+,d0-d5/a0-a1
