@@ -111,7 +111,7 @@
 | **`mirror_reflect.i`** | Lustrzane odbicia 3D na wodzie | Symetryczne odbicie wierzcholkow pod tafla wody z falowaniem poziomym i sortowaniem glebi w Z-Bufferze (`M`) |
 | **`planar_shadow.i`** | Cienie rzucane 3D | Rzutowanie geometrii na plaszczyzne podloza z testem Z-Buffera (`C`) |
 | **`lens_flare.i`** | Rozblyski soczewkowe 3D | Promienie anamorficzne oraz 3 krazki dyfrakcyjne z testem zasloniecia w Z-Bufferze (`K`) |
-| **`terrain_3d.i`** | Teren 3D z mapy wysokosci | Proceduralny kanion `64x64` (`360` trojkatow), kierunkowe cieniowanie nachylenia stokow, jeziora w dolinach i szczyty |
+| **`voxel_space.i`** | Teren 3D z mapy wysokosci | Proceduralny kanion `64x64` (`360` trojkatow), kierunkowe cieniowanie nachylenia stokow, jeziora w dolinach i szczyty |
 | **`particle_trail.i`** | System czasteczek 3D | Podwojna smuga spalin z dysz wahadlowca z zanikaniem jasnosci w Z-Bufferze |
 | **`starfield.i`** | Gwiezdziste tlo 3D | 256 wielowarstwowych gwiazd z paralaksa glebi |
 | **`hud_fps.i`** | Nakladka HUD i pomoc | Pomiar klatek na sekunde (`FPS:XX` z VBL `50 Hz`, klawisz `I`), zmiana jezyka `PL/ENG` (`L`) oraz panel pomocy (`H`) |

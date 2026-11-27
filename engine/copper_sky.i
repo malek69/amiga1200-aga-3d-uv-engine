@@ -10,8 +10,8 @@
 SKY_LINES       equ 256                 ; pelne 256 linii PAL od $2c (44) do $12b (299)
 SKY_VSTART      equ $2c
     else
-SKY_LINES       equ 228                 ; od $38 (56) do $11b (283)
-SKY_VSTART      equ $38
+SKY_LINES       equ 256
+SKY_VSTART      equ $2c
     endif
 
 ; ----------------------------------------------------------------------------
@@ -68,38 +68,30 @@ copper_set_sky_theme:
     move.w  #79,d3
     bsr.w   .lerp_rgb24
     else
-    ; Odcinki gradientu dla 228 linii:
-    ;   0..149   (150 linii): C_TOP    -> C_HORIZ   (niebo az do linii horyzontu)
-    ;   150..157 (8 linii):   C_HORIZ  -> C_GROUND  (ostre przejscie horyzontu)
-    ;   158..227 (70 linii):  C_GROUND -> C_BOT     (powierzchnia / glebia pod horyzontem)
-    cmp.w   #150,d7
-    bge.s   .seg_horiz
-
+    cmp.w   #168,d7
+    bge.s   .seg_horiz2
     move.l  (a1),d0
     move.l  4(a1),d1
     move.w  d7,d2
-    move.w  #150,d3
+    move.w  #168,d3
     bsr.w   .lerp_rgb24
     bra.s   .emit_cop_line
-
-.seg_horiz:
-    cmp.w   #158,d7
-    bge.s   .seg_ground
-
+.seg_horiz2:
+    cmp.w   #177,d7
+    bge.s   .seg_ground2
     move.l  4(a1),d0
     move.l  8(a1),d1
     move.w  d7,d2
-    sub.w   #150,d2
-    moveq   #8,d3
+    sub.w   #168,d2
+    moveq   #9,d3
     bsr.w   .lerp_rgb24
     bra.s   .emit_cop_line
-
-.seg_ground:
+.seg_ground2:
     move.l  8(a1),d0
     move.l  12(a1),d1
     move.w  d7,d2
-    sub.w   #158,d2
-    move.w  #70,d3
+    sub.w   #177,d2
+    move.w  #79,d3
     bsr.w   .lerp_rgb24
     endif
 
@@ -156,6 +148,18 @@ copper_set_sky_theme:
     move.l  #(BPLCON3<<16)|$0e00,(a0)+
     move.w  #COLOR00,(a0)+
     move.w  d1,(a0)+
+
+    ifnd FULL_RES
+    btst    #0,d7
+    bne.s   .odd_ln
+    move.l  #(BPL1MOD<<16)|$ffd8,(a0)+
+    move.l  #(BPL2MOD<<16)|$ffd8,(a0)+
+    bra.s   .mod_ok
+.odd_ln:
+    move.l  #(BPL1MOD<<16)|$0000,(a0)+
+    move.l  #(BPL2MOD<<16)|$0000,(a0)+
+.mod_ok:
+    endif
 
     addq.w  #1,d7
     cmp.w   #SKY_LINES,d7

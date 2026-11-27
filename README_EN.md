@@ -109,7 +109,7 @@
 | **`mirror_reflect.i`** | 3D Planar Reflections | Mirrored vertex projection across the water plane with surface masking and Z-Buffer depth testing (`M`) |
 | **`planar_shadow.i`** | 3D Cast Shadows | Ground-plane shadow projection with Z-Buffer depth sorting (`C`) |
 | **`lens_flare.i`** | 3D Lens Flare | Light source projection, Z-Buffer occlusion test, anamorphic streaks, and diffraction discs (`K`) |
-| **`terrain_3d.i`** | 3D Heightmap Terrain | Procedural `64x64` heightmap generator, directional slope shading, dynamic point light, and `Z-Fog` |
+| **`voxel_space.i`** | 3D Heightmap Terrain | Procedural `64x64` heightmap generator, directional slope shading, dynamic point light, and `Z-Fog` |
 | **`particle_trail.i`** | 3D Particle System | World-space twin-nozzle exhaust emitter with lifetime fade in Z-Buffer |
 | **`starfield.i`** | 3D Starfield Background | 256 multi-layer depth-parallax stars |
 | **`hud_fps.i`** | Bilingual HUD & Help | `50 Hz` VBL frame rate counter (`FPS:XX`, key `I`), `PL/ENG` switcher (`L`), and help overlay (`H`) |

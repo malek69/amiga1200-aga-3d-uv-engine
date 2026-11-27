@@ -261,6 +261,10 @@ transform_and_project_verts:
     add.w   #160,d3
     add.w   #128,d1
     else
+    ifd WIDESCREEN_16_9
+    muls.w  #3,d3
+    asr.l   #2,d3
+    endif
     asr.l   #1,d1
     add.w   #160,d3                  ; srodek X = 80 (ekran 160x128)
     add.w   #64,d1                  ; srodek Y = 64
@@ -1094,7 +1098,7 @@ draw_gouraud_env_mesh_v2:
     sub.w   (a4),d3
     muls.w  d3,d2
     sub.l   d2,d0
-    ble.w   .dgem_skip
+    nop
 
     ; Zbuduj pakiet 3 wierzcholkow po 6 slow: [sx, sy, sz, u, v, shade] + Z-Fog
     lea     v2_g_pkt,a5

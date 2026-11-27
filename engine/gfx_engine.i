@@ -83,24 +83,23 @@ sys_takeover:
     move.w  #$7fff,INTENA(a5)
     move.w  #$7fff,INTREQ(a5)
     move.w  #$8240,DMACON(a5)
-    move.l  #$00080000,disp_bpl1
-    move.l  #$00082800,disp_bpl2
-    move.l  #$00085000,disp_bpl3
-    move.l  #$00087800,disp_bpl4
-    move.l  #$0008a000,disp_bpl5
-    move.l  #$0008c800,disp_bpl6
-    move.l  #$0008f000,disp_bpl7
-    move.l  #$00091800,disp_bpl8
-    move.l  #$00094000,draw_bpl1
-    move.l  #$00096800,draw_bpl2
-    move.l  #$00099000,draw_bpl3
-    move.l  #$0009b800,draw_bpl4
-    move.l  #$0009e000,draw_bpl5
-    move.l  #$000a0800,draw_bpl6
-    move.l  #$000a3000,draw_bpl7
-    move.l  #$000a5800,draw_bpl8
+    ; Bezpieczna alokacja 180 KB Chip RAM przez Exec AllocMem (zero kolizji z kodem/MOD!)
+    move.l  4.w,a6
+    move.l  #184320,d0
+    move.l  #$00010002,d1           ; MEMF_PUBLIC | MEMF_CHIP | MEMF_CLEAR
+    jsr     -198(a6)
+    addq.l  #7,d0
+    and.l   #$fffffff8,d0
+    move.l  d0,a0
+    lea     disp_bpl1(pc),a1
+    moveq   #15,d1
+.set_bpl_ptrs:
+    move.l  a0,(a1)+
+    add.l   #10240,a0
+    dbf     d1,.set_bpl_ptrs
+    move.l  a0,copper_ptr
     bsr.w   build_copper
-    move.l  #$000a8000,COP1LC(a5)
+    move.l  copper_ptr(pc),COP1LC(a5)
     move.w  d0,COPJMP1(a5)
     move.w  #$83cf,DMACON(a5)
     lea     mod_data,a0
@@ -223,18 +222,18 @@ blit_clear_full:
     rts
 
 build_copper:
-    move.l  #$000a8000,a0
-    move.l  #(FMODE<<16)|$0000,(a0)+
+    move.l  copper_ptr(pc),a0
+    move.l  #(FMODE<<16)|$0001,(a0)+
     ifd FULL_RES
     move.l  #(DIWSTRT<<16)|$2c81,(a0)+    ; HSTART=$81 (129) zgodne z DDFSTRT=$38
     move.l  #(DIWSTOP<<16)|$2cc1,(a0)+    ; VSTOP=300, HSTOP=449 - centrowane 320x256
     move.l  #(DDFSTRT<<16)|$0038,(a0)+
-    move.l  #(DDFSTOP<<16)|$00d0,(a0)+
+    move.l  #(DDFSTOP<<16)|$00c8,(a0)+
     else
-    move.l  #(DIWSTRT<<16)|$3891,(a0)+
-    move.l  #(DIWSTOP<<16)|$1cd1,(a0)+
+    move.l  #(DIWSTRT<<16)|$2c81,(a0)+
+    move.l  #(DIWSTOP<<16)|$2cd1,(a0)+
     move.l  #(DDFSTRT<<16)|$0038,(a0)+
-    move.l  #(DDFSTOP<<16)|$00d0,(a0)+
+    move.l  #(DDFSTOP<<16)|$00c8,(a0)+
     endif
     move.l  #(BPLCON0<<16)|$0210,(a0)+    ; 8 bitplanow AGA = 256 kolorow!
     move.l  #(BPLCON1<<16)|$0000,(a0)+
@@ -301,4 +300,3 @@ bbox_x1: dc.w 0
 bbox_x2: dc.w 319
 bbox_y1: dc.w 0
 bbox_y2: dc.w 255
-fill_lut: ds.b 256

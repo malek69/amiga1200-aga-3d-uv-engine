@@ -7,7 +7,7 @@ render_realtime_3d:
     beq.s   .sp_cached
     move.b  #2,pal_loaded
     lea     splash_pal_data,a0
-    bsr.w   load_aga_256_palette
+    jsr     load_aga_256_palette
     bsr.w   decode_splash_to_draw_bpl
     bsr.w   copy_draw_to_disp_bpl
 .sp_cached:

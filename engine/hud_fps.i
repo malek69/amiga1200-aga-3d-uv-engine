@@ -195,7 +195,9 @@ hud_draw_overlay:
     dbf     d7,.y_lp
     dbf     d6,.bpl_lp
 
-    ; Rysuj widoczna etykiete "[K] KLAWISZE" zaraz pod licznikiem FPS (Y=17, X=256)
+    ; Rysuj "[H] HELP / [L] LANG" wylacznie podczas misji 3D (w Intro/Briefing tylko FPS!)
+    bra.w   .hdo_done
+
     lea     draw_bpl1(pc),a0
     moveq   #7,d6
 .hb_lp:
@@ -328,20 +330,20 @@ hud_k_badge:
     dc.l $00000000
 
 keymap_lines:
-    dc.b "  AURA-3D AGA ENGINE V1.14.1 - KLAWISZE "
-    dc.b " F1-F8: SCENY   TAB: NASTEPNA SCENA     "
-    dc.b " STRZALKI / JOY2: OBROT   W/S: ZOOM     "
-    dc.b " 1-4: NIEBO COPPER   M: LUSTRO  G: PODL "
-    dc.b " C: CIENIE  F: MGLA  K: FLARA  P: PHONG "
-    dc.b " L: LANG (PL/EN)  I: HUD  H: ZAMKNIJ    "
+    dc.b " AETHER FALCON: VANGUARD - STEROWANIE   "
+    dc.b " STRZALKI / JOY2 : LOT I CELOWNIK LOCK  "
+    dc.b " SPACJA / FIRE / ALT : DZIALKA+RAKIETY  "
+    dc.b " PRZYTRZYMAJ FIRE : DOPALACZ TURBO      "
+    dc.b " L : JEZYK (PL/EN)   H : ZAMKNIJ HELP   "
+    dc.b " ESC / LMB : WYJSCIE DO AMIGAOS         "
 hud_last_km_lang: dc.b 0,0
 keymap_lines_eng:
-    dc.b "  AURA-3D AGA ENGINE V1.14.1 - CONTROLS "
-    dc.b " F1-F8: SCENES   TAB: NEXT SCENE        "
-    dc.b " ARROWS / JOY2: ROTATE   W/S: ZOOM      "
-    dc.b " 1-4: COPPER SKY   M: MIRROR  G: FLOOR  "
-    dc.b " C: SHADOWS  F: FOG  K: FLARE  P: PHONG "
-    dc.b " L: LANG (PL/EN)  I: HUD  H: CLOSE      "
+    dc.b " AETHER FALCON: VANGUARD - CONTROLS     "
+    dc.b " ARROWS / JOY2 : FLY & LOCK-ON RETICLE  "
+    dc.b " SPACE / FIRE / ALT : CANNON & MISSILES "
+    dc.b " HOLD FIRE : AFTERBURNER TURBO BOOST    "
+    dc.b " L : LANG (PL/EN)   H : CLOSE HELP      "
+    dc.b " ESC / LMB : EXIT TO AMIGAOS            "
 
 hud_ascii_5x7:
     dc.b $00,$00,$00,$00,$00,$00,$00,0, $04,$04,$04,$04,$00,$00,$04,0
@@ -413,6 +415,7 @@ hud_font_5x7:
 ; hud_draw_scene_info - Pasek opisu sceny i efektow na dole ekranu (Y=246..254)
 ; ----------------------------------------------------------------------------
 hud_draw_scene_info:
+    rts
     movem.l d0-d7/a0-a4,-(sp)
     tst.b   info_visible
     beq.w   .si_exit

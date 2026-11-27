@@ -66,6 +66,17 @@ input_update_controls:
     bcs.w   .key_up
 
     move.b  d0,kbd_held_raw
+    cmp.b   #$40,d0
+    beq.s   .set_fh
+    cmp.b   #$64,d0
+    beq.s   .set_fh
+    cmp.b   #$65,d0
+    beq.s   .set_fh
+    cmp.b   #$44,d0
+    bne.s   .chk_h_key
+.set_fh:
+    move.b  #1,fire_held
+.chk_h_key:
 
     ; Obsluga klawiszy jednorazowych (wyzwolenie przy kazdym wcisnieciu!):
     cmp.b   #$25,d0                     ; H = pokaz / ukryj panel pomocy (HELP)
@@ -114,8 +125,6 @@ input_update_controls:
     eor.b   #1,zfog_enabled
     bra.w   .held_keys
 .n_f:
-    cmp.b   #$40,d0                     ; Spacja = reset kamery
-    beq.s   .do_rst
     cmp.b   #$13,d0                     ; R = reset kamery
     bne.s   .n_rst
 .do_rst:
@@ -230,6 +239,17 @@ input_update_controls:
     bra.w   .held_keys
 
 .key_up:
+    cmp.b   #$40,d0
+    beq.s   .clr_fh
+    cmp.b   #$64,d0
+    beq.s   .clr_fh
+    cmp.b   #$65,d0
+    beq.s   .clr_fh
+    cmp.b   #$44,d0
+    bne.s   .ku_raw
+.clr_fh:
+    clr.b   fire_held
+.ku_raw:
     cmp.b   kbd_held_raw(pc),d0
     bne.w   .held_keys
     move.b  #$ff,kbd_held_raw
@@ -280,3 +300,4 @@ user_pitch:     dc.w 0
 user_zoom:      dc.w 0
 kbd_held_raw:   dc.b $ff
 kbd_last_sdr:   dc.b $ff
+fire_held:      dc.b 0,0

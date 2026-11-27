@@ -1,7 +1,7 @@
     include "fast_clear.i"
 
 
-    ifd M68060
+    ifd FULL_RES
 ; ============================================================================
 ; c2p_160x128_to_aga (v1.14.5 - Superskalarny potok MC68060 pOEP/sOEP, 320x256)
 ; ============================================================================
@@ -489,20 +489,20 @@ c2p_160x128_to_aga:
     movem.l (sp)+,d0-d7/a0-a6
     rts
     else
+    ifd FULL_RES
 ; ============================================================================
-; c2p_160x128_to_aga (v1.14.3 - Tryb 320x128 1x2, 32 px/krok, 32-bit move.l)
+; c2p_160x128_to_aga (FULL_RES 320x256 - 2px LUT c2p_exp256 + 32-bit Chip RAM)
 ; ============================================================================
 c2p_160x128_to_aga:
     movem.l d0-d7/a0-a6,-(sp)
     lea     c2p_exp(pc),a5
 
-    ; PRZEBIEG 1: Low nibbles (bity 0..3) -> BPL1..BPL4
+    ; PRZEBIEG 1: Low nibbles -> BPL1..BPL4
     lea     chunky_buf,a0
     move.l  draw_bpl1(pc),a1
     move.l  draw_bpl2(pc),a2
     move.l  draw_bpl3(pc),a3
     move.l  draw_bpl4(pc),a4
-    ifd FULL_RES
     move.w  #255,d7
     else
     move.w  #127,d7
@@ -515,165 +515,134 @@ c2p_160x128_to_aga:
     ; Bajt 0 (piksele 0..7) -> d1
     move.l  (a0)+,d0
     and.l   #$0f0f0f0f,d0
-    moveq   #0,d2
-    move.b  d0,d2
+    move.w  d0,d2
+    lsr.w   #4,d2
+    or.b    d0,d2
+    and.w   #$00ff,d2
     move.l  (a5,d2.w*4),d1
     lsl.l   #4,d1
-    lsr.w   #8,d0
-    move.l  (a5,d0.w*4),d2
-    lsl.l   #5,d2
-    or.l    d2,d1
     swap    d0
-    moveq   #0,d2
-    move.b  d0,d2
+    move.w  d0,d2
+    lsr.w   #4,d2
+    or.b    d0,d2
+    and.w   #$00ff,d2
     move.l  (a5,d2.w*4),d2
     lsl.l   #6,d2
     or.l    d2,d1
-    lsr.w   #8,d0
-    move.l  (a5,d0.w*4),d2
-    lsl.l   #7,d2
-    or.l    d2,d1
+
     move.l  (a0)+,d0
     and.l   #$0f0f0f0f,d0
-    moveq   #0,d2
-    move.b  d0,d2
+    move.w  d0,d2
+    lsr.w   #4,d2
+    or.b    d0,d2
+    and.w   #$00ff,d2
     or.l    (a5,d2.w*4),d1
-    lsr.w   #8,d0
-    move.l  (a5,d0.w*4),d2
-    lsl.l   #1,d2
-    or.l    d2,d1
     swap    d0
-    moveq   #0,d2
-    move.b  d0,d2
+    move.w  d0,d2
+    lsr.w   #4,d2
+    or.b    d0,d2
+    and.w   #$00ff,d2
     move.l  (a5,d2.w*4),d2
     lsl.l   #2,d2
     or.l    d2,d1
-    lsr.w   #8,d0
-    move.l  (a5,d0.w*4),d2
-    lsl.l   #3,d2
-    or.l    d2,d1
 
-    ; Bajt 1 (piksele 8..15) -> d3
     move.l  (a0)+,d0
     and.l   #$0f0f0f0f,d0
-    moveq   #0,d2
-    move.b  d0,d2
+    move.w  d0,d2
+    lsr.w   #4,d2
+    or.b    d0,d2
+    and.w   #$00ff,d2
     move.l  (a5,d2.w*4),d3
     lsl.l   #4,d3
-    lsr.w   #8,d0
-    move.l  (a5,d0.w*4),d2
-    lsl.l   #5,d2
-    or.l    d2,d3
     swap    d0
-    moveq   #0,d2
-    move.b  d0,d2
+    move.w  d0,d2
+    lsr.w   #4,d2
+    or.b    d0,d2
+    and.w   #$00ff,d2
     move.l  (a5,d2.w*4),d2
     lsl.l   #6,d2
     or.l    d2,d3
-    lsr.w   #8,d0
-    move.l  (a5,d0.w*4),d2
-    lsl.l   #7,d2
-    or.l    d2,d3
+
     move.l  (a0)+,d0
     and.l   #$0f0f0f0f,d0
-    moveq   #0,d2
-    move.b  d0,d2
+    move.w  d0,d2
+    lsr.w   #4,d2
+    or.b    d0,d2
+    and.w   #$00ff,d2
     or.l    (a5,d2.w*4),d3
-    lsr.w   #8,d0
-    move.l  (a5,d0.w*4),d2
-    lsl.l   #1,d2
-    or.l    d2,d3
     swap    d0
-    moveq   #0,d2
-    move.b  d0,d2
+    move.w  d0,d2
+    lsr.w   #4,d2
+    or.b    d0,d2
+    and.w   #$00ff,d2
     move.l  (a5,d2.w*4),d2
     lsl.l   #2,d2
     or.l    d2,d3
-    lsr.w   #8,d0
-    move.l  (a5,d0.w*4),d2
-    lsl.l   #3,d2
-    or.l    d2,d3
 
-    ; Bajt 2 (piksele 16..23) -> d4
     move.l  (a0)+,d0
     and.l   #$0f0f0f0f,d0
-    moveq   #0,d2
-    move.b  d0,d2
+    move.w  d0,d2
+    lsr.w   #4,d2
+    or.b    d0,d2
+    and.w   #$00ff,d2
     move.l  (a5,d2.w*4),d4
     lsl.l   #4,d4
-    lsr.w   #8,d0
-    move.l  (a5,d0.w*4),d2
-    lsl.l   #5,d2
-    or.l    d2,d4
     swap    d0
-    moveq   #0,d2
-    move.b  d0,d2
+    move.w  d0,d2
+    lsr.w   #4,d2
+    or.b    d0,d2
+    and.w   #$00ff,d2
     move.l  (a5,d2.w*4),d2
     lsl.l   #6,d2
-    or.l    d2,d4
-    lsr.w   #8,d0
-    move.l  (a5,d0.w*4),d2
-    lsl.l   #7,d2
-    or.l    d2,d4
-    move.l  (a0)+,d0
-    and.l   #$0f0f0f0f,d0
-    moveq   #0,d2
-    move.b  d0,d2
-    or.l    (a5,d2.w*4),d4
-    lsr.w   #8,d0
-    move.l  (a5,d0.w*4),d2
-    lsl.l   #1,d2
-    or.l    d2,d4
-    swap    d0
-    moveq   #0,d2
-    move.b  d0,d2
-    move.l  (a5,d2.w*4),d2
-    lsl.l   #2,d2
-    or.l    d2,d4
-    lsr.w   #8,d0
-    move.l  (a5,d0.w*4),d2
-    lsl.l   #3,d2
     or.l    d2,d4
 
-    ; Bajt 3 (piksele 24..31) -> d5
     move.l  (a0)+,d0
     and.l   #$0f0f0f0f,d0
-    moveq   #0,d2
-    move.b  d0,d2
+    move.w  d0,d2
+    lsr.w   #4,d2
+    or.b    d0,d2
+    and.w   #$00ff,d2
+    or.l    (a5,d2.w*4),d4
+    swap    d0
+    move.w  d0,d2
+    lsr.w   #4,d2
+    or.b    d0,d2
+    and.w   #$00ff,d2
+    move.l  (a5,d2.w*4),d2
+    lsl.l   #2,d2
+    or.l    d2,d4
+
+    move.l  (a0)+,d0
+    and.l   #$0f0f0f0f,d0
+    move.w  d0,d2
+    lsr.w   #4,d2
+    or.b    d0,d2
+    and.w   #$00ff,d2
     move.l  (a5,d2.w*4),d5
     lsl.l   #4,d5
-    lsr.w   #8,d0
-    move.l  (a5,d0.w*4),d2
-    lsl.l   #5,d2
-    or.l    d2,d5
     swap    d0
-    moveq   #0,d2
-    move.b  d0,d2
+    move.w  d0,d2
+    lsr.w   #4,d2
+    or.b    d0,d2
+    and.w   #$00ff,d2
     move.l  (a5,d2.w*4),d2
     lsl.l   #6,d2
     or.l    d2,d5
-    lsr.w   #8,d0
-    move.l  (a5,d0.w*4),d2
-    lsl.l   #7,d2
-    or.l    d2,d5
+
     move.l  (a0)+,d0
     and.l   #$0f0f0f0f,d0
-    moveq   #0,d2
-    move.b  d0,d2
+    move.w  d0,d2
+    lsr.w   #4,d2
+    or.b    d0,d2
+    and.w   #$00ff,d2
     or.l    (a5,d2.w*4),d5
-    lsr.w   #8,d0
-    move.l  (a5,d0.w*4),d2
-    lsl.l   #1,d2
-    or.l    d2,d5
     swap    d0
-    moveq   #0,d2
-    move.b  d0,d2
+    move.w  d0,d2
+    lsr.w   #4,d2
+    or.b    d0,d2
+    and.w   #$00ff,d2
     move.l  (a5,d2.w*4),d2
     lsl.l   #2,d2
-    or.l    d2,d5
-    lsr.w   #8,d0
-    move.l  (a5,d0.w*4),d2
-    lsl.l   #3,d2
     or.l    d2,d5
 
     move.b  d1,d0
@@ -683,9 +652,6 @@ c2p_160x128_to_aga:
     move.b  d4,d0
     lsl.w   #8,d0
     move.b  d5,d0
-    ifnd FULL_RES
-    move.l  d0,40(a4)
-    endif
     move.l  d0,(a4)+
 
     lsr.l   #8,d1
@@ -699,9 +665,6 @@ c2p_160x128_to_aga:
     move.b  d4,d0
     lsl.w   #8,d0
     move.b  d5,d0
-    ifnd FULL_RES
-    move.l  d0,40(a3)
-    endif
     move.l  d0,(a3)+
 
     lsr.l   #8,d1
@@ -715,9 +678,6 @@ c2p_160x128_to_aga:
     move.b  d4,d0
     lsl.w   #8,d0
     move.b  d5,d0
-    ifnd FULL_RES
-    move.l  d0,40(a2)
-    endif
     move.l  d0,(a2)+
 
     lsr.l   #8,d1
@@ -731,27 +691,17 @@ c2p_160x128_to_aga:
     move.b  d4,d0
     lsl.w   #8,d0
     move.b  d5,d0
-    ifnd FULL_RES
-    move.l  d0,40(a1)
-    endif
     move.l  d0,(a1)+
 
-    dbf     d6,.p1_col
-    ifnd FULL_RES
-    lea     40(a1),a1
-    lea     40(a2),a2
-    lea     40(a3),a3
-    lea     40(a4),a4
-    endif
-    dbf     d7,.p1_row
+    dbf     d6,.fr1_col
+    dbf     d7,.fr1_row
 
-    ; PRZEBIEG 2: High nibbles (bity 4..7) -> BPL5..BPL8
+    ; PRZEBIEG 2: High nibbles -> BPL5..BPL8
     lea     chunky_buf,a0
     move.l  draw_bpl5(pc),a1
     move.l  draw_bpl6(pc),a2
     move.l  draw_bpl7(pc),a3
     move.l  draw_bpl8(pc),a4
-    ifd FULL_RES
     move.w  #255,d7
     else
     move.w  #127,d7
@@ -760,177 +710,145 @@ c2p_160x128_to_aga:
     CNOP 0,4
 .p2_row:
     moveq   #9,d6
-.p2_col:
-    ; Bajt 0 -> d1
+.fr2_col:
     move.l  (a0)+,d0
     lsr.l   #4,d0
     and.l   #$0f0f0f0f,d0
-    moveq   #0,d2
-    move.b  d0,d2
+    move.w  d0,d2
+    lsr.w   #4,d2
+    or.b    d0,d2
+    and.w   #$00ff,d2
     move.l  (a5,d2.w*4),d1
     lsl.l   #4,d1
-    lsr.w   #8,d0
-    move.l  (a5,d0.w*4),d2
-    lsl.l   #5,d2
-    or.l    d2,d1
     swap    d0
-    moveq   #0,d2
-    move.b  d0,d2
+    move.w  d0,d2
+    lsr.w   #4,d2
+    or.b    d0,d2
+    and.w   #$00ff,d2
     move.l  (a5,d2.w*4),d2
     lsl.l   #6,d2
     or.l    d2,d1
-    lsr.w   #8,d0
-    move.l  (a5,d0.w*4),d2
-    lsl.l   #7,d2
-    or.l    d2,d1
+
     move.l  (a0)+,d0
     lsr.l   #4,d0
     and.l   #$0f0f0f0f,d0
-    moveq   #0,d2
-    move.b  d0,d2
+    move.w  d0,d2
+    lsr.w   #4,d2
+    or.b    d0,d2
+    and.w   #$00ff,d2
     or.l    (a5,d2.w*4),d1
-    lsr.w   #8,d0
-    move.l  (a5,d0.w*4),d2
-    lsl.l   #1,d2
-    or.l    d2,d1
     swap    d0
-    moveq   #0,d2
-    move.b  d0,d2
+    move.w  d0,d2
+    lsr.w   #4,d2
+    or.b    d0,d2
+    and.w   #$00ff,d2
     move.l  (a5,d2.w*4),d2
     lsl.l   #2,d2
     or.l    d2,d1
-    lsr.w   #8,d0
-    move.l  (a5,d0.w*4),d2
-    lsl.l   #3,d2
-    or.l    d2,d1
 
-    ; Bajt 1 -> d3
     move.l  (a0)+,d0
     lsr.l   #4,d0
     and.l   #$0f0f0f0f,d0
-    moveq   #0,d2
-    move.b  d0,d2
+    move.w  d0,d2
+    lsr.w   #4,d2
+    or.b    d0,d2
+    and.w   #$00ff,d2
     move.l  (a5,d2.w*4),d3
     lsl.l   #4,d3
-    lsr.w   #8,d0
-    move.l  (a5,d0.w*4),d2
-    lsl.l   #5,d2
-    or.l    d2,d3
     swap    d0
-    moveq   #0,d2
-    move.b  d0,d2
+    move.w  d0,d2
+    lsr.w   #4,d2
+    or.b    d0,d2
+    and.w   #$00ff,d2
     move.l  (a5,d2.w*4),d2
     lsl.l   #6,d2
     or.l    d2,d3
-    lsr.w   #8,d0
-    move.l  (a5,d0.w*4),d2
-    lsl.l   #7,d2
-    or.l    d2,d3
+
     move.l  (a0)+,d0
     lsr.l   #4,d0
     and.l   #$0f0f0f0f,d0
-    moveq   #0,d2
-    move.b  d0,d2
+    move.w  d0,d2
+    lsr.w   #4,d2
+    or.b    d0,d2
+    and.w   #$00ff,d2
     or.l    (a5,d2.w*4),d3
-    lsr.w   #8,d0
-    move.l  (a5,d0.w*4),d2
-    lsl.l   #1,d2
-    or.l    d2,d3
     swap    d0
-    moveq   #0,d2
-    move.b  d0,d2
+    move.w  d0,d2
+    lsr.w   #4,d2
+    or.b    d0,d2
+    and.w   #$00ff,d2
     move.l  (a5,d2.w*4),d2
     lsl.l   #2,d2
     or.l    d2,d3
-    lsr.w   #8,d0
-    move.l  (a5,d0.w*4),d2
-    lsl.l   #3,d2
-    or.l    d2,d3
 
-    ; Bajt 2 -> d4
     move.l  (a0)+,d0
     lsr.l   #4,d0
     and.l   #$0f0f0f0f,d0
-    moveq   #0,d2
-    move.b  d0,d2
+    move.w  d0,d2
+    lsr.w   #4,d2
+    or.b    d0,d2
+    and.w   #$00ff,d2
     move.l  (a5,d2.w*4),d4
     lsl.l   #4,d4
-    lsr.w   #8,d0
-    move.l  (a5,d0.w*4),d2
-    lsl.l   #5,d2
-    or.l    d2,d4
     swap    d0
-    moveq   #0,d2
-    move.b  d0,d2
+    move.w  d0,d2
+    lsr.w   #4,d2
+    or.b    d0,d2
+    and.w   #$00ff,d2
     move.l  (a5,d2.w*4),d2
     lsl.l   #6,d2
-    or.l    d2,d4
-    lsr.w   #8,d0
-    move.l  (a5,d0.w*4),d2
-    lsl.l   #7,d2
-    or.l    d2,d4
-    move.l  (a0)+,d0
-    lsr.l   #4,d0
-    and.l   #$0f0f0f0f,d0
-    moveq   #0,d2
-    move.b  d0,d2
-    or.l    (a5,d2.w*4),d4
-    lsr.w   #8,d0
-    move.l  (a5,d0.w*4),d2
-    lsl.l   #1,d2
-    or.l    d2,d4
-    swap    d0
-    moveq   #0,d2
-    move.b  d0,d2
-    move.l  (a5,d2.w*4),d2
-    lsl.l   #2,d2
-    or.l    d2,d4
-    lsr.w   #8,d0
-    move.l  (a5,d0.w*4),d2
-    lsl.l   #3,d2
     or.l    d2,d4
 
-    ; Bajt 3 -> d5
     move.l  (a0)+,d0
     lsr.l   #4,d0
     and.l   #$0f0f0f0f,d0
-    moveq   #0,d2
-    move.b  d0,d2
+    move.w  d0,d2
+    lsr.w   #4,d2
+    or.b    d0,d2
+    and.w   #$00ff,d2
+    or.l    (a5,d2.w*4),d4
+    swap    d0
+    move.w  d0,d2
+    lsr.w   #4,d2
+    or.b    d0,d2
+    and.w   #$00ff,d2
+    move.l  (a5,d2.w*4),d2
+    lsl.l   #2,d2
+    or.l    d2,d4
+
+    move.l  (a0)+,d0
+    lsr.l   #4,d0
+    and.l   #$0f0f0f0f,d0
+    move.w  d0,d2
+    lsr.w   #4,d2
+    or.b    d0,d2
+    and.w   #$00ff,d2
     move.l  (a5,d2.w*4),d5
     lsl.l   #4,d5
-    lsr.w   #8,d0
-    move.l  (a5,d0.w*4),d2
-    lsl.l   #5,d2
-    or.l    d2,d5
     swap    d0
-    moveq   #0,d2
-    move.b  d0,d2
+    move.w  d0,d2
+    lsr.w   #4,d2
+    or.b    d0,d2
+    and.w   #$00ff,d2
     move.l  (a5,d2.w*4),d2
     lsl.l   #6,d2
     or.l    d2,d5
-    lsr.w   #8,d0
-    move.l  (a5,d0.w*4),d2
-    lsl.l   #7,d2
-    or.l    d2,d5
+
     move.l  (a0)+,d0
     lsr.l   #4,d0
     and.l   #$0f0f0f0f,d0
-    moveq   #0,d2
-    move.b  d0,d2
+    move.w  d0,d2
+    lsr.w   #4,d2
+    or.b    d0,d2
+    and.w   #$00ff,d2
     or.l    (a5,d2.w*4),d5
-    lsr.w   #8,d0
-    move.l  (a5,d0.w*4),d2
-    lsl.l   #1,d2
-    or.l    d2,d5
     swap    d0
-    moveq   #0,d2
-    move.b  d0,d2
+    move.w  d0,d2
+    lsr.w   #4,d2
+    or.b    d0,d2
+    and.w   #$00ff,d2
     move.l  (a5,d2.w*4),d2
     lsl.l   #2,d2
-    or.l    d2,d5
-    lsr.w   #8,d0
-    move.l  (a5,d0.w*4),d2
-    lsl.l   #3,d2
     or.l    d2,d5
 
     move.b  d1,d0
@@ -940,9 +858,6 @@ c2p_160x128_to_aga:
     move.b  d4,d0
     lsl.w   #8,d0
     move.b  d5,d0
-    ifnd FULL_RES
-    move.l  d0,40(a4)
-    endif
     move.l  d0,(a4)+
 
     lsr.l   #8,d1
@@ -956,9 +871,6 @@ c2p_160x128_to_aga:
     move.b  d4,d0
     lsl.w   #8,d0
     move.b  d5,d0
-    ifnd FULL_RES
-    move.l  d0,40(a3)
-    endif
     move.l  d0,(a3)+
 
     lsr.l   #8,d1
@@ -972,9 +884,6 @@ c2p_160x128_to_aga:
     move.b  d4,d0
     lsl.w   #8,d0
     move.b  d5,d0
-    ifnd FULL_RES
-    move.l  d0,40(a2)
-    endif
     move.l  d0,(a2)+
 
     lsr.l   #8,d1
@@ -988,22 +897,29 @@ c2p_160x128_to_aga:
     move.b  d4,d0
     lsl.w   #8,d0
     move.b  d5,d0
-    ifnd FULL_RES
-    move.l  d0,40(a1)
-    endif
     move.l  d0,(a1)+
 
-    dbf     d6,.p2_col
-    ifnd FULL_RES
-    lea     40(a1),a1
-    lea     40(a2),a2
-    lea     40(a3),a3
-    lea     40(a4),a4
-    endif
-    dbf     d7,.p2_row
+    dbf     d6,.fr2_col
+    dbf     d7,.fr2_row
 
     movem.l (sp)+,d0-d7/a0-a6
     rts
+    else
+; ============================================================================
+; c2p_160x128_to_aga (Single-Pass 2x1 Pixel-Doubled 8-Bitplane 256-Color C2P)
+; ============================================================================
+c2p_160x128_to_aga:
+    movem.l d0-d7/a0-a6,-(sp)
+    lea     c2p_2px_8bpl_lut(pc),a5
+    lea     chunky_buf,a0
+    move.l  draw_bpl1(pc),a1
+    move.l  draw_bpl2(pc),a2
+    move.l  draw_bpl3(pc),a3
+    move.l  draw_bpl4(pc),a4
+    move.l  draw_bpl5(pc),d4
+    move.l  draw_bpl6(pc),d5
+    move.l  draw_bpl7(pc),d6
+    move.l  draw_bpl8(pc),a6
 
     endif
 draw_uv_tri:
@@ -1142,78 +1058,267 @@ draw_uv_tri:
     ble.w   .ry_lp
 .uv_ex: movem.l (sp)+,d0-d7/a0-a6
     rts
-scan_uv_edge:
-    move.w  2(a1),d1
-    move.w  2(a2),d3
-    cmp.w   d1,d3
-    beq.w   .se_ex
-    bgt.s   .se_ok
-    exg     a1,a2
-    move.w  2(a1),d1
-    move.w  2(a2),d3
-.se_ok: moveq #0,d6
-    move.w  d3,d6
-    sub.w   d1,d6
-    move.w  (a2),d0
-    sub.w   (a1),d0
-    ext.l   d0
-    swap    d0
-    divs.l  d6,d0
-    move.w  4(a2),d2
-    sub.w   4(a1),d2
-    ext.l   d2
-    lsl.l   #8,d2
-    divs.l  d6,d2
-    move.w  6(a2),d4
-    sub.w   6(a1),d4
-    ext.l   d4
-    lsl.l   #8,d4
-    divs.l  d6,d4
-    move.w  (a1),d5
-    swap    d5
-    move.w  #$8000,d5
-    move.w  4(a1),d7
-    lsl.w   #8,d7
-    moveq   #0,d6
-    move.w  6(a1),d6
-    lsl.w   #8,d6
-    lea     uv_edges(pc),a0
-    move.w  d1,a4
-    muls.w  #12,d1
-    add.w   d1,a0
-    move.w  a4,d1
-.se_lp: tst.w d1
-    bmi.s   .se_st
-    ifd FULL_RES
-    cmp.w   #255,d1
-    else
-    cmp.w   #127,d1
     endif
-    bgt.w   .se_ex
-    move.l  d5,a4
-    swap    d5
-    cmp.w   (a0),d5
-    bge.s   .se_r
-    move.w  d5,(a0)
-    move.w  d7,4(a0)
-    move.w  d6,8(a0)
-.se_r: cmp.w 2(a0),d5
-    ble.s   .se_s2
-    move.w  d5,2(a0)
-    move.w  d7,6(a0)
-    move.w  d6,10(a0)
-.se_s2: move.l a4,d5
-.se_st: add.l d0,d5
-    add.w   d2,d7
-    add.w   d4,d6
-    lea     12(a0),a0
-    addq.w  #1,d1
-    cmp.w   d3,d1
-    ble.s   .se_lp
-.se_ex: rts
-    even
-uv_tex:   dc.w 0
-uv_shade: dc.w 0
+    endif
+c2p_2px_8bpl_lut:
+    dc.l $00000000,$00000000
+    dc.l $00000000,$000000c0
+    dc.l $00000000,$0000c000
+    dc.l $00000000,$0000c0c0
+    dc.l $00000000,$00c00000
+    dc.l $00000000,$00c000c0
+    dc.l $00000000,$00c0c000
+    dc.l $00000000,$00c0c0c0
+    dc.l $00000000,$c0000000
+    dc.l $00000000,$c00000c0
+    dc.l $00000000,$c000c000
+    dc.l $00000000,$c000c0c0
+    dc.l $00000000,$c0c00000
+    dc.l $00000000,$c0c000c0
+    dc.l $00000000,$c0c0c000
+    dc.l $00000000,$c0c0c0c0
+    dc.l $000000c0,$00000000
+    dc.l $000000c0,$000000c0
+    dc.l $000000c0,$0000c000
+    dc.l $000000c0,$0000c0c0
+    dc.l $000000c0,$00c00000
+    dc.l $000000c0,$00c000c0
+    dc.l $000000c0,$00c0c000
+    dc.l $000000c0,$00c0c0c0
+    dc.l $000000c0,$c0000000
+    dc.l $000000c0,$c00000c0
+    dc.l $000000c0,$c000c000
+    dc.l $000000c0,$c000c0c0
+    dc.l $000000c0,$c0c00000
+    dc.l $000000c0,$c0c000c0
+    dc.l $000000c0,$c0c0c000
+    dc.l $000000c0,$c0c0c0c0
+    dc.l $0000c000,$00000000
+    dc.l $0000c000,$000000c0
+    dc.l $0000c000,$0000c000
+    dc.l $0000c000,$0000c0c0
+    dc.l $0000c000,$00c00000
+    dc.l $0000c000,$00c000c0
+    dc.l $0000c000,$00c0c000
+    dc.l $0000c000,$00c0c0c0
+    dc.l $0000c000,$c0000000
+    dc.l $0000c000,$c00000c0
+    dc.l $0000c000,$c000c000
+    dc.l $0000c000,$c000c0c0
+    dc.l $0000c000,$c0c00000
+    dc.l $0000c000,$c0c000c0
+    dc.l $0000c000,$c0c0c000
+    dc.l $0000c000,$c0c0c0c0
+    dc.l $0000c0c0,$00000000
+    dc.l $0000c0c0,$000000c0
+    dc.l $0000c0c0,$0000c000
+    dc.l $0000c0c0,$0000c0c0
+    dc.l $0000c0c0,$00c00000
+    dc.l $0000c0c0,$00c000c0
+    dc.l $0000c0c0,$00c0c000
+    dc.l $0000c0c0,$00c0c0c0
+    dc.l $0000c0c0,$c0000000
+    dc.l $0000c0c0,$c00000c0
+    dc.l $0000c0c0,$c000c000
+    dc.l $0000c0c0,$c000c0c0
+    dc.l $0000c0c0,$c0c00000
+    dc.l $0000c0c0,$c0c000c0
+    dc.l $0000c0c0,$c0c0c000
+    dc.l $0000c0c0,$c0c0c0c0
+    dc.l $00c00000,$00000000
+    dc.l $00c00000,$000000c0
+    dc.l $00c00000,$0000c000
+    dc.l $00c00000,$0000c0c0
+    dc.l $00c00000,$00c00000
+    dc.l $00c00000,$00c000c0
+    dc.l $00c00000,$00c0c000
+    dc.l $00c00000,$00c0c0c0
+    dc.l $00c00000,$c0000000
+    dc.l $00c00000,$c00000c0
+    dc.l $00c00000,$c000c000
+    dc.l $00c00000,$c000c0c0
+    dc.l $00c00000,$c0c00000
+    dc.l $00c00000,$c0c000c0
+    dc.l $00c00000,$c0c0c000
+    dc.l $00c00000,$c0c0c0c0
+    dc.l $00c000c0,$00000000
+    dc.l $00c000c0,$000000c0
+    dc.l $00c000c0,$0000c000
+    dc.l $00c000c0,$0000c0c0
+    dc.l $00c000c0,$00c00000
+    dc.l $00c000c0,$00c000c0
+    dc.l $00c000c0,$00c0c000
+    dc.l $00c000c0,$00c0c0c0
+    dc.l $00c000c0,$c0000000
+    dc.l $00c000c0,$c00000c0
+    dc.l $00c000c0,$c000c000
+    dc.l $00c000c0,$c000c0c0
+    dc.l $00c000c0,$c0c00000
+    dc.l $00c000c0,$c0c000c0
+    dc.l $00c000c0,$c0c0c000
+    dc.l $00c000c0,$c0c0c0c0
+    dc.l $00c0c000,$00000000
+    dc.l $00c0c000,$000000c0
+    dc.l $00c0c000,$0000c000
+    dc.l $00c0c000,$0000c0c0
+    dc.l $00c0c000,$00c00000
+    dc.l $00c0c000,$00c000c0
+    dc.l $00c0c000,$00c0c000
+    dc.l $00c0c000,$00c0c0c0
+    dc.l $00c0c000,$c0000000
+    dc.l $00c0c000,$c00000c0
+    dc.l $00c0c000,$c000c000
+    dc.l $00c0c000,$c000c0c0
+    dc.l $00c0c000,$c0c00000
+    dc.l $00c0c000,$c0c000c0
+    dc.l $00c0c000,$c0c0c000
+    dc.l $00c0c000,$c0c0c0c0
+    dc.l $00c0c0c0,$00000000
+    dc.l $00c0c0c0,$000000c0
+    dc.l $00c0c0c0,$0000c000
+    dc.l $00c0c0c0,$0000c0c0
+    dc.l $00c0c0c0,$00c00000
+    dc.l $00c0c0c0,$00c000c0
+    dc.l $00c0c0c0,$00c0c000
+    dc.l $00c0c0c0,$00c0c0c0
+    dc.l $00c0c0c0,$c0000000
+    dc.l $00c0c0c0,$c00000c0
+    dc.l $00c0c0c0,$c000c000
+    dc.l $00c0c0c0,$c000c0c0
+    dc.l $00c0c0c0,$c0c00000
+    dc.l $00c0c0c0,$c0c000c0
+    dc.l $00c0c0c0,$c0c0c000
+    dc.l $00c0c0c0,$c0c0c0c0
+    dc.l $c0000000,$00000000
+    dc.l $c0000000,$000000c0
+    dc.l $c0000000,$0000c000
+    dc.l $c0000000,$0000c0c0
+    dc.l $c0000000,$00c00000
+    dc.l $c0000000,$00c000c0
+    dc.l $c0000000,$00c0c000
+    dc.l $c0000000,$00c0c0c0
+    dc.l $c0000000,$c0000000
+    dc.l $c0000000,$c00000c0
+    dc.l $c0000000,$c000c000
+    dc.l $c0000000,$c000c0c0
+    dc.l $c0000000,$c0c00000
+    dc.l $c0000000,$c0c000c0
+    dc.l $c0000000,$c0c0c000
+    dc.l $c0000000,$c0c0c0c0
+    dc.l $c00000c0,$00000000
+    dc.l $c00000c0,$000000c0
+    dc.l $c00000c0,$0000c000
+    dc.l $c00000c0,$0000c0c0
+    dc.l $c00000c0,$00c00000
+    dc.l $c00000c0,$00c000c0
+    dc.l $c00000c0,$00c0c000
+    dc.l $c00000c0,$00c0c0c0
+    dc.l $c00000c0,$c0000000
+    dc.l $c00000c0,$c00000c0
+    dc.l $c00000c0,$c000c000
+    dc.l $c00000c0,$c000c0c0
+    dc.l $c00000c0,$c0c00000
+    dc.l $c00000c0,$c0c000c0
+    dc.l $c00000c0,$c0c0c000
+    dc.l $c00000c0,$c0c0c0c0
+    dc.l $c000c000,$00000000
+    dc.l $c000c000,$000000c0
+    dc.l $c000c000,$0000c000
+    dc.l $c000c000,$0000c0c0
+    dc.l $c000c000,$00c00000
+    dc.l $c000c000,$00c000c0
+    dc.l $c000c000,$00c0c000
+    dc.l $c000c000,$00c0c0c0
+    dc.l $c000c000,$c0000000
+    dc.l $c000c000,$c00000c0
+    dc.l $c000c000,$c000c000
+    dc.l $c000c000,$c000c0c0
+    dc.l $c000c000,$c0c00000
+    dc.l $c000c000,$c0c000c0
+    dc.l $c000c000,$c0c0c000
+    dc.l $c000c000,$c0c0c0c0
+    dc.l $c000c0c0,$00000000
+    dc.l $c000c0c0,$000000c0
+    dc.l $c000c0c0,$0000c000
+    dc.l $c000c0c0,$0000c0c0
+    dc.l $c000c0c0,$00c00000
+    dc.l $c000c0c0,$00c000c0
+    dc.l $c000c0c0,$00c0c000
+    dc.l $c000c0c0,$00c0c0c0
+    dc.l $c000c0c0,$c0000000
+    dc.l $c000c0c0,$c00000c0
+    dc.l $c000c0c0,$c000c000
+    dc.l $c000c0c0,$c000c0c0
+    dc.l $c000c0c0,$c0c00000
+    dc.l $c000c0c0,$c0c000c0
+    dc.l $c000c0c0,$c0c0c000
+    dc.l $c000c0c0,$c0c0c0c0
+    dc.l $c0c00000,$00000000
+    dc.l $c0c00000,$000000c0
+    dc.l $c0c00000,$0000c000
+    dc.l $c0c00000,$0000c0c0
+    dc.l $c0c00000,$00c00000
+    dc.l $c0c00000,$00c000c0
+    dc.l $c0c00000,$00c0c000
+    dc.l $c0c00000,$00c0c0c0
+    dc.l $c0c00000,$c0000000
+    dc.l $c0c00000,$c00000c0
+    dc.l $c0c00000,$c000c000
+    dc.l $c0c00000,$c000c0c0
+    dc.l $c0c00000,$c0c00000
+    dc.l $c0c00000,$c0c000c0
+    dc.l $c0c00000,$c0c0c000
+    dc.l $c0c00000,$c0c0c0c0
+    dc.l $c0c000c0,$00000000
+    dc.l $c0c000c0,$000000c0
+    dc.l $c0c000c0,$0000c000
+    dc.l $c0c000c0,$0000c0c0
+    dc.l $c0c000c0,$00c00000
+    dc.l $c0c000c0,$00c000c0
+    dc.l $c0c000c0,$00c0c000
+    dc.l $c0c000c0,$00c0c0c0
+    dc.l $c0c000c0,$c0000000
+    dc.l $c0c000c0,$c00000c0
+    dc.l $c0c000c0,$c000c000
+    dc.l $c0c000c0,$c000c0c0
+    dc.l $c0c000c0,$c0c00000
+    dc.l $c0c000c0,$c0c000c0
+    dc.l $c0c000c0,$c0c0c000
+    dc.l $c0c000c0,$c0c0c0c0
+    dc.l $c0c0c000,$00000000
+    dc.l $c0c0c000,$000000c0
+    dc.l $c0c0c000,$0000c000
+    dc.l $c0c0c000,$0000c0c0
+    dc.l $c0c0c000,$00c00000
+    dc.l $c0c0c000,$00c000c0
+    dc.l $c0c0c000,$00c0c000
+    dc.l $c0c0c000,$00c0c0c0
+    dc.l $c0c0c000,$c0000000
+    dc.l $c0c0c000,$c00000c0
+    dc.l $c0c0c000,$c000c000
+    dc.l $c0c0c000,$c000c0c0
+    dc.l $c0c0c000,$c0c00000
+    dc.l $c0c0c000,$c0c000c0
+    dc.l $c0c0c000,$c0c0c000
+    dc.l $c0c0c000,$c0c0c0c0
+    dc.l $c0c0c0c0,$00000000
+    dc.l $c0c0c0c0,$000000c0
+    dc.l $c0c0c0c0,$0000c000
+    dc.l $c0c0c0c0,$0000c0c0
+    dc.l $c0c0c0c0,$00c00000
+    dc.l $c0c0c0c0,$00c000c0
+    dc.l $c0c0c0c0,$00c0c000
+    dc.l $c0c0c0c0,$00c0c0c0
+    dc.l $c0c0c0c0,$c0000000
+    dc.l $c0c0c0c0,$c00000c0
+    dc.l $c0c0c0c0,$c000c000
+    dc.l $c0c0c0c0,$c000c0c0
+    dc.l $c0c0c0c0,$c0c00000
+    dc.l $c0c0c0c0,$c0c000c0
+    dc.l $c0c0c0c0,$c0c0c000
+    dc.l $c0c0c0c0,$c0c0c0c0
+draw_uv_tri:
+    rts
 uv_ymin:  dc.w 0
 uv_ymax:  dc.w 0
 uv_tmp:   dc.w 0
