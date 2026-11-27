@@ -14,6 +14,19 @@
 
 ---
 
+
+## Platforma docelowa v1.15.0 i wsparcie dla innych systemów
+
+Od wersji **`v1.15.0`** nowe moduły silnika (`voxel_space.i`, `cinematic_fx.i`, `thea1200_hw.i`, `flight_ctrl.i` oraz 32-bitowy potok `FULL_RES` C2P) są rozwijane **wyłącznie pod architekturę THEA1200 (`MC68040 + Fast RAM + AGA`, pełny PAL `320×256`, 256 kolorów)**.
+
+- **Kompatybilne konfiguracje dla pełnego silnika `v1.15.0`:**
+  - Konsola **THEA1200** (natywny profil `--profile thea1200`).
+  - Prawdziwa **Amiga 1200 / Amiga 4000 (AGA)** wyposażona w kartę turbo **`MC68040` lub `MC68060`** oraz pamięć **Fast RAM** (paczki `.LHA` / WHDLoad).
+  - **Amiberry**, **FS-UAE** oraz **WinUAE** skonfigurowane jako `A1200 + 68040/060 + Fast RAM + AGA`.
+- **Co z pozostałymi platformami:**
+  - **Bazowa Amiga 1200 (`68EC020` bez Fast RAM):** obsługuje wyłącznie starszy, okrojony tryb demonstracyjny `320×128` (`--profile standard`) bez nowych modułów `v1.15.0`.
+  - **Amiga 500 / 600 (`OCS/ECS`):** brak wsparcia (silnik wymaga 256-kolorowego chipsetu **AGA** oraz procesora **M68020+ / M68040**).
+
 ## Pobieranie (v1.15.0 — 3 Obozy Wydawnicze)
 
 | Obóz / Profil (`--profile`) | Platforma docelowa | Paczki do pobrania |

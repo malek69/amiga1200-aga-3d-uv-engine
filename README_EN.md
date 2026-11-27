@@ -14,6 +14,19 @@
 
 ---
 
+
+## Target Platform (v1.15.0) & Other Hardware Support
+
+Starting with **`v1.15.0`**, all new engine modules (`voxel_space.i`, `cinematic_fx.i`, `thea1200_hw.i`, `flight_ctrl.i`, and the 32-bit `FULL_RES` C2P pipeline) are developed **exclusively for the THEA1200 architecture (`MC68040 + Fast RAM + AGA`, full PAL `320×256`, 256 colors)**.
+
+- **Compatible setups for the full `v1.15.0` engine:**
+  - **THEA1200** console (native `--profile thea1200` build).
+  - **Real Amiga 1200 / Amiga 4000 (AGA)** equipped with an **`MC68040` or `MC68060` accelerator** and **Fast RAM** (via `.LHA` / WHDLoad).
+  - **Amiberry**, **FS-UAE**, and **WinUAE** configured as `A1200 + 68040/060 + Fast RAM + AGA`.
+- **What about other platforms:**
+  - **Stock Amiga 1200 (`68EC020` without Fast RAM):** limited strictly to the legacy `320×128` demo profile (`--profile standard`) without the `v1.15.0` expansion modules.
+  - **Amiga 500 / 600 (`OCS/ECS`):** not supported (the engine requires the 256-color **AGA** chipset and an **M68020+ / M68040** CPU).
+
 ## Downloads (v1.15.0 — 3 Target Profiles)
 
 | Target Profile (`--profile`) | Target Hardware | Download Packages |
