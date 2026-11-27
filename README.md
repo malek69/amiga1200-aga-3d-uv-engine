@@ -125,6 +125,10 @@
 | **`starfield.i`** | Gwiezdziste tlo 3D | 256 wielowarstwowych gwiazd z paralaksa glebi |
 | **`hud_fps.i`** | Nakladka HUD i pomoc | Pomiar klatek na sekunde (`FPS:XX` z VBL `50 Hz`, klawisz `I`), zmiana jezyka `PL/ENG` (`L`) oraz panel pomocy (`H`) |
 | **`input_ctrl.i`** | Klawiatura i Joystick | Bezposredni odczyt CIA-A (`$BFEC01` + impuls `ACK`) oraz portu 2 joysticka (`JOY1DAT` + `Fire`) |
+| **`voxel_space.i`** | Teren 3D Voxel Space 360° | Przyrostowy raymarching 68040 (`vx_row_lut`), pochylenie horyzontu `cam_pitch`, 320-kolumnowy bufor głębokości `vx_ybuf` oraz falujące odbicia na wodzie |
+| **`cinematic_fx.i`** | Silnik filmowy i dialogowy | Kinowe pasy letterbox, okno dialogowe z efektem maszyny do pisania, animowany portret postaci oraz płynna interpolacja kamery |
+| **`thea1200_hw.i`** | Sprzęt THEA1200 i paleta AGA | 24-bitowy fader i oświetlenie nastroju na 8 bankach palety AGA (`BPLCON3`), obsługa myszy (`$DFF00A` + LPM) oraz 2-przyciskowego pada (`$DFF016`) |
+| **`flight_ctrl.i`** | Kontroler lotu 3D 360° | Płynny obrót 360° z przechyłem skrzydeł, pochylenie horyzontu `cam_pitch` oraz ochrona przed kolizją z powierzchnią terenu |
 | **`pt_player.i`** | Odtwarzacz ProTracker | 4-kanalowy odtwarzacz modulow `.MOD` z DMA Paula (`16 497 Hz`) |
 
 ---

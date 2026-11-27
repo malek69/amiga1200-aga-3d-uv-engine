@@ -2,6 +2,17 @@
 
 # Changelog
 
+## [v1.15.0] - 2026-11-27
+
+| <img src="docs/shot_v1150_1.png" width="240"> | <img src="docs/shot_v1150_2.png" width="240"> | <img src="docs/shot_v1150_3.png" width="240"> |
+|:---:|:---:|:---:|
+| **1. Cinema Letterbox & 24-Bit AGA Fade** | **2. Narrative & Portrait Engine (`cinematic_fx.i`)** | **3. 360° Voxel Space, Water & Gouraud 3D Meshes** |
+
+- **360° Voxel Space 3D Terrain for MC68040 (`engine/voxel_space.i`):** incremental raymarching eliminating `muls.w` from the inner ray loop, `vx_row_lut` row address LUT, dynamic horizon pitch (`cam_pitch`), 320-column depth buffer (`vx_ybuf`), and animated sky reflections on water surfaces.
+- **Gouraud 3D Meshes, Terrain Shadows & Particles (`engine/vec3d_engine.i`, `engine/aura3d_v2.i`):** 3D polygon rendering with `movem.l` Z-buffer clear, terrain-projected shadows underneath 3D objects (`vec3d_draw_ground_shadow`), 360° sun with atmospheric corona, 360° clouds, 32-slot 3D particle system, and Bresenham 2D line rasterizer.
+- **Cinematic & Narrative Engine (`engine/cinematic_fx.i`):** smooth letterbox bar open/retract, dialogue box with animated portrait and typewriter text reveal, plus smooth camera interpolation.
+- **THEA1200 Hardware Layer & 32-Bit C2P (`engine/thea1200_hw.i`, `engine/flight_ctrl.i`, `engine/c2p_chunky.i`):** full 32-bit C2P pipeline for `FULL_RES` (`320×256 AGA`), 24-bit 8-bank AGA palette fader & mood tinting (`BPLCON3`), mouse (`$DFF00A` + LMB) & multi-button gamepad (`$DFF016`) support, and 360° flight controller with wing bank and ground collision floor protection.
+
 ## [v1.14.5] - 2026-11-25
 - **3D Voxel Space Terrain & Volumetric Clouds (`engine/voxel_space.i`):** Y-buffer column raycaster ported from *Aether Falcon: Vanguard* featuring 3 terrain biomes (archipelago, mountain canyon, volcanic citadel) and 16 3D cloud formations.
 - **Unified MC68060 WHDLoad Slave (`engine/whdload_slave.s`):** `$0026` flags, **7.5 MB Fast RAM** (`$00780000`), and 32-bit **`CACR = $A0808000`** (*Superscalar*, *Branch Target Cache*, *Instruction/Data Cache*).

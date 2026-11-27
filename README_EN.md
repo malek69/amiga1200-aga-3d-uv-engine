@@ -121,6 +121,10 @@
 | **`starfield.i`** | 3D Starfield Background | 256 multi-layer depth-parallax stars |
 | **`hud_fps.i`** | Bilingual HUD & Help | `50 Hz` VBL frame rate counter (`FPS:XX`, key `I`), `PL/ENG` switcher (`L`), and help overlay (`H`) |
 | **`input_ctrl.i`** | Keyboard & Joystick Input | Direct hardware reading of CIA-A (`$BFEC01` + `ACK` pulse) and Joystick Port 2 (`JOY1DAT` + `Fire`) |
+| **`voxel_space.i`** | 360° Voxel Space 3D Terrain | Incremental 68040 raymarching (`vx_row_lut`), dynamic horizon pitch (`cam_pitch`), 320-column depth buffer (`vx_ybuf`), and animated water reflections |
+| **`cinematic_fx.i`** | Cinematic & Dialogue Engine | Cinema letterbox bars, typewriter dialogue panel, animated character portrait renderer, and smooth camera interpolation |
+| **`thea1200_hw.i`** | THEA1200 Hardware & AGA Palette | 24-bit 8-bank AGA palette fader & mood tinting (`BPLCON3`), mouse (`$DFF00A` + LMB), and multi-button gamepad (`$DFF016`) hot-swap |
+| **`flight_ctrl.i`** | 360° 3D Flight Controller | Smooth 360° yaw with wing bank, horizon pitch (`cam_pitch`), and terrain collision floor protection |
 | **`pt_player.i`** | ProTracker Music Player | 4-channel Paula audio DMA `.MOD` replayer (`16,497 Hz`) |
 
 ---

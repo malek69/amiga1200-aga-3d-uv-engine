@@ -1,5 +1,16 @@
 # Changelog
 
+## [v1.15.0] - 2026-11-27
+
+| <img src="docs/shot_v1150_1.png" width="240"> | <img src="docs/shot_v1150_2.png" width="240"> | <img src="docs/shot_v1150_3.png" width="240"> |
+|:---:|:---:|:---:|
+| **1. Kinowy Letterbox & 24-Bit AGA Fade** | **2. Moduł Narracyjny & Portret (`cinematic_fx.i`)** | **3. Voxel Space 360°, Woda & Bryły 3D Gouraud** |
+
+- **Teren Voxel Space 3D 360° pod MC68040 (`engine/voxel_space.i`):** przyrostowy raymarching bez mnożenia `muls.w` w wewnętrznej pętli promienia, szybka tablica wierszy `vx_row_lut`, pochylenie horyzontu `cam_pitch`, 320-kolumnowy bufor głębokości `vx_ybuf` oraz falujące odbicia nieba na tafli wody.
+- **Obiekty 3D Gouraud, Cienie na Terenie i Cząsteczki (`engine/vec3d_engine.i`, `engine/aura3d_v2.i`):** rzutowanie siatek wielokątnych 3D z testem Z-bufora (`movem.l`), cienie rzucane pod obiektami na zbocza gór (`vec3d_draw_ground_shadow`), słońce 360° z poświatą (*Corona*), warstwa chmur 360°, system 32 cząsteczek 3D oraz rasteryzer linii Bresenhama.
+- **Silnik Filmowy i Narracyjny (`engine/cinematic_fx.i`):** płynnie wysuwane i chowane pasy panoramiczne letterbox, okno dialogowe z ramką portretu, efektem maszyny do pisania i animacją ust postaci oraz płynny choreograf kamery.
+- **Warstwa Sprzętowa THEA1200 i 32-Bit C2P (`engine/thea1200_hw.i`, `engine/flight_ctrl.i`, `engine/c2p_chunky.i`):** pełny potok 32-bitowy C2P dla profilu `FULL_RES` (`320×256 AGA`), 24-bitowy fader i oświetlenie nastroju na 8 bankach palety AGA (`BPLCON3`), obsługa myszy (`$DFF00A` + LPM) oraz 2-przyciskowego pada (`$DFF016`), a także kontroler lotu 360° z przechyłem skrzydeł i ochroną przed kolizją z terenem.
+
 ## [v1.14.5] - 2026-11-25
 - **Silnik Terenu Wokselowego 3D i Chmur Wolumetrycznych (`engine/voxel_space.i`):** raycaster *Voxel Space* (Y-buffer horyzontu) przeniesiony z *Aether Falcon: Vanguard* z 3 biomami (archipelag, kanion górski, cytadela wulkaniczna) oraz 16 formacjami chmur 3D.
 - **Zunifikowany WHDLoad Slave dla MC68060 (`engine/whdload_slave.s`):** flaga `$0026`, **7.5 MB Fast RAM** (`$00780000`) oraz 32-bitowy rejestr **`CACR = $A0808000`** (*Superscalar*, *Branch Target Cache*, *Instruction/Data Cache*).
